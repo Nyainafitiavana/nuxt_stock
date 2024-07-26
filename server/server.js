@@ -20,6 +20,9 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
+// Serve static files from the Nuxt build output
+app.use(express.static(path.join(__dirname, '../.output/public')));
+
 // Endpoint to fetch users
 app.get('/api/users', (req, res) => {
     fs.readFile(USERS_FILE, (err, data) => {
