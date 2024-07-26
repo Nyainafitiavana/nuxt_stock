@@ -1,6 +1,6 @@
-import { resolve } from "path";
+// https://nuxt.com/docs/api/configuration/nuxt-config
+import {resolve} from "path";
 import svgLoader from 'vite-svg-loader';
-
 export default defineNuxtConfig({
   nitro: {
     output: {
@@ -8,8 +8,9 @@ export default defineNuxtConfig({
     }
   },
   devtools: { enabled: true },
+
   alias: {
-    assets: resolve(__dirname, 'assets'),
+    assets: "/<rootDir>/assets",
   },
   compatibilityDate: "2024-07-03",
   postcss: {
@@ -23,7 +24,4 @@ export default defineNuxtConfig({
   antd: {
     // Options
   },
-  vite: {
-    plugins: [svgLoader()]
-  }
-});
+})
