@@ -5,6 +5,11 @@
   font-weight: 500;
 }
 
+.btn-tab {
+  padding: 8px;
+  border-radius: 4px;
+}
+
 .btn--primary {
   @extend .btn;
   background-color: $primary-color;

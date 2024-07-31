@@ -64,46 +64,34 @@ const navigateTo = (route: string) => {
         class="sider"
         :style="{ width: siderWidth, transition: 'width 0.2s' }"
     >
-      <div class="logo flex justify-start mt-2" @click="() => navigateTo(RouteList.HOME)">
+      <div class="logo flex justify-start mt-2">
         <img src="/favicon.ico" alt="" class="ml-2">
         <h1 class="text-white pt-2 ml-2" v-if="!collapsed">Stock App</h1>
       </div>
       <a-menu :class="collapsed ? '' : 'mt-5'" v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
-        <a-menu-item key="1" v-if="isAdmin === 'true'">
-          <NuxtLink :to="RouteList.DASHBOARD">
+        <a-menu-item key="1" v-if="isAdmin === 'true'" @click="() => navigateTo(RouteList.DASHBOARD)">
             <BarChartOutlined style="font-size: 18px;" />
             <span>Dashboard</span>
-          </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="2">
-          <NuxtLink :to="`${RouteList.PROFILE}/${userId}`">
+        <a-menu-item key="2" @click="() => navigateTo(`${RouteList.PROFILE}/${userId}`)">
             <user-outlined style="font-size: 18px;" />
             <span>Profile</span>
-          </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="3" v-if="isAdmin === 'true'">
-          <NuxtLink :to="RouteList.USER">
+        <a-menu-item key="3" v-if="isAdmin === 'true'" @click="() => navigateTo(RouteList.USER)">
             <UsergroupAddOutlined style="font-size: 18px;" />
             <span>User</span>
-          </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="4" v-if="isAdmin === 'true'">
-          <NuxtLink :to="RouteList.CATEGORY">
+        <a-menu-item key="4" v-if="isAdmin === 'true'" @click="() => navigateTo(RouteList.CATEGORY)">
             <AppstoreOutlined style="font-size: 18px;" />
             <span>Category</span>
-          </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="5" v-if="isAdmin === 'true'">
-          <NuxtLink :to="RouteList.PRODUCT">
+        <a-menu-item key="5" v-if="isAdmin === 'true'" @click="() => navigateTo(RouteList.PRODUCT)">
             <ShopOutlined style="font-size: 18px;" />
             <span>Product</span>
-          </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="6">
-          <NuxtLink :to="RouteList.INVENTORY">
+        <a-menu-item key="6" @click="() => navigateTo(RouteList.INVENTORY)">
             <ShoppingCartOutlined style="font-size: 18px;" />
             <span>Inventory</span>
-          </NuxtLink>
         </a-menu-item>
       </a-menu>
     </a-layout-sider>
@@ -143,18 +131,6 @@ const navigateTo = (route: string) => {
   background: #001529; /* Background color of the sider */
   z-index: 1; /* Ensure the sider is above other content */
   transition: width 0.2s; /* Smooth transition for width changes */
-}
-
-.trigger {
-  font-size: 18px;
-  line-height: 64px;
-  padding: 0 24px;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.trigger:hover {
-  color: #1890ff;
 }
 
 .logo {
