@@ -1,5 +1,4 @@
 export const API = {
-    "LIST_USER" : "/api/users",
-    "REGISTER" : "/api/register",
-    "LOGIN" : "/api/login"
+    "USER" : "/api/user",
+    "LOGIN" : "/api/auth/login",
 }

@@ -6,7 +6,6 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "start": "nuxt start",
-    "start-server": "node server/server.js",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
@@ -14,9 +13,6 @@
   "dependencies": {
     "@ant-design-vue/nuxt": "^1.4.2",
     "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "fs": "^0.0.1-security",
     "nuxt": "^3.12.3",
     "nuxt-highcharts": "^3.1.1",
     "sass": "^1.77.6",

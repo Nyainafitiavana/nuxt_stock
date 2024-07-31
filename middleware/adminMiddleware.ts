@@ -2,8 +2,8 @@ import { defineNuxtRouteMiddleware, navigateTo } from 'nuxt/app';
 
 export default defineNuxtRouteMiddleware(() => {
     if (typeof window !== 'undefined') {
-        const userRole = localStorage.getItem('role');
-        if (!userRole || userRole !== 'ADMIN') {
+        const isAdmin = localStorage.getItem('is_admin');
+        if (!isAdmin || isAdmin !== 'true') {
             window.location.href = RouteList.LOGIN;
         }
     }

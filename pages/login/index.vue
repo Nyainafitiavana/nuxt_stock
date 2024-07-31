@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import type {IUser} from "~/composables/User/User.interface";
-  import {User} from "~/composables/User/User";
   import {loginUser} from "~/composables/Auth/auth.service";
+  import type {AuthInterface} from "~/composables/Auth/auth.interface";
   interface FormState {
     email: string;
     password: string;
@@ -16,10 +16,10 @@
     const {email, password} = values;
 
     try {
-      const data: { message: string; user: IUser } = await loginUser({email, password});
-      localStorage.setItem('userConnect', 'true');
-      localStorage.setItem('userId', data.user.id.toString());
-      localStorage.setItem('role', data.user.role.toString());
+      const data: AuthInterface = await loginUser({email, password});
+      localStorage.setItem('access_token', data.access_token);
+      localStorage.setItem('userId', data.id.toString());
+      localStorage.setItem('is_admin', data.is_admin.toString());
 
       notification.success({
         message: 'Login Successful',
@@ -27,10 +27,10 @@
         class: 'custom-success-notification'
       });
 
-      if (data.user.role == 'ADMIN') {
+      if (data.is_admin) {
         await router.push(RouteList.DASHBOARD);
       } else {
-        await router.push(RouteList.ORDER);
+        await router.push(RouteList.INVENTORY);
       }
 
     } catch (error) {
@@ -98,14 +98,6 @@
                   <a-form-item class="w-full">
                     <a-button class="btn btn--primary w-full" html-type="submit" size="large">Log in</a-button>
                   </a-form-item>
-                </a-row>
-                <a-row class="w-full mt-5">
-                  <a-col span="24 flex justify-center">
-                    <p>
-                      Or
-                      <span><NuxtLink :to="RouteList.REGISTER" class="primary-color">register now!</NuxtLink></span>
-                    </p>
-                  </a-col>
                 </a-row>
               </a-form>
             </a-col>

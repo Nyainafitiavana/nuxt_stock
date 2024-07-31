@@ -106,7 +106,11 @@
 
 <template>
   <div>
-    <ATypographyTitle style="font-size: 18px;">Dashboard</ATypographyTitle>
+    <Title>Dashboard</Title>
+    <ATypographyTitle class="flex" style="font-size: 20px;">
+      <user-outlined  />&nbsp;
+      <span>Dashboard</span>
+    </ATypographyTitle>
     <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
       <a-col class="gutter-row" :span="6">
         <div class="gutter-box">
