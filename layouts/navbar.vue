@@ -1,50 +1,62 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { RouteList } from '~/composables/Route';
 
 const selectedKeys = ref<string[]>(['1']);
 const collapsed = ref<boolean>(false);
 const route = useRoute();
+const router = useRouter();
 // Compute the width of the sider based on its collapsed state
 const siderWidth = computed(() => (collapsed.value ? '80px' : '200px'));
 
 // Adjust current menu with current route
-switch (route.path) {
-  case RouteList.DASHBOARD:
-    selectedKeys.value = ['1'];
-    break;
-  case RouteList.PROFILE:
-    selectedKeys.value = ['2'];
-    break;
-  case RouteList.USER:
-    selectedKeys.value = ['3'];
-    break;
-  case RouteList.CATEGORY:
-    selectedKeys.value = ['4'];
-    break;
-  case RouteList.PRODUCT:
-    selectedKeys.value = ['5'];
-    break;
-  case RouteList.INVENTORY:
-    selectedKeys.value = ['6'];
-    break;
-  default:
-    selectedKeys.value = ['2'];
-    break;
-}
+const updateSelectedKeys = () => {
+  switch (route.path) {
+    case RouteList.DASHBOARD:
+      selectedKeys.value = ['1'];
+      break;
+    case RouteList.PROFILE:
+      selectedKeys.value = ['2'];
+      break;
+    case RouteList.USER:
+      selectedKeys.value = ['3'];
+      break;
+    case RouteList.CATEGORY:
+      selectedKeys.value = ['4'];
+      break;
+    case RouteList.PRODUCT:
+      selectedKeys.value = ['5'];
+      break;
+    case RouteList.INVENTORY:
+      selectedKeys.value = ['6'];
+      break;
+    default:
+      selectedKeys.value = ['2'];
+      break;
+  }
+};
+
+onMounted(() => {
+  updateSelectedKeys();
+  isAdmin.value = localStorage.getItem("is_admin");
+  userId.value = localStorage.getItem("userId");
+});
 
 const isAdmin = ref<string | null>(null);
 const userId = ref<string | null>(null);
-//Get isAdmin of userConnect on the localstorage
-onMounted(() => {
-  isAdmin.value = localStorage.getItem("is_admin") ? localStorage.getItem("is_admin") : null;
-  userId.value = localStorage.getItem("userId") ? localStorage.getItem("userId") : null;
-});
+
+const toggleCollapse = () => {
+  collapsed.value = !collapsed.value;
+};
+
+const navigateTo = (route: string) => {
+  router.push(route);
+};
 </script>
 
 <template>
-  <a-layout has-sider>
+  <a-layout>
     <a-layout-sider
         v-model:collapsed="collapsed"
         :trigger="null"
@@ -57,31 +69,31 @@ onMounted(() => {
         <h1 class="text-white pt-2 ml-2" v-if="!collapsed">Stock App</h1>
       </div>
       <a-menu :class="collapsed ? '' : 'mt-5'" v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
-        <a-menu-item key="1" v-if="isAdmin && isAdmin == 'true'">
+        <a-menu-item key="1" v-if="isAdmin === 'true'">
           <NuxtLink :to="RouteList.DASHBOARD">
             <BarChartOutlined style="font-size: 18px;" />
             <span>Dashboard</span>
           </NuxtLink>
         </a-menu-item>
         <a-menu-item key="2">
-          <NuxtLink :to="`${RouteList.PROFILE}/${userId}`" >
+          <NuxtLink :to="`${RouteList.PROFILE}/${userId}`">
             <user-outlined style="font-size: 18px;" />
             <span>Profile</span>
           </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="3" v-if="isAdmin != null && isAdmin == 'true'">
+        <a-menu-item key="3" v-if="isAdmin === 'true'">
           <NuxtLink :to="RouteList.USER">
-            <UsergroupAddOutlined style="font-size: 18px;"/>
+            <UsergroupAddOutlined style="font-size: 18px;" />
             <span>User</span>
           </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="4" v-if="isAdmin != null && isAdmin == 'true'">
+        <a-menu-item key="4" v-if="isAdmin === 'true'">
           <NuxtLink :to="RouteList.CATEGORY">
             <AppstoreOutlined style="font-size: 18px;" />
             <span>Category</span>
           </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="5" v-if="isAdmin != null && isAdmin == 'true'">
+        <a-menu-item key="5" v-if="isAdmin === 'true'">
           <NuxtLink :to="RouteList.PRODUCT">
             <ShopOutlined style="font-size: 18px;" />
             <span>Product</span>
@@ -89,7 +101,7 @@ onMounted(() => {
         </a-menu-item>
         <a-menu-item key="6">
           <NuxtLink :to="RouteList.INVENTORY">
-            <ShoppingCartOutlined style="font-size: 18px;"/>
+            <ShoppingCartOutlined style="font-size: 18px;" />
             <span>Inventory</span>
           </NuxtLink>
         </a-menu-item>
@@ -101,13 +113,13 @@ onMounted(() => {
             v-if="collapsed"
             class="trigger"
             style="font-size: 20px;"
-            @click="() => (collapsed = !collapsed)"
+            @click="toggleCollapse"
         />
         <menu-fold-outlined
             v-else
             class="trigger"
             style="font-size: 20px;"
-            @click="() => (collapsed = !collapsed)"
+            @click="toggleCollapse"
         />
       </a-layout-header>
       <a-layout-content
@@ -123,35 +135,35 @@ onMounted(() => {
 </template>
 
 <style scoped>
-  .sider {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh; /* Full viewport height */
-    background: #001529; /* Background color of the sider */
-    z-index: 1; /* Ensure the sider is above other content */
-    transition: width 0.2s; /* Smooth transition for width changes */
-  }
+.sider {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh; /* Full viewport height */
+  background: #001529; /* Background color of the sider */
+  z-index: 1; /* Ensure the sider is above other content */
+  transition: width 0.2s; /* Smooth transition for width changes */
+}
 
-  .trigger {
-    font-size: 18px;
-    line-height: 64px;
-    padding: 0 24px;
-    cursor: pointer;
-    transition: color 0.3s;
-  }
+.trigger {
+  font-size: 18px;
+  line-height: 64px;
+  padding: 0 24px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
 
-  .trigger:hover {
-    color: #1890ff;
-  }
+.trigger:hover {
+  color: #1890ff;
+}
 
-  .logo {
-    height: 32px;
-    background: rgba(255, 255, 255, 0.2);
-    margin: 16px;
-  }
+.logo {
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 16px;
+}
 
-  .site-layout .site-layout-background {
-    background: #fff;
-  }
+.site-layout .site-layout-background {
+  background: #fff;
+}
 </style>
