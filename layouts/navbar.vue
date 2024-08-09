@@ -69,29 +69,41 @@ const navigateTo = (route: string) => {
         <h1 class="text-white pt-2 ml-2" v-if="!collapsed">Stock App</h1>
       </div>
       <a-menu :class="collapsed ? '' : 'mt-5'" v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
-        <a-menu-item key="1" v-if="isAdmin === 'true'" @click="() => navigateTo(RouteList.DASHBOARD)">
+        <a-menu-item key="1" v-if="isAdmin === 'true'">
+          <NuxtLink :to="RouteList.DASHBOARD">
             <BarChartOutlined style="font-size: 18px;" />
             <span>Dashboard</span>
+          </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="2" @click="() => navigateTo(`${RouteList.PROFILE}/${userId}`)">
+        <a-menu-item key="2">
+          <NuxtLink :to="`${RouteList.PROFILE}/${userId}`">
             <user-outlined style="font-size: 18px;" />
             <span>Profile</span>
+          </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="3" v-if="isAdmin === 'true'" @click="() => navigateTo(RouteList.USER)">
+        <a-menu-item key="3" v-if="isAdmin === 'true'">
+          <NuxtLink :to="RouteList.USER">
             <UsergroupAddOutlined style="font-size: 18px;" />
             <span>User</span>
+          </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="4" v-if="isAdmin === 'true'" @click="() => navigateTo(RouteList.CATEGORY)">
+        <a-menu-item key="4" v-if="isAdmin === 'true'">
+          <NuxtLink :to="RouteList.CATEGORY">
             <AppstoreOutlined style="font-size: 18px;" />
             <span>Category</span>
+          </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="5" v-if="isAdmin === 'true'" @click="() => navigateTo(RouteList.PRODUCT)">
+        <a-menu-item key="5" v-if="isAdmin === 'true'">
+          <NuxtLink :to="RouteList.PRODUCT">
             <ShopOutlined style="font-size: 18px;" />
             <span>Product</span>
+          </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="6" @click="() => navigateTo(RouteList.INVENTORY)">
+        <a-menu-item key="6">
+          <NuxtLink :to="RouteList.INVENTORY">
             <ShoppingCartOutlined style="font-size: 18px;" />
             <span>Inventory</span>
+          </NuxtLink>
         </a-menu-item>
       </a-menu>
     </a-layout-sider>
@@ -113,7 +125,11 @@ const navigateTo = (route: string) => {
       <a-layout-content
           :style="{ margin: '24px 16px 0', overflow: 'initial', padding: '24px', background: '#fff', minHeight: '800px' }"
       >
-        <slot />
+        <Suspense>
+          <template #default>
+            <slot />
+          </template>
+        </Suspense>
       </a-layout-content>
       <a-layout-footer style="text-align: center">
         Ny Aina Fitiavana FITAHIANTSOA ©2024

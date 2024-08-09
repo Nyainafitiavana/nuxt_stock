@@ -1,5 +1,29 @@
 import type {IUser} from "~/composables/User/User.interface";
 import {CustomError} from "~/composables/CustomError";
+import type {Paginate} from "~/composables/apiResponse.interface";
+
+export const getAllUser = async (keyword: string, pageSize: number, currentPage: number, status: 'ACT' | 'DLT'): Promise<Paginate<IUser[]>> => {
+    try {
+        const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
+        const accessToken: string | null = localStorage.getItem("access_token");
+        const response: any = await fetch(`${BASE_URL_API}${API.USER}?limit=${pageSize}&page=${currentPage}&value=${keyword}&status=${status}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new CustomError(errorData.message, response.status);
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+};
 
 export const getOneUser = async (id: string): Promise<IUser> => {
     try {
@@ -18,8 +42,7 @@ export const getOneUser = async (id: string): Promise<IUser> => {
             throw new CustomError(errorData.message, response.status);
         }
 
-        const user: IUser = await response.json();
-        return user;
+        return await response.json();
     } catch (error) {
         throw error;
     }

@@ -7,6 +7,7 @@ definePageMeta({
 </script>
 
 <template>
+  <Title>Order</Title>
   <h1>Order</h1>
 </template>
 

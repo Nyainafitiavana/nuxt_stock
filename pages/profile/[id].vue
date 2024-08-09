@@ -1,8 +1,9 @@
 <script setup lang="ts">
-  import type {IUser} from "~/composables/User/User.interface";
+import type {FormStateUser, IUser} from "~/composables/User/User.interface";
   import {getOneUser, insertOrUpdateUser} from "~/composables/User/user.service";
   import {handleInAuthorizedError} from "~/composables/CustomError";
-  import {ref} from "vue";
+  import {createVNode, ref} from "vue";
+  import {ExclamationCircleOutlined} from "#components";
 
   definePageMeta({
     layout: 'navbar',
@@ -14,13 +15,7 @@
 
   const route = useRoute();
 
-  interface FormState {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-  }
-  const formState = reactive<FormState>({
+  const formState = reactive<FormStateUser>({
     firstName: '',
     lastName: '',
     email: '',
@@ -61,17 +56,31 @@
     }
   }
 
-  const onModify = async (values: FormState) => {
+  const onSubmitForm = async () => {
+    Modal.confirm({
+      title: 'Confirmation Required',
+      icon: createVNode(ExclamationCircleOutlined),
+      content: 'Are you sure you want to proceed? This action is irreversible.',
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk: async () => {
+        await updateProfile();
+      }
+    });
+  };
+
+  const updateProfile = async () => {
+    const values: FormStateUser = formState;
     const dataForm: IUser = {
       email: values.email,
       firstName: values.firstName,
       lastName: values.lastName,
       phone: values.phone,
-    }
-    //run loading spin
-    isLoading.value = true;
+    };
 
     try {
+      //run loading spin
+      isLoading.value = true;
       const userId: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
       await insertOrUpdateUser(dataForm, userId, 'PATCH');
       // Show success notification
@@ -99,7 +108,7 @@
         class: 'custom-error-notification'
       });
     }
-  };
+  }
 </script>
 
 <template>
@@ -117,7 +126,7 @@
             name="basic"
             layout="inline"
             autocomplete="off"
-            @finish="onModify"
+            @finish="onSubmitForm"
         >
           <a-form-item
               name="email"

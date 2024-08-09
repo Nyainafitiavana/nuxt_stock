@@ -1,10 +1,14 @@
 <script setup lang="ts">
 
+  import {ref} from "vue";
+
   definePageMeta({
     layout: 'navbar',
     title: 'Dashboard',
     middleware: ['user-middleware', 'admin-middleware']
   });
+
+  const isLoading = ref<boolean>(true);
 
   //Call chart function
   const chartAreaOptions = computed(() => ({
@@ -102,6 +106,10 @@
       }]
     }]
   }));
+
+  onMounted(async () => {
+      isLoading.value = false;
+  });
 </script>
 
 <template>
@@ -111,7 +119,8 @@
       <user-outlined  />&nbsp;
       <span>Dashboard</span>
     </ATypographyTitle>
-    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+    <Loading :is-loading="isLoading" :size="'large'"/>
+    <a-row v-if="!isLoading" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
       <a-col class="gutter-row" :span="6">
         <div class="gutter-box">
           <ACard class="card-space">
@@ -153,7 +162,7 @@
         </div>
       </a-col>
     </a-row>
-    <a-row class="mt-8" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+    <a-row v-if="!isLoading" class="mt-8" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
       <a-col class="gutter-row" :span="14">
         <div class="gutter-box">
           <ACard class="card-space">

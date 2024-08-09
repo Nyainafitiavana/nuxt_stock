@@ -6,3 +6,11 @@ export interface IUser {
     email: string;
     phone: string;
 }
+export interface FormStateUser {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    isAdmin?: boolean;
+    password?: string;
+}
