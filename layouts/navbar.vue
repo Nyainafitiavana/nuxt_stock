@@ -83,7 +83,7 @@ const navigateTo = (route: string) => {
         </a-menu-item>
         <a-menu-item key="3" v-if="isAdmin === 'true'">
           <NuxtLink :to="RouteList.USER">
-            <UsergroupAddOutlined style="font-size: 18px;" />
+            <TeamOutlined style="font-size: 18px;" />
             <span>User</span>
           </NuxtLink>
         </a-menu-item>

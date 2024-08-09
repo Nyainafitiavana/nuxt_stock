@@ -68,8 +68,32 @@ export const insertOrUpdateUser = async (data: IUser, id: string | null, method:
             throw new CustomError(errorData.message, response.status);
         }
 
-        const newUser: IUser = await response.json();
-        return newUser;
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const deleteUserService = async (id: string | null): Promise<IUser> => {
+    try {
+        const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
+        const path: string = `${BASE_URL_API}${API.USER}/${id}`;
+        const accessToken: string | null = localStorage.getItem("access_token");
+
+        const response: any = await fetch(path, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new CustomError(errorData.message, response.status);
+        }
+
+        return await response.json();
     } catch (error) {
         throw error;
     }

@@ -6,16 +6,16 @@ import {
   EyeOutlined,
   FormOutlined,
   PlusOutlined,
-  SearchOutlined
+  SearchOutlined, TeamOutlined, UserOutlined
 } from "#components";
-  import type {FormStateUser, IUser} from "~/composables/User/User.interface";
-  import type {SelectValue} from "ant-design-vue/es/select";
-  import {handleInAuthorizedError} from "~/composables/CustomError";
-  import {getAllUser, getOneUser, insertOrUpdateUser} from "~/composables/User/user.service";
-  import type {Paginate} from "~/composables/apiResponse.interface";
-  import type {FormInstance} from "ant-design-vue";
+import type {FormStateUser, IUser} from "~/composables/User/User.interface";
+import type {SelectValue} from "ant-design-vue/es/select";
+import {handleInAuthorizedError} from "~/composables/CustomError";
+import {deleteUserService, getAllUser, insertOrUpdateUser} from "~/composables/User/user.service";
+import type {Paginate} from "~/composables/apiResponse.interface";
+import type {FormInstance} from "ant-design-vue";
 
-  definePageMeta({
+definePageMeta({
     layout: 'navbar',
     title: 'Users',
     middleware: ['user-middleware', 'admin-middleware']
@@ -41,13 +41,58 @@ import {
       title: 'Phone',
       dataIndex: 'phone',
       key: 'phone',
+      customRender: ({ text }: { text: string }) => text ? text : '---'
     },
     {
       title: 'Role',
       dataIndex: 'isAdmin',
       key: 'isAdmin',
       width: 150,
-      customRender: ({ text }: { text: boolean }) => text ? 'Admin' : 'Sale Manager'
+      customRender: ({ text }: { text: boolean }) => text ?
+      h(
+        'div',
+  { class : 'flex' },
+[
+          h(
+              'div',
+              {
+                class : 'success-color',
+                style: 'font-size: 20px;'
+              },
+              [h(UserOutlined)]
+          ),
+          h(
+              'div',
+              {
+                class : 'success-secondary mt-3 ml-1',
+                style: 'font-size: 15px;'
+              },
+              ['Admin']
+          )
+        ]
+      ) :
+        h(
+          'div',
+          { class : 'flex' },
+          [
+            h(
+                'div',
+                {
+                  class : 'warning-color',
+                  style: 'font-size: 20px;'
+                },
+                [h(TeamOutlined)]
+            ),
+            h(
+                'div',
+                {
+                  class : 'success-secondary mt-3 ml-1',
+                  style: 'font-size: 15px;'
+                },
+                ['Manager']
+            )
+          ]
+        )
     },
     {
       title: 'Actions',
@@ -87,6 +132,7 @@ import {
   const isEdit = ref<boolean>(false);
   const isView = ref<boolean>(false);
   const formRef = ref<FormInstance>();
+  const userId = ref<string>('');
   const formState = reactive<FormStateUser>({
     firstName: '',
     lastName: '',
@@ -96,79 +142,222 @@ import {
     isAdmin: false
   });
 
+  //**********Reset all value and validator form*******
   const resetForm = () => {
     if (formRef.value) {
       formRef.value.resetFields();
     }
   };
 
+  //************Beginning of modal actions*********************
   const handleShowModal = (isEditMode: boolean, isViewMode: boolean) => {
     isEdit.value = isEditMode;
     isView.value = isViewMode;
     isOpenModal.value = true;
   }
 
+  const handleCloseModal = () => {
+  resetForm();
+  isOpenModal.value = false;
+}
+  //************End of modal actions*********************
+
+  //************Add user button action*********
   const handleAddUser = () => {
     resetForm();
+    formState.firstName = '';
+    formState.lastName = '';
+    formState.email = '';
+    formState.phone = '';
+    formState.isAdmin = false;
     handleShowModal(false, false);
   }
 
-  const handleCloseModal = () => {
+
+  //************Beginning of actions datatable button method**********
+  const handleView = (record: IUser) => {
     resetForm();
-    isOpenModal.value = false;
-  }
+    formState.firstName = record.firstName;
+    formState.lastName = record.lastName;
+    formState.email = record.email;
+    formState.phone = record.phone;
+    formState.isAdmin = record.isAdmin;
 
-const onSubmitForm = async () => {
-  Modal.confirm({
-    title: 'Confirmation Required',
-    icon: createVNode(ExclamationCircleOutlined),
-    content: 'Are you sure you want to proceed? This action is irreversible.',
-    okText: 'Yes',
-    cancelText: 'No',
-    onOk: async () => {
-      loadingBtn.value = true;
-      await insertUser();
+    handleShowModal(false, true);
+  };
+
+  const handleEdit = (record: IUser) => {
+    resetForm();
+    formState.firstName = record.firstName;
+    formState.lastName = record.lastName;
+    formState.email = record.email;
+    formState.phone = record.phone;
+    formState.isAdmin = record.isAdmin;
+
+    if (record.uuid != null) {
+      userId.value = record.uuid;
     }
-  });
-};
 
-const insertUser = async () => {
-  const dataForm: FormStateUser = formState;
+    handleShowModal(true, false);
+  };
 
-  try {
-    //the params userId is null here because we are in the insert method
-    await insertOrUpdateUser(dataForm, null, 'POST');
-    loadingBtn.value = false;
-    isOpenModal.value = false;
+  const handleDelete = (record: IUser) => {
+    if (record.uuid != null) {
+      userId.value = record.uuid;
+    }
 
-    // Show success notification
-    notification.success({
-      message: 'Success',
-      description: 'Operation Successful!',
-      class: 'custom-success-notification'
-    });
-
-    //reload data
-    await getAllDataUser();
-  } catch (error) {
-    //Verification code status if equal 401 then we redirect to log in
-    if (error instanceof CustomError) {
-      if (error.status === 401) {
-        //call the global handle action if in authorized
-        handleInAuthorizedError(error);
-        return;
+    Modal.confirm({
+      title: 'Confirmation Required',
+      icon: createVNode(ExclamationCircleOutlined),
+      content: 'Are you sure you want to proceed? This action is irreversible.',
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk: async () => {
+        loadingBtn.value = true;
+        await deleteUser();
       }
-    }
-
-    // Show error notification
-    notification.error({
-      message: 'Error',
-      description: (error as Error).message,
-      class: 'custom-error-notification'
     });
-  }
-}
+  };
+  //************End of actions datatable button method**********
 
+  //*******Global method on submit user form********************
+  const onSubmitForm = async () => {
+    Modal.confirm({
+      title: 'Confirmation Required',
+      icon: createVNode(ExclamationCircleOutlined),
+      content: 'Are you sure you want to proceed? This action is irreversible.',
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk: async () => {
+        loadingBtn.value = true;
+
+        if (isEdit.value) {
+          await updateUser();
+        } else {
+          await insertUser();
+        }
+      }
+    });
+  };
+
+  //******************Beginning of CRUD controller**************
+  const insertUser = async () => {
+    const dataForm: FormStateUser = formState;
+
+    try {
+      //the params userId is null here because we are in the insert method
+      await insertOrUpdateUser(dataForm, null, 'POST');
+      //turn off of loading button and close modal
+      loadingBtn.value = false;
+      isOpenModal.value = false;
+
+      // Show success notification
+      notification.success({
+        message: 'Success',
+        description: 'Operation Successful!',
+        class: 'custom-success-notification'
+      });
+
+      //reload data
+      await getAllDataUser();
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: 'Error',
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+    }
+  }
+
+  const updateUser = async () => {
+    const values: FormStateUser = formState;
+    const dataForm: IUser = {
+      email: values.email,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      phone: values.phone,
+      isAdmin: values.isAdmin,
+    };
+
+    try {
+      //Call operation API in service
+      await insertOrUpdateUser(dataForm, userId.value, 'PATCH');
+      //turn off of loading button and close modal
+      loadingBtn.value = false;
+      isOpenModal.value = false;
+      // Show success notification
+      notification.success({
+        message: 'Success',
+        description: 'Operation Successful!',
+        class: 'custom-success-notification'
+      });
+
+      //reload data
+      await getAllDataUser();
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to login
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: 'Error',
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+    }
+  }
+
+  const deleteUser = async () => {
+
+    try {
+      //Call operation API in service
+      await deleteUserService(userId.value);
+      //turn off of loading button and close modal
+      loadingBtn.value = false;
+      isOpenModal.value = false;
+      // Show success notification
+      notification.success({
+        message: 'Success',
+        description: 'Operation Successful!',
+        class: 'custom-success-notification'
+      });
+
+      //reload data
+      await getAllDataUser();
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to login
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: 'Error',
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+    }
+  }
 
   const getAllDataUser = async () => {
     try {
@@ -195,7 +384,9 @@ const insertUser = async () => {
       });
     }
   }
+  //******************End of CRUD controller********************
 
+  //******************Beginning of filter and paginator methods****
   const handleClickPaginator = () => {
     getAllDataUser();
   };
@@ -210,26 +401,8 @@ const insertUser = async () => {
     currentPage.value = 1;
     getAllDataUser();
   }
+  //******************End filter of and paginator methods****
 
-  // Define the methods for button actions
-  const handleView = (record: IUser) => {
-    resetForm();
-    formState.firstName = record.firstName;
-    formState.lastName = record.lastName;
-    formState.email = record.email;
-    formState.phone = record.phone;
-    formState.isAdmin = record.isAdmin;
-
-    handleShowModal(false, true);
-  };
-
-  const handleEdit = (record: IUser) => {
-    message.info(`Editing details of ${record.firstName} ${record.lastName}`);
-  };
-
-  const handleDelete = (record: IUser) => {
-    message.warn(`Deleting ${record.firstName} ${record.lastName}`);
-  };
 
   onMounted(() => {
     getAllDataUser();
@@ -238,15 +411,12 @@ const insertUser = async () => {
 
 <template>
   <Title>User</Title>
-  <a-row>
-    <a-col span="24" class="flex justify-start" >
-      <user-outlined style="font-size: 20px;"/>
-      <ATypographyTitle class="mt-3 ml-2" style="font-size: 20px;">User</ATypographyTitle>
-    </a-col>
-  </a-row>
-
+  <ATypographyTitle class="flex" style="font-size: 20px;">
+    <TeamOutlined/>&nbsp;
+    <span>User</span>
+  </ATypographyTitle>
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-    <a-col class="mt-8" span="4">
+    <a-col class="mt-8" span="5">
       <a-select
           ref="select"
           v-model:value="pageSize"
@@ -259,7 +429,7 @@ const insertUser = async () => {
       </a-select>
       <span> entries per page</span>
     </a-col>
-    <a-col class="mt-8" span="8">
+    <a-col class="mt-8" span="7">
       <a-button :icon="h(PlusOutlined)" @click="handleAddUser" class="btn--success ml-5">Add new</a-button>
     </a-col>
     <a-col class="mt-8 flex justify-end" span="12">
@@ -320,7 +490,7 @@ const insertUser = async () => {
             <a-row>
               <a-col span="5"><label for="basic_email"><span class="required_toil">*</span> Email:</label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.email" size="large" placeholder="E-mail"></a-input>
+                <a-input v-model:value="formState.email" size="large" placeholder="E-mail" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -333,7 +503,7 @@ const insertUser = async () => {
             <a-row>
               <a-col span="5"><label for="basic_firstName"><span class="required_toil">*</span> First Name:</label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.firstName" size="large" placeholder="First Name"></a-input>
+                <a-input v-model:value="formState.firstName" size="large" placeholder="First Name" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -346,7 +516,7 @@ const insertUser = async () => {
             <a-row>
               <a-col span="5"><label for="basic_lastName"><span class="required_toil">*</span> Last Name:</label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.lastName" size="large" placeholder="Last Name"></a-input>
+                <a-input v-model:value="formState.lastName" size="large" placeholder="Last Name" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -358,7 +528,7 @@ const insertUser = async () => {
             <a-row>
               <a-col span="5"><label for="basic_phone">Phone number: </label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.phone" size="large" placeholder="Phone number"></a-input>
+                <a-input v-model:value="formState.phone" size="large" placeholder="Phone number" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -370,7 +540,7 @@ const insertUser = async () => {
             <a-row>
               <a-col span="5"><label for="basic_isAdmin">Role:</label></a-col>
               <a-col span="19">
-                <a-switch v-model:checked="formState.isAdmin" checked-children="Admin" un-checked-children="Manager" />
+                <a-switch v-model:checked="formState.isAdmin" checked-children="Admin" un-checked-children="Manager" :disabled="isView"/>
               </a-col>
             </a-row>
           </a-form-item>
