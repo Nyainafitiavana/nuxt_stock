@@ -18,14 +18,14 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
 
 
 interface Props {
-    actifPage: TStatus;
+    activePage: TStatus;
   }
 
 
   const props = defineProps<Props>();
 
   const statusColumn = {
-    title: 'Status',
+    title: h('div', { style: { textAlign: 'center' } }, ['Status']),
     key: 'status',
     customRender: ({ record }: { record: ICategory}) => h('div', [
       record.status.code === STCodeList.ACTIVE ?
@@ -92,7 +92,7 @@ interface Props {
       key: 'designation',
     },
     statusColumn,
-    props.actifPage === STCodeList.ACTIVE ?  actifActionsColumns : deletedActionColumns,
+    props.activePage === STCodeList.ACTIVE ?  actifActionsColumns : deletedActionColumns,
   ];
 
   const loading = ref<boolean>(false);
@@ -316,7 +316,7 @@ interface Props {
           keyword.value,
           pageSize.value,
           currentPage.value,
-          props.actifPage);
+          props.activePage);
       data.value = response.data;
       totalPage.value = response.totalRows;
       loading.value = false;
@@ -379,7 +379,7 @@ interface Props {
       <span> entries per page</span>
     </a-col>
     <a-col class="mt-8" span="7">
-      <a-button :icon="h(PlusOutlined)" @click="handleAddCategory" v-if="props.actifPage === STCodeList.ACTIVE" class="btn--success ml-5">Add new</a-button>
+      <a-button :icon="h(PlusOutlined)" @click="handleAddCategory" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">Add new</a-button>
     </a-col>
     <a-col class="mt-8 flex justify-end" span="12">
       <a-input type="text" class="w-56" v-model:value="keyword" />&nbsp;

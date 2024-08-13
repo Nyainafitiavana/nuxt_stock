@@ -29,7 +29,7 @@
       </template>
         <Suspense>
           <template #default>
-            <UserComponent v-if="activeKey === '1'"  :actif-page="'ACT'"/>
+            <UserComponent v-if="activeKey === '1'"  :active-page="'ACT'"/>
           </template>
         </Suspense>
     </a-tab-pane>
@@ -42,7 +42,7 @@
       </template>
       <Suspense>
         <template #default>
-          <UserComponent v-if="activeKey === '2'" :actif-page="'DLT'"/>
+          <UserComponent v-if="activeKey === '2'" :active-page="'DLT'"/>
         </template>
       </Suspense>
     </a-tab-pane>

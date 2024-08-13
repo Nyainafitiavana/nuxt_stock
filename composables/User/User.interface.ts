@@ -1,3 +1,5 @@
+import type {IStatus} from "~/composables/Status.interface";
+
 export interface IUser {
     uuid?: string;
     firstName: string;
@@ -5,6 +7,7 @@ export interface IUser {
     isAdmin?: boolean;
     email: string;
     phone: string;
+    status: IStatus;
 }
 export interface FormStateUser {
     firstName: string;

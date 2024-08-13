@@ -3,12 +3,13 @@ import type {Paginate} from "~/composables/apiResponse.interface";
 import type {TStatus} from "~/composables/Status.interface";
 import type {FormCategory, ICategory} from "~/composables/Category/Category.interface";
 import {getAccessToken} from "~/composables/api";
+import type {FormProduct, IProduct} from "~/composables/Product/Product.interface";
 
-export const getAllCategory = async (keyword: string, pageSize: number | string, currentPage: number | string, status: TStatus): Promise<Paginate<ICategory[]>> => {
+export const getAllDataProductService = async (keyword: string, pageSize: number, currentPage: number, status: TStatus, category: string): Promise<Paginate<IProduct[]>> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessToken: string | null = getAccessToken();
-        const response: any = await fetch(`${BASE_URL_API}${API.CATEGORY}?limit=${pageSize}&page=${currentPage}&value=${keyword}&status=${status}`, {
+        const response: any = await fetch(`${BASE_URL_API}${API.PRODUCT}?limit=${pageSize}&page=${currentPage}&value=${keyword}&status=${status}&category=${category}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -27,11 +28,11 @@ export const getAllCategory = async (keyword: string, pageSize: number | string,
     }
 };
 
-export const getOneCategory = async (id: string): Promise<ICategory> => {
+export const getOneProduct = async (id: string): Promise<IProduct> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessToken: string | null = getAccessToken();
-        const response: any = await fetch(`${BASE_URL_API}${API.CATEGORY}/${id}`, {
+        const response: any = await fetch(`${BASE_URL_API}${API.PRODUCT}/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -50,10 +51,10 @@ export const getOneCategory = async (id: string): Promise<ICategory> => {
     }
 };
 
-export const insertOrUpdateCategory = async (data: FormCategory, id: string | null, method: string): Promise<ICategory> => {
+export const insertOrUpdateProduct = async (data: FormProduct, id: string | null, method: string): Promise<IProduct> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const path: string = id ? `${BASE_URL_API}${API.CATEGORY}/${id}` : `${BASE_URL_API}${API.CATEGORY}`;
+        const path: string = id ? `${BASE_URL_API}${API.PRODUCT}/${id}` : `${BASE_URL_API}${API.PRODUCT}`;
         const accessTokenCategory: string | null = getAccessToken();
 
         const response: any = await fetch(path, {
@@ -76,10 +77,10 @@ export const insertOrUpdateCategory = async (data: FormCategory, id: string | nu
     }
 };
 
-export const deleteCategoryService = async (id: string | null): Promise<ICategory> => {
+export const deleteProductService = async (id: string | null): Promise<IProduct> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const path: string = `${BASE_URL_API}${API.CATEGORY}/${id}`;
+        const path: string = `${BASE_URL_API}${API.PRODUCT}/${id}`;
         const accessToken: string | null = getAccessToken();
 
         const response: any = await fetch(path, {

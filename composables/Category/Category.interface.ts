@@ -1,7 +1,7 @@
 import type {IStatus} from "~/composables/Status.interface";
 
 export interface ICategory {
-    uuid?: string;
+    uuid: string;
     designation: string;
     status: IStatus;
 }

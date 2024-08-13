@@ -1,40 +1,92 @@
 <script setup lang="ts">
-  import {createVNode, h} from 'vue';
-  import {
-    DeleteOutlined,
-    ExclamationCircleOutlined,
-    EyeOutlined,
-    FormOutlined,
-    PlusOutlined,
-    SearchOutlined, TeamOutlined, UserOutlined
-  } from "#components";
-  import type {FormStateUser, IUser} from "~/composables/User/User.interface";
-  import type {SelectValue} from "ant-design-vue/es/select";
-  import {handleInAuthorizedError} from "~/composables/CustomError";
-  import {deleteUserService, getAllUser, insertOrUpdateUser} from "~/composables/User/user.service";
-  import type {Paginate} from "~/composables/apiResponse.interface";
-  import type {FormInstance} from "ant-design-vue";
-  import {STCodeList, type TStatus} from "~/composables/Status.interface";
+import {createVNode, h} from 'vue';
+import {
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+  EyeOutlined,
+  FormOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from "#components";
+import type {SelectValue} from "ant-design-vue/es/select";
+import {handleInAuthorizedError} from "~/composables/CustomError";
+import type {Paginate} from "~/composables/apiResponse.interface";
+import type {FormInstance} from "ant-design-vue";
+import {STCodeList, type TStatus} from "~/composables/Status.interface";
+import type {ICategory} from "~/composables/Category/Category.interface";
+import {getAllCategory} from "~/composables/Category/category.service";
+import type {FormProduct, IProduct} from "~/composables/Product/Product.interface";
+import type {IProductSalesPrice} from "~/composables/Product/ProductSalesPrice.interface";
+import {
+  deleteProductService,
+  getAllDataProductService,
+  insertOrUpdateProduct
+} from "~/composables/Product/product.service";
+import type {SelectProps} from "ant-design-vue/lib";
 
 
-  interface Props {
+interface Props {
     activePage: TStatus;
-  }
+}
 
 
   const props = defineProps<Props>();
 
+  const standardSalesPrice = {
+    title: 'Standard unit price',
+    key: 'productSalesPrice',
+    customRender: ({ record }: { record: IProduct}) => {
+      let value = '---';
+
+      if (record.productSalesPrice.length > 0) {
+        record.productSalesPrice.map((item: IProductSalesPrice) => {
+          if (item.status.code === STCodeList.ACTIVE) {
+            value = new Intl.NumberFormat('en-US', {
+              style: 'decimal',
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }).format(item.unitPrice);
+          }
+        })
+      }
+
+      return h('div', { style: { textAlign: 'right' } }, [value]);
+    }
+  }
+
+  const wholeSalesPrice = {
+  title: 'Wholesale unit price',
+  key: 'productSalesPrice',
+  customRender: ({ record }: { record: IProduct}) => {
+    let value = '---';
+
+    if (record.productSalesPrice.length > 0) {
+      record.productSalesPrice.map((item: IProductSalesPrice) => {
+        if (item.status.code === STCodeList.ACTIVE) {
+          value = new Intl.NumberFormat('en-US', {
+            style: 'decimal',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }).format(item.wholesale);
+        }
+      })
+    }
+
+    return h('div', { style: { textAlign: 'right' } }, [value]);
+  }
+}
+
   const statusColumn = {
     title: h('div', { style: { textAlign: 'center' } }, ['Status']),
     key: 'status',
-    customRender: ({ record }: { record: IUser}) => h('div', [
+    customRender: ({ record }: { record: ICategory}) => h('div', [
       record.status.code === STCodeList.ACTIVE ?
           h('div',
-              {
-                style: { textAlign: 'center', color: 'white' },
-                class: 'primary-background-color'
-              },
-              ['Active']
+          {
+              style: { textAlign: 'center', color: 'white' },
+              class: 'primary-background-color'
+            },
+          ['Active']
           )
           : h('div',
               {
@@ -50,7 +102,7 @@
     title: 'Actions',
     key: 'actions',
     width: 200,
-    customRender: ({ record }: { record: IUser }) => h('div', [
+    customRender: ({ record }: { record: IProduct }) => h('div', [
       h('a-button', {
         class: 'btn--info-outline btn-tab',
         size: 'large',
@@ -75,7 +127,7 @@
     title: 'Actions',
     key: 'actions',
     width: 200,
-    customRender: ({ record }: { record: IUser }) => h('div', [
+    customRender: ({ record }: { record: IProduct }) => h('div', [
       h('a-button', {
         class: 'btn--info-outline btn-tab',
         size: 'large',
@@ -87,101 +139,59 @@
 
   const columns = [
     {
-      title: 'First Name',
-      dataIndex: 'firstName',
-      key: 'firstName',
+      title: 'Designation',
+      dataIndex: 'designation',
+      key: 'designation',
     },
     {
-      title: 'Last Name',
-      dataIndex: 'lastName',
-      key: 'lastName',
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-    },
-    {
-      title: 'Phone',
-      dataIndex: 'phone',
-      key: 'phone',
+      title: 'Category',
+      dataIndex: ['category', 'designation'],
+      key: 'category',
       customRender: ({ text }: { text: string }) => text ? text : '---'
     },
-    {
-      title: 'Role',
-      dataIndex: 'isAdmin',
-      key: 'isAdmin',
-      width: 150,
-      customRender: ({ text }: { text: boolean }) => text ?
-          h(
-              'div',
-              { class : 'flex' },
-              [
-                h(
-                    'div',
-                    {
-                      class : 'success-color',
-                      style: 'font-size: 20px;'
-                    },
-                    [h(UserOutlined)]
-                ),
-                h(
-                    'div',
-                    {
-                      class : 'success-secondary mt-3 ml-1',
-                      style: 'font-size: 15px;'
-                    },
-                    ['Admin']
-                )
-              ]
-          ) :
-          h(
-              'div',
-              { class : 'flex' },
-              [
-                h(
-                    'div',
-                    {
-                      class : 'warning-color',
-                      style: 'font-size: 20px;'
-                    },
-                    [h(TeamOutlined)]
-                ),
-                h(
-                    'div',
-                    {
-                      class : 'success-secondary mt-3 ml-1',
-                      style: 'font-size: 15px;'
-                    },
-                    ['Manager']
-                )
-              ]
-          )
-    },
+    standardSalesPrice,
+    wholeSalesPrice,
     statusColumn,
     props.activePage === STCodeList.ACTIVE ?  actifActionsColumns : deletedActionColumns,
   ];
 
   const loading = ref<boolean>(false);
   const loadingBtn = ref<boolean>(false);
+  const loadingCategoryFilterList = ref<boolean>(false);
   const keyword = ref<string>('');
   const pageSize = ref<number>(10);
   const currentPage = ref<number>(1);
   const totalPage = ref<number>(0);
-  const data = ref<IUser[]>([]);
+  const data = ref<IProduct[]>([]);
   const isOpenModal = ref<boolean>(false);
   const isEdit = ref<boolean>(false);
   const isView = ref<boolean>(false);
   const formRef = ref<FormInstance>();
-  const userId = ref<string>('');
-  const formState = reactive<FormStateUser>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    password: '',
-    isAdmin: false
-  });
+  const productId = ref<string>('');
+  const formState = reactive<FormProduct>(
+      {
+        designation: '',
+        description: '',
+        idCategory: '',
+      }
+  );
+
+  //***********Beginning of select method of category product***************
+  const optionsCategoryInList = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
+  const currentCategoryFilter = ref<string>('');
+  const filterOption = (input: string, option: any) => {
+    return option?.label?.toLowerCase().includes(input.toLowerCase());
+  };
+
+  const handleChangeFilterCategory = (value: any) => {
+    currentCategoryFilter.value = value as string;
+    getAllDataProduct();
+  };
+
+  const handleChangeCategory = (value: any) => {
+    formState.idCategory = value as string;
+  };
+  //***********End of select method of category product***************
 
   //**********Reset all value and validator form*******
   const resetForm = () => {
@@ -204,48 +214,37 @@
   //************End of modal actions*********************
 
   //************Add user button action*********
-  const handleAddUser = () => {
+  const handleAdd = () => {
     resetForm();
-    formState.firstName = '';
-    formState.lastName = '';
-    formState.email = '';
-    formState.phone = '';
-    formState.isAdmin = false;
+    formState.designation = '';
+    formState.description = '';
+    formState.idCategory = '';
     handleShowModal(false, false);
   }
 
 
   //************Beginning of actions datatable button method**********
-  const handleView = (record: IUser) => {
+  const handleView = (record: IProduct) => {
     resetForm();
-    formState.firstName = record.firstName;
-    formState.lastName = record.lastName;
-    formState.email = record.email;
-    formState.phone = record.phone;
-    formState.isAdmin = record.isAdmin;
+    formState.designation = record.designation;
+    formState.description = record.description;
+    formState.idCategory = record.category.uuid;
 
     handleShowModal(false, true);
   };
 
-  const handleEdit = (record: IUser) => {
+  const handleEdit = (record: IProduct) => {
     resetForm();
-    formState.firstName = record.firstName;
-    formState.lastName = record.lastName;
-    formState.email = record.email;
-    formState.phone = record.phone;
-    formState.isAdmin = record.isAdmin;
-
-    if (record.uuid != null) {
-      userId.value = record.uuid;
-    }
+    formState.designation = record.designation;
+    formState.description = record.description;
+    formState.idCategory = record.category.uuid;
+    productId.value = record.uuid;
 
     handleShowModal(true, false);
   };
 
-  const handleDelete = (record: IUser) => {
-    if (record.uuid != null) {
-      userId.value = record.uuid;
-    }
+  const handleDelete = (record: IProduct) => {
+    productId.value = record.uuid;
 
     Modal.confirm({
       title: 'Confirmation Required',
@@ -255,7 +254,7 @@
       cancelText: 'No',
       onOk: async () => {
         loadingBtn.value = true;
-        await deleteUser();
+        await deleteProduct();
       }
     });
   };
@@ -273,21 +272,21 @@
         loadingBtn.value = true;
 
         if (isEdit.value) {
-          await updateUser();
+          await updateProduct();
         } else {
-          await insertUser();
+          await insertProduct();
         }
       }
     });
   };
 
   //******************Beginning of CRUD controller**************
-  const insertUser = async () => {
-    const dataForm: FormStateUser = formState;
+  const insertProduct = async () => {
+    const dataForm: FormProduct = formState;
 
     try {
       //the params userId is null here because we are in the insert method
-      await insertOrUpdateUser(dataForm, null, 'POST');
+      await insertOrUpdateProduct(dataForm, null, 'POST');
       //turn off of loading button and close modal
       loadingBtn.value = false;
       isOpenModal.value = false;
@@ -300,7 +299,7 @@
       });
 
       //reload data
-      await getAllDataUser();
+      await getAllDataProduct();
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
@@ -320,19 +319,12 @@
     }
   }
 
-  const updateUser = async () => {
-    const values: FormStateUser = formState;
-    const dataForm: IUser = {
-      email: values.email,
-      firstName: values.firstName,
-      lastName: values.lastName,
-      phone: values.phone,
-      isAdmin: values.isAdmin,
-    };
+  const updateProduct = async () => {
+    const dataForm: FormProduct = formState;
 
     try {
       //Call operation API in service
-      await insertOrUpdateUser(dataForm, userId.value, 'PATCH');
+      await insertOrUpdateProduct(dataForm, productId.value, 'PATCH');
       //turn off of loading button and close modal
       loadingBtn.value = false;
       isOpenModal.value = false;
@@ -344,9 +336,9 @@
       });
 
       //reload data
-      await getAllDataUser();
+      await getAllDataProduct();
     } catch (error) {
-      //Verification code status if equal 401 then we redirect to login
+      //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
         if (error.status === 401) {
           //call the global handle action if in authorized
@@ -364,11 +356,11 @@
     }
   }
 
-  const deleteUser = async () => {
+  const deleteProduct = async () => {
 
     try {
       //Call operation API in service
-      await deleteUserService(userId.value);
+      await deleteProductService(productId.value);
       //turn off of loading button and close modal
       loadingBtn.value = false;
       isOpenModal.value = false;
@@ -380,9 +372,9 @@
       });
 
       //reload data
-      await getAllDataUser();
+      await getAllDataProduct();
     } catch (error) {
-      //Verification code status if equal 401 then we redirect to login
+      //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
         if (error.status === 401) {
           //call the global handle action if in authorized
@@ -400,17 +392,54 @@
     }
   }
 
-  const getAllDataUser = async () => {
+  const getAllDataProduct = async () => {
     try {
       loading.value = true;
-      const response: Paginate<IUser[]> = await getAllUser(
+      const response: Paginate<IProduct[]> = await getAllDataProductService(
           keyword.value,
           pageSize.value,
           currentPage.value,
-          props.activePage);
+          props.activePage,
+          currentCategoryFilter.value
+      );
       data.value = response.data;
       totalPage.value = response.totalRows;
       loading.value = false;
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: 'Error',
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+    }
+  }
+
+  const getAllDataCategory = async () => {
+    try {
+      loadingCategoryFilterList.value = true;
+      const response: Paginate<ICategory[]> = await getAllCategory(
+          '',
+          '',
+          '',
+          STCodeList.ACTIVE);
+      response.data.map((item: ICategory) => {
+        if (optionsCategoryInList.value) {
+          optionsCategoryInList.value.push({ value: item.uuid, label: item.designation });
+        }
+      });
+
+      await nextTick(); // Ensure the DOM updates before proceeding
+      loadingCategoryFilterList.value = false;
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
@@ -433,24 +462,25 @@
 
   //******************Beginning of filter and paginator methods****
   const handleClickPaginator = () => {
-    getAllDataUser();
+    getAllDataProduct();
   };
 
   const handleChangePageSize = (value: SelectValue) => {
     pageSize.value = Number(value);
     currentPage.value = 1;
-    getAllDataUser();
+    getAllDataProduct();
   };
 
   const handleSearch = () => {
     currentPage.value = 1;
-    getAllDataUser();
+    getAllDataProduct();
   }
   //******************End filter of and paginator methods****
 
 
   onMounted(() => {
-    getAllDataUser();
+    getAllDataProduct();
+    getAllDataCategory();
   })
 </script>
 
@@ -469,11 +499,24 @@
       </a-select>
       <span> entries per page</span>
     </a-col>
-    <a-col class="mt-8" span="7">
-      <a-button :icon="h(PlusOutlined)" @click="handleAddUser" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">Add new</a-button>
+    <a-col class="mt-8" span="3">
+      <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">Add</a-button>
     </a-col>
-    <a-col class="mt-8 flex justify-end" span="12">
-      <a-input type="text" class="w-56" v-model:value="keyword" />&nbsp;
+    <a-col class="mt-8" span="8">
+      <span>Sort by category : </span>
+      <a-select
+          class="w-44"
+          v-model:value="currentCategoryFilter"
+          show-search
+          :options="optionsCategoryInList"
+          :filter-option="filterOption"
+          @change="handleChangeFilterCategory"
+          :disabled="isView"
+          :loading="loadingCategoryFilterList"
+      ></a-select>
+    </a-col>
+    <a-col class="mt-8 flex justify-end" span="8">
+      <a-input type="text" class="w-48" v-model:value="keyword" placeholder="Search"/>&nbsp;
       <a-button class="btn--primary" :icon="h(SearchOutlined)" @click="handleSearch"/>
     </a-col>
   </a-row>
@@ -507,7 +550,7 @@
       v-model:open="isOpenModal"
       closable
       :footer="null"
-      title="User"
+      title="Product"
       style="top: 20px"
       @ok=""
   >
@@ -522,79 +565,48 @@
             @finish="onSubmitForm"
         >
           <a-form-item
-              name="email"
-              type="email"
-              :rules="[{ required: true, type: 'email', message: 'The input is not a valid email format!' }]"
+              name="designation"
+              type="text"
+              :rules="[{ required: true, message: 'Please input the designation of the new category!' }]"
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="5"><label for="basic_email"><span class="required_toil">*</span> Email:</label></a-col>
+              <a-col span="5"><label for="basic_designation"><span class="required_toil">*</span> Designation:</label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.email" size="large" placeholder="E-mail" :disabled="isView"></a-input>
+                <a-input v-model:value="formState.designation" size="large" placeholder="Designation" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
           <a-form-item
-              name="firstName"
-              type="text"
-              :rules="[{ required: true, message: 'Please input your First Name!' }]"
+              name="idCategory"
+              type="select"
+              :rules="[{ required: true, message: 'Please the category of this product!' }]"
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="5"><label for="basic_firstName"><span class="required_toil">*</span> First Name:</label></a-col>
+              <a-col span="5"><label for="basic_idCategory"><span class="required_toil">*</span> Category:</label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.firstName" size="large" placeholder="First Name" :disabled="isView"></a-input>
+                <a-select
+                    v-model:value="formState.idCategory"
+                    show-search
+                    placeholder="Select the category"
+                    @change="handleChangeCategory"
+                    :disabled="isView"
+                    size="large"
+                    class="w-full"
+                    :loading="true"
+                ></a-select>
               </a-col>
             </a-row>
           </a-form-item>
           <a-form-item
-              name="lastName"
-              type="text"
-              :rules="[{ required: true, message: 'Please input your Last Name!' }]"
-              class="w-full mt-10"
-          >
-            <a-row>
-              <a-col span="5"><label for="basic_lastName"><span class="required_toil">*</span> Last Name:</label></a-col>
-              <a-col span="19">
-                <a-input v-model:value="formState.lastName" size="large" placeholder="Last Name" :disabled="isView"></a-input>
-              </a-col>
-            </a-row>
-          </a-form-item>
-          <a-form-item
-              name="phone"
+              name="description"
               type="text"
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="5"><label for="basic_phone">Phone number: </label></a-col>
-              <a-col span="19">
-                <a-input v-model:value="formState.phone" size="large" placeholder="Phone number" :disabled="isView"></a-input>
-              </a-col>
-            </a-row>
-          </a-form-item>
-          <a-form-item
-              name="isAdmin"
-              type="text"
-              class="w-full mt-10"
-          >
-            <a-row>
-              <a-col span="5"><label for="basic_isAdmin">Role:</label></a-col>
-              <a-col span="19">
-                <a-switch v-model:checked="formState.isAdmin" checked-children="Admin" un-checked-children="Manager" :disabled="isView"/>
-              </a-col>
-            </a-row>
-          </a-form-item>
-          <a-form-item
-              name="password"
-              type="text"
-              v-if="isEdit === false && isView === false"
-              :rules="[{ required: true, message: 'Please input the password for this new user!' }]"
-              class="w-full mt-10 mb-10"
-          >
-            <a-row>
-              <a-col span="5"><label for="basic_password"><span class="required_toil">*</span> Password:</label></a-col>
-              <a-col span="19">
-                <a-input-password v-model:value="formState.password" size="large" placeholder="Password"/>
+              <a-col span="24">
+                <a-textarea v-model:value="formState.description" placeholder="You can write an description here." allow-clear :disabled="isView"/>
               </a-col>
             </a-row>
           </a-form-item>

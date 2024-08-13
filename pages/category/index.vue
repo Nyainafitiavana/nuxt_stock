@@ -26,7 +26,7 @@
       </template>
       <Suspense>
         <template #default>
-          <CategoryComponent v-if="activeKey === '1'"  :actif-page="'ACT'"/>
+          <CategoryComponent v-if="activeKey === '1'"  :active-page="'ACT'"/>
         </template>
       </Suspense>
     </a-tab-pane>
@@ -39,7 +39,7 @@
       </template>
       <Suspense>
         <template #default>
-          <CategoryComponent v-if="activeKey === '2'" :actif-page="'DLT'"/>
+          <CategoryComponent v-if="activeKey === '2'" :active-page="'DLT'"/>
         </template>
       </Suspense>
     </a-tab-pane>
