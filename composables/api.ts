@@ -1,4 +1,9 @@
 export const API = {
-    "USER" : "/api/user",
     "LOGIN" : "/api/auth/login",
+    "USER" : "/api/user",
+    "CATEGORY" : "/api/category",
+}
+
+export const getAccessToken = (): string | null => {
+    return localStorage.getItem("access_token");
 }

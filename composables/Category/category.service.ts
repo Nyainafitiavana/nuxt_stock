@@ -1,20 +1,14 @@
-import type {IUser} from "~/composables/User/User.interface";
 import {CustomError} from "~/composables/CustomError";
 import type {Paginate} from "~/composables/apiResponse.interface";
 import type {TStatus} from "~/composables/Status.interface";
+import type {FormCategory, ICategory} from "~/composables/Category/Category.interface";
 import {getAccessToken} from "~/composables/api";
 
-
-export const getAllUser = async (
-    keyword: string,
-    pageSize: number,
-    currentPage: number,
-    status: TStatus,
-): Promise<Paginate<IUser[]>> => {
+export const getAllCategory = async (keyword: string, pageSize: number, currentPage: number, status: TStatus): Promise<Paginate<ICategory[]>> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessToken: string | null = getAccessToken();
-        const response: any = await fetch(`${BASE_URL_API}${API.USER}?limit=${pageSize}&page=${currentPage}&value=${keyword}&status=${status}`, {
+        const response: any = await fetch(`${BASE_URL_API}${API.CATEGORY}?limit=${pageSize}&page=${currentPage}&value=${keyword}&status=${status}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -33,11 +27,11 @@ export const getAllUser = async (
     }
 };
 
-export const getOneUser = async (id: string): Promise<IUser> => {
+export const getOneCategory = async (id: string): Promise<ICategory> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessToken: string | null = getAccessToken();
-        const response: any = await fetch(`${BASE_URL_API}${API.USER}/${id}`, {
+        const response: any = await fetch(`${BASE_URL_API}${API.CATEGORY}/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -56,17 +50,17 @@ export const getOneUser = async (id: string): Promise<IUser> => {
     }
 };
 
-export const insertOrUpdateUser = async (data: IUser, id: string | null, method: string): Promise<IUser> => {
+export const insertOrUpdateCategory = async (data: FormCategory, id: string | null, method: string): Promise<ICategory> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const path: string = id ? `${BASE_URL_API}${API.USER}/${id}` : `${BASE_URL_API}${API.USER}`;
-        const accessToken: string | null = getAccessToken();
+        const path: string = id ? `${BASE_URL_API}${API.CATEGORY}/${id}` : `${BASE_URL_API}${API.CATEGORY}`;
+        const accessTokenCategory: string | null = getAccessToken();
 
         const response: any = await fetch(path, {
             method: method,
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ${accessTokenCategory}`
             },
             body: JSON.stringify(data),
         });
@@ -82,10 +76,10 @@ export const insertOrUpdateUser = async (data: IUser, id: string | null, method:
     }
 };
 
-export const deleteUserService = async (id: string | null): Promise<IUser> => {
+export const deleteCategoryService = async (id: string | null): Promise<ICategory> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const path: string = `${BASE_URL_API}${API.USER}/${id}`;
+        const path: string = `${BASE_URL_API}${API.CATEGORY}/${id}`;
         const accessToken: string | null = getAccessToken();
 
         const response: any = await fetch(path, {
