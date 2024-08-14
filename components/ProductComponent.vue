@@ -2,6 +2,7 @@
 import {createVNode, h} from 'vue';
 import {
   DeleteOutlined,
+  DollarCircleOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
   FormOutlined,
@@ -16,13 +17,15 @@ import {STCodeList, type TStatus} from "~/composables/Status.interface";
 import type {ICategory} from "~/composables/Category/Category.interface";
 import {getAllCategory} from "~/composables/Category/category.service";
 import type {FormProduct, IProduct} from "~/composables/Product/Product.interface";
-import type {IProductSalesPrice} from "~/composables/Product/ProductSalesPrice.interface";
+import type {FormProductSalesPrice, IProductSalesPrice} from "~/composables/Product/ProductSalesPrice.interface";
 import {
-  deleteProductService,
-  getAllDataProductService,
+  deleteProductService, getAllDataProductSalesPriceService,
+  getAllDataProductService, insertNewProductSalePrice,
   insertOrUpdateProduct
 } from "~/composables/Product/product.service";
 import type {SelectProps} from "ant-design-vue/lib";
+import type {RuleObject} from "ant-design-vue/es/form";
+import {formatDateString} from "~/composables/helper";
 
 
 interface Props {
@@ -36,6 +39,7 @@ interface Props {
   const standardSalesPrice = {
     title: 'Standard unit price',
     key: 'productSalesPrice',
+    dataIndex: ['productSalesPrice', 'unitPrice'],
     customRender: ({ record }: { record: IProduct}) => {
       let value = '---';
 
@@ -58,6 +62,7 @@ interface Props {
   const wholeSalesPrice = {
   title: 'Wholesale unit price',
   key: 'productSalesPrice',
+  dataIndex: ['productSalesPrice', 'wholesale'],
   customRender: ({ record }: { record: IProduct}) => {
     let value = '---';
 
@@ -80,6 +85,7 @@ interface Props {
   const statusColumn = {
     title: h('div', { style: { textAlign: 'center' } }, ['Status']),
     key: 'status',
+    dataIndex: 'status',
     customRender: ({ record }: { record: ICategory}) => h('div', [
       record.status.code === STCodeList.ACTIVE ?
           h('div',
@@ -89,13 +95,21 @@ interface Props {
             },
           ['Active']
           )
-          : h('div',
+          : (record.status.code === STCodeList.DELETED ? h('div',
               {
                 style: { textAlign: 'center', color: 'white' },
                 class: 'danger-background-color'
               },
               ['Deleted']
-          ),
+          ):
+          h('div',
+              {
+                style: { textAlign: 'center', color: 'white' },
+                class: 'secondary-background-color'
+              },
+              ['Old']
+          )
+        ),
     ])
   }
 
@@ -110,6 +124,12 @@ interface Props {
         style: { marginRight: '8px' },
         onClick: () => handleView(record)
       }, [h(EyeOutlined)]),
+      h('a-button', {
+        class: 'btn--warning-outline btn-tab',
+        size: 'large',
+        style: { marginRight: '8px' },
+        onClick: () => handleShowProductSalesPrice(record)
+      }, [h(DollarCircleOutlined)]),
       h('a-button', {
         class: 'btn--primary-outline btn-tab',
         size: 'large',
@@ -135,6 +155,12 @@ interface Props {
         style: { marginRight: '8px' },
         onClick: () => handleView(record)
       }, [h(EyeOutlined)]),
+      h('a-button', {
+        class: 'btn--warning-outline btn-tab',
+        size: 'large',
+        style: { marginRight: '8px' },
+        onClick: () => handleShowProductSalesPrice(record)
+      }, [h(DollarCircleOutlined)]),
     ])
   };
 
@@ -155,22 +181,73 @@ interface Props {
     statusColumn,
     props.activePage === STCodeList.ACTIVE ?  activeActionsColumns : deletedActionColumns,
   ];
+
+  //Columns for product sales price datatable
+  const columnsSalesPrice = [
+    {
+      title: 'Standard U.price',
+      key: 'unitPrice',
+      dataIndex: 'unitPrice',
+      customRender: ({ record }: { record: IProductSalesPrice}) => {
+        const value = new Intl.NumberFormat('en-US', {
+          style: 'decimal',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(record.unitPrice);
+
+        return h('div', {style: {textAlign: 'right'}}, [value]);
+      }
+    },
+    {
+      title: 'Wholesale U.price',
+      key: 'wholesale',
+      dataIndex: 'unitPrice',
+      customRender: ({ record }: { record: IProductSalesPrice}) => {
+        const value = new Intl.NumberFormat('en-US', {
+          style: 'decimal',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(record.wholesale);
+
+        return h('div', {style: {textAlign: 'right'}}, [value]);
+      }
+    },
+    {
+      title: 'CreatedAt',
+      key: 'createdAt',
+      dataIndex: 'createdAt',
+      customRender: ({ record }: { record: IProductSalesPrice}) => {
+        const createdAd: string = formatDateString(record.createdAt);
+        return h('div', {style: {textAlign: 'right'}}, [createdAd]);
+      }
+    },
+    statusColumn,
+  ];
   //**************End of Column datatable property***********
 
   //**************Beginning of state management**************
   const loading = ref<boolean>(false);
   const loadingBtn = ref<boolean>(false);
+  const loadingBtnSalesPrice = ref<boolean>(false);
   const loadingCategoryFilterList = ref<boolean>(false);
+  const loadingSalesPrice = ref<boolean>(false);
   const keyword = ref<string>('');
   const pageSize = ref<number>(10);
   const currentPage = ref<number>(1);
   const totalPage = ref<number>(0);
-  const data = ref<IProduct[]>([]);
+  const pageSizeSalesPrice = ref<number>(10);
+  const currentPageSalesPrice = ref<number>(1);
+  const totalPageSalesPrice = ref<number>(0);
+  const dataProduct = ref<IProduct[]>([]);
+  const dataProductSalesPrice = ref<IProduct[]>([]);
   const isOpenModal = ref<boolean>(false);
+  const isOpenModalSalesPrice = ref<boolean>(false);
+  const isShowFormAddProductSalePrice = ref<boolean>(false);
   const isEdit = ref<boolean>(false);
   const isView = ref<boolean>(false);
   const formRef = ref<FormInstance>();
   const productId = ref<string>('');
+  const currentProductDesignation = ref<string>('');
   const formState = reactive<FormProduct>(
       {
         designation: '',
@@ -178,6 +255,13 @@ interface Props {
         idCategory: '',
       }
   );
+const formStateSalesPrice = reactive<FormProductSalesPrice>(
+    {
+      idProduct: '',
+      unitPrice: 0,
+      wholesale: 0,
+    }
+);
   const optionsCategory = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
   const currentCategoryList = ref<string>('');
   //**************End of state management**************
@@ -200,6 +284,7 @@ interface Props {
   };
 
   //************Beginning of modal actions*********************
+  //************Beginning of modal add, view, edit actions*********************
   const handleShowModal = (isEditMode: boolean, isViewMode: boolean) => {
     isEdit.value = isEditMode;
     isView.value = isViewMode;
@@ -210,10 +295,45 @@ interface Props {
     resetForm();
     isOpenModal.value = false;
   }
+  //************End of modal add, view, edit actions*********************
+
+  //************Beginning of sales price modal actions*********************
+  const handleShowModalProductSalesPrice = () => {
+    isOpenModalSalesPrice.value = true;
+  }
+
+  const handleCloseModalSalesPrice = () => {
+    isOpenModalSalesPrice.value = false;
+  }
+  //************End of sales price modal actions*********************
+
+  //*************Beginning of product sales price form methods**********
+  const handleShowFormAddProductSalesPrice = () => {
+    //Rest validator and value of sales price form
+    resetForm();
+    formStateSalesPrice.unitPrice = 0;
+    formStateSalesPrice.wholesale = 0;
+
+    isShowFormAddProductSalePrice.value = true;
+  }
+
+  const handleCancelAddProductSalesPrice = () => {
+    isShowFormAddProductSalePrice.value = false;
+  }
+
+  const validatePrice = (rule: RuleObject, value: number, callback: any) => {
+    if (value > 0) {
+      callback();
+    } else {
+      callback(new Error('The price must be greater than 0'));
+    }
+  }
+  //*************Beginning of product sales price form methods**********
   //************End of modal actions*********************
 
   //************Add user button action*********
   const handleAdd = () => {
+    //Reset validator and value of form before show modal
     resetForm();
     formState.designation = '';
     formState.description = '';
@@ -232,8 +352,27 @@ interface Props {
     handleShowModal(false, true);
   };
 
-  const handleEdit = (record: IProduct) => {
+  const handleShowProductSalesPrice = (record: IProduct) => {
+    //Reset validator
     resetForm();
+    //Set current idProduct
+    formStateSalesPrice.idProduct = record.uuid;
+    //Set current designation product
+    currentProductDesignation.value = record.designation;
+    //Reset value of form product sales price
+    formStateSalesPrice.unitPrice = 0;
+    formStateSalesPrice.wholesale = 0;
+
+    //Get All data product sales price
+    getAllDataProductSalesPrice();
+
+    handleShowModalProductSalesPrice();
+  };
+
+  const handleEdit = (record: IProduct) => {
+    //Reset validator
+    resetForm();
+    //Set value formState with current index of product
     formState.designation = record.designation;
     formState.description = record.description;
     formState.idCategory = record.category.uuid;
@@ -243,8 +382,9 @@ interface Props {
   };
 
   const handleDelete = (record: IProduct) => {
+    //Set productId with current record
     productId.value = record.uuid;
-
+    //Show confirm popup
     Modal.confirm({
       title: 'Confirmation Required',
       icon: createVNode(ExclamationCircleOutlined),
@@ -279,6 +419,21 @@ interface Props {
     });
   };
 
+//*******Method on submit product sales price form********************
+  const onSubmitFormProductSalesPrice = async () => {
+    Modal.confirm({
+      title: 'Confirmation Required',
+      icon: createVNode(ExclamationCircleOutlined),
+      content: 'Are you sure you want to proceed? This action is irreversible.',
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk: async () => {
+        loadingBtnSalesPrice.value = true;
+        await insertProductSalesPrice();
+      }
+    });
+  };
+
   //******************Beginning of CRUD controller**************
   const insertProduct = async () => {
     const dataForm: FormProduct = formState;
@@ -298,6 +453,47 @@ interface Props {
       });
 
       //reload data
+      await getAllDataProduct();
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: 'Error',
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+    }
+  }
+
+  const insertProductSalesPrice = async () => {
+    const dataForm: FormProductSalesPrice = formStateSalesPrice;
+
+    try {
+      //the params userId is null here because we are in the insert method
+      await insertNewProductSalePrice(dataForm);
+      //turn off of loading button and close modal
+      loadingBtnSalesPrice.value = false;
+
+      // Show success notification
+      notification.success({
+        message: 'Success',
+        description: 'Operation Successful!',
+        class: 'custom-success-notification'
+      });
+
+      //Close form add product sales price
+      handleCancelAddProductSalesPrice();
+      //reload data product sales price
+      await getAllDataProductSalesPrice();
+      //reload data product
       await getAllDataProduct();
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
@@ -401,9 +597,39 @@ interface Props {
           props.activePage,
           currentCategoryList.value
       );
-      data.value = response.data;
+      dataProduct.value = response.data;
       totalPage.value = response.totalRows;
       loading.value = false;
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: 'Error',
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+    }
+  }
+
+  const getAllDataProductSalesPrice = async () => {
+    try {
+      loadingSalesPrice.value = true;
+      const response: Paginate<IProductSalesPrice[]> = await getAllDataProductSalesPriceService(
+          pageSizeSalesPrice.value,
+          currentPageSalesPrice.value,
+          formStateSalesPrice.idProduct
+      );
+      dataProductSalesPrice.value = response.data;
+      totalPageSalesPrice.value = response.totalRows;
+      loadingSalesPrice.value = false;
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
@@ -464,6 +690,10 @@ interface Props {
     getAllDataProduct();
   };
 
+  const handleClickPaginatorSalesPrice = () => {
+    getAllDataProductSalesPrice();
+  };
+
   const handleChangePageSize = (value: SelectValue) => {
     pageSize.value = Number(value);
     currentPage.value = 1;
@@ -484,7 +714,9 @@ interface Props {
 </script>
 
 <template>
+  <!-- Sort page, add btn, sort by category, search -->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+    <!-- Page size -->
     <a-col class="mt-8" span="5">
       <a-select
           ref="select"
@@ -498,9 +730,11 @@ interface Props {
       </a-select>
       <span> entries per page</span>
     </a-col>
+    <!-- Add btn -->
     <a-col class="mt-8" span="3">
       <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">Add</a-button>
     </a-col>
+    <!-- Sort by category -->
     <a-col class="mt-8" span="8">
       <span>Sort by category : </span>
       <a-select
@@ -514,18 +748,20 @@ interface Props {
           :loading="loadingCategoryFilterList"
       ></a-select>
     </a-col>
+    <!-- Search input -->
     <a-col class="mt-8 flex justify-end" span="8">
       <a-input type="text" class="w-48" v-model:value="keyword" placeholder="Search"/>&nbsp;
       <a-button class="btn--primary" :icon="h(SearchOutlined)" @click="handleSearch"/>
     </a-col>
   </a-row>
+  <!-- Datatable -->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="mt-8" span="24">
       <a-spin :spinning="loading" size="large">
         <a-table
             class="w-full"
             :columns="columns"
-            :data-source="data"
+            :data-source="dataProduct"
             :pagination="false"
             :scroll="{ x: 1000, y: 1000 }"
             bordered
@@ -533,6 +769,7 @@ interface Props {
       </a-spin>
     </a-col>
   </a-row>
+  <!-- Pagination -->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="mt-8 flex justify-end" span="24">
       <a-pagination
@@ -545,6 +782,7 @@ interface Props {
           :showSizeChanger="false" />
     </a-col>
   </a-row>
+  <!-- Modal for add, view or edit -->
   <a-modal
       v-model:open="isOpenModal"
       closable
@@ -552,6 +790,7 @@ interface Props {
       title="Product"
       style="top: 20px"
       @ok=""
+      v-if="isOpenModal"
   >
     <a-row class="w-full">
       <a-col class="w-full">
@@ -621,6 +860,127 @@ interface Props {
             </a-form-item>
           </a-row>
         </a-form>
+      </a-col>
+    </a-row>
+  </a-modal>
+  <!-- Modal for product sales prices -->
+  <a-modal
+      v-model:open="isOpenModalSalesPrice"
+      closable
+      :footer="null"
+      style="top: 20px"
+      @ok=""
+      v-if="isOpenModalSalesPrice"
+      width="1000px"
+  >
+    <!-- Template title modal -->
+    <template #title>
+      <span>Sales price of : {{ currentProductDesignation }}</span>
+      <a-button
+          class="btn--success ml-4"
+          :icon="h(PlusOutlined)"
+          @click="handleShowFormAddProductSalesPrice"
+          size="middle"
+      >
+      </a-button>
+    </template>
+    <!-- Form to add a new product sales price -->
+    <a-row v-if="isShowFormAddProductSalePrice" class="w-full">
+      <a-col class="w-full">
+        <a-form
+            ref="formRef"
+            :model="formStateSalesPrice"
+            name="basic"
+            layout="inline"
+            autocomplete="off"
+            @finish="onSubmitFormProductSalesPrice"
+        >
+          <!-- Form items -->
+          <a-row>
+            <a-col span="11">
+              <a-form-item
+                  name="unitPrice"
+                  type="text"
+                  :rules="[
+                      { required: true, message: 'Please input the standard unit price !' },
+                      { validator: validatePrice, trigger: 'change' }
+                  ]"
+                  class="w-full mt-10"
+              >
+                <a-row>
+                  <a-col span="24"><label for="basic_unitPrice"><span class="required_toil">*</span> Standard unit price:</label></a-col>
+                  <a-col span="24">
+                    <a-input-number v-model:value="formStateSalesPrice.unitPrice" :min="0">
+                      <template #addonAfter><SettingOutlined /></template>
+                    </a-input-number>
+                  </a-col>
+                </a-row>
+              </a-form-item>
+            </a-col>&emsp;
+            <a-col span="11">
+              <a-form-item
+                  name="wholesale"
+                  type="text"
+                  class="w-full mt-10"
+              >
+                <a-row>
+                  <a-col span="24"><label for="basic_wholesale"><span class="required_toil"></span> Wholesale unit price:</label></a-col>
+                  <a-col span="24">
+                    <a-input-number v-model:value="formStateSalesPrice.wholesale" :min="1">
+                      <template #addonAfter><SettingOutlined /></template>
+                    </a-input-number>
+                  </a-col>
+                </a-row>
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <!-- Form actions btn -->
+          <a-row class="mt-10">
+            <a-form-item class="w-full flex justify-start">
+              <a-button class="btn btn--default" size="middle" @click="handleCancelAddProductSalesPrice">Cancel</a-button>
+              <a-button
+                  v-if="!isView"
+                  class="btn btn--primary ml-4"
+                  html-type="submit"
+                  size="middle"
+                  :loading="loadingBtnSalesPrice"
+              >Save</a-button>
+            </a-form-item>
+          </a-row>
+        </a-form>
+      </a-col>
+    </a-row>
+    <!-- Datatable product sales price -->
+    <a-row class="mt-8">
+      <a-col span="24">
+        <a-spin :spinning="loadingSalesPrice" size="large">
+          <a-table
+              :columns="columnsSalesPrice"
+              :data-source="dataProductSalesPrice"
+              :pagination="false"
+              bordered
+          />
+        </a-spin>
+      </a-col>
+    </a-row>
+    <!-- Pagination -->
+    <a-row>
+      <a-col class="mt-8 flex justify-end" span="24">
+        <a-pagination
+            v-model:current="currentPageSalesPrice"
+            v-model:pageSize="pageSizeSalesPrice"
+            :total="totalPageSalesPrice"
+            @prevClick="handleClickPaginatorSalesPrice"
+            @change="handleClickPaginatorSalesPrice"
+            @nextClick="handleClickPaginatorSalesPrice"
+            :showSizeChanger="true"
+        />
+      </a-col>
+    </a-row>
+    <!-- Btn close modal -->
+    <a-row class="mt-10">
+      <a-col span="24">
+        <a-button class="btn btn--secondary-outline w-full" size="middle" @click="handleCloseModalSalesPrice">Close</a-button>
       </a-col>
     </a-row>
   </a-modal>
