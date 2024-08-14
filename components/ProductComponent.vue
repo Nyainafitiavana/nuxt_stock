@@ -32,6 +32,7 @@ interface Props {
 
   const props = defineProps<Props>();
 
+  //**************Beginning of Column datatable property***********
   const standardSalesPrice = {
     title: 'Standard unit price',
     key: 'productSalesPrice',
@@ -154,7 +155,9 @@ interface Props {
     statusColumn,
     props.activePage === STCodeList.ACTIVE ?  activeActionsColumns : deletedActionColumns,
   ];
+  //**************End of Column datatable property***********
 
+  //**************Beginning of state management**************
   const loading = ref<boolean>(false);
   const loadingBtn = ref<boolean>(false);
   const loadingCategoryFilterList = ref<boolean>(false);
@@ -175,11 +178,11 @@ interface Props {
         idCategory: '',
       }
   );
-
-  //***********Beginning of select method of category product***************
   const optionsCategory = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
   const currentCategoryList = ref<string>('');
+  //**************End of state management**************
 
+  //***********Beginning of select method of category product***************
   const filterOption = (input: string, option: any) => {
     return option?.label?.toLowerCase().includes(input.toLowerCase());
   };
