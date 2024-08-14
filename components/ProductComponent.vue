@@ -98,7 +98,7 @@ interface Props {
     ])
   }
 
-  const actifActionsColumns = {
+  const activeActionsColumns = {
     title: 'Actions',
     key: 'actions',
     width: 200,
@@ -152,13 +152,12 @@ interface Props {
     standardSalesPrice,
     wholeSalesPrice,
     statusColumn,
-    props.activePage === STCodeList.ACTIVE ?  actifActionsColumns : deletedActionColumns,
+    props.activePage === STCodeList.ACTIVE ?  activeActionsColumns : deletedActionColumns,
   ];
 
   const loading = ref<boolean>(false);
   const loadingBtn = ref<boolean>(false);
   const loadingCategoryFilterList = ref<boolean>(false);
-  const loadingCategoryFilterModal = ref<boolean>(false);
   const keyword = ref<string>('');
   const pageSize = ref<number>(10);
   const currentPage = ref<number>(1);
