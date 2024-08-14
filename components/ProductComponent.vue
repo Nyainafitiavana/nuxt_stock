@@ -158,6 +158,7 @@ interface Props {
   const loading = ref<boolean>(false);
   const loadingBtn = ref<boolean>(false);
   const loadingCategoryFilterList = ref<boolean>(false);
+  const loadingCategoryFilterModal = ref<boolean>(false);
   const keyword = ref<string>('');
   const pageSize = ref<number>(10);
   const currentPage = ref<number>(1);
@@ -177,19 +178,15 @@ interface Props {
   );
 
   //***********Beginning of select method of category product***************
-  const optionsCategoryInList = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
-  const currentCategoryFilter = ref<string>('');
+  const optionsCategory = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
+  const currentCategoryList = ref<string>('');
+
   const filterOption = (input: string, option: any) => {
     return option?.label?.toLowerCase().includes(input.toLowerCase());
   };
 
-  const handleChangeFilterCategory = (value: any) => {
-    currentCategoryFilter.value = value as string;
+  const handleChangeFilterCategoryInList = () => {
     getAllDataProduct();
-  };
-
-  const handleChangeCategory = (value: any) => {
-    formState.idCategory = value as string;
   };
   //***********End of select method of category product***************
 
@@ -400,7 +397,7 @@ interface Props {
           pageSize.value,
           currentPage.value,
           props.activePage,
-          currentCategoryFilter.value
+          currentCategoryList.value
       );
       data.value = response.data;
       totalPage.value = response.totalRows;
@@ -433,8 +430,8 @@ interface Props {
           '',
           STCodeList.ACTIVE);
       response.data.map((item: ICategory) => {
-        if (optionsCategoryInList.value) {
-          optionsCategoryInList.value.push({ value: item.uuid, label: item.designation });
+        if (optionsCategory.value) {
+          optionsCategory.value.push({ value: item.uuid, label: item.designation });
         }
       });
 
@@ -506,11 +503,11 @@ interface Props {
       <span>Sort by category : </span>
       <a-select
           class="w-44"
-          v-model:value="currentCategoryFilter"
+          v-model:value="currentCategoryList"
           show-search
-          :options="optionsCategoryInList"
+          :options="optionsCategory"
           :filter-option="filterOption"
-          @change="handleChangeFilterCategory"
+          @change="handleChangeFilterCategoryInList"
           :disabled="isView"
           :loading="loadingCategoryFilterList"
       ></a-select>
@@ -587,14 +584,13 @@ interface Props {
               <a-col span="5"><label for="basic_idCategory"><span class="required_toil">*</span> Category:</label></a-col>
               <a-col span="19">
                 <a-select
+                    class="w-44"
                     v-model:value="formState.idCategory"
                     show-search
-                    placeholder="Select the category"
-                    @change="handleChangeCategory"
+                    :options="optionsCategory"
+                    :filter-option="filterOption"
                     :disabled="isView"
-                    size="large"
-                    class="w-full"
-                    :loading="true"
+                    :loading="loadingCategoryFilterList"
                 ></a-select>
               </a-col>
             </a-row>
