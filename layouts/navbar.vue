@@ -25,11 +25,14 @@ const updateSelectedKeys = () => {
     case RouteList.CATEGORY:
       selectedKeys.value = ['4'];
       break;
-    case RouteList.PRODUCT:
+    case RouteList.UNIT:
       selectedKeys.value = ['5'];
       break;
-    case RouteList.INVENTORY:
+    case RouteList.PRODUCT:
       selectedKeys.value = ['6'];
+      break;
+    case RouteList.INVENTORY:
+      selectedKeys.value = ['7'];
       break;
     default:
       selectedKeys.value = ['2'];
@@ -94,12 +97,18 @@ const navigateTo = (route: string) => {
           </NuxtLink>
         </a-menu-item>
         <a-menu-item key="5" v-if="isAdmin === 'true'">
+          <NuxtLink :to="RouteList.UNIT">
+            <AppstoreAddOutlined style="font-size: 18px;" />
+            <span>Unit</span>
+          </NuxtLink>
+        </a-menu-item>
+        <a-menu-item key="6" v-if="isAdmin === 'true'">
           <NuxtLink :to="RouteList.PRODUCT">
             <ShopOutlined style="font-size: 18px;" />
             <span>Product</span>
           </NuxtLink>
         </a-menu-item>
-        <a-menu-item key="6">
+        <a-menu-item key="7">
           <NuxtLink :to="RouteList.INVENTORY">
             <ShoppingCartOutlined style="font-size: 18px;" />
             <span>Inventory</span>

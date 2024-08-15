@@ -26,6 +26,8 @@ import {
 import type {SelectProps} from "ant-design-vue/lib";
 import type {RuleObject} from "ant-design-vue/es/form";
 import {formatDateString} from "~/composables/helper";
+import type {IUnit} from "~/composables/Unit/Unit.interface";
+import {getAllUnit} from "~/composables/Unit/unit.service";
 
 
 interface Props {
@@ -171,6 +173,12 @@ interface Props {
       key: 'designation',
     },
     {
+      title: 'Unit',
+      dataIndex: ['unit', 'designation'],
+      key: 'unit',
+      customRender: ({ text }: { text: string }) => text ? text : '---'
+    },
+    {
       title: 'Category',
       dataIndex: ['category', 'designation'],
       key: 'category',
@@ -230,6 +238,7 @@ interface Props {
   const loadingBtn = ref<boolean>(false);
   const loadingBtnSalesPrice = ref<boolean>(false);
   const loadingCategoryFilterList = ref<boolean>(false);
+  const loadingUnitFilterList = ref<boolean>(false);
   const loadingSalesPrice = ref<boolean>(false);
   const keyword = ref<string>('');
   const pageSize = ref<number>(10);
@@ -239,7 +248,7 @@ interface Props {
   const currentPageSalesPrice = ref<number>(1);
   const totalPageSalesPrice = ref<number>(0);
   const dataProduct = ref<IProduct[]>([]);
-  const dataProductSalesPrice = ref<IProduct[]>([]);
+  const dataProductSalesPrice = ref<IProductSalesPrice[]>([]);
   const isOpenModal = ref<boolean>(false);
   const isOpenModalSalesPrice = ref<boolean>(false);
   const isShowFormAddProductSalePrice = ref<boolean>(false);
@@ -253,6 +262,7 @@ interface Props {
         designation: '',
         description: '',
         idCategory: '',
+        idUnit: '',
       }
   );
 const formStateSalesPrice = reactive<FormProductSalesPrice>(
@@ -264,6 +274,8 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
 );
   const optionsCategory = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
   const currentCategoryList = ref<string>('');
+  const optionsUnit = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
+  const currentUnitList = ref<string>('');
   //**************End of state management**************
 
   //***********Beginning of select method of category product***************
@@ -273,6 +285,10 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
 
   const handleChangeFilterCategoryInList = () => {
     getAllDataProduct();
+  };
+
+  const handleChangeFilterUnitInList = () => {
+    getAllDataUnit();
   };
   //***********End of select method of category product***************
 
@@ -338,6 +354,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     formState.designation = '';
     formState.description = '';
     formState.idCategory = '';
+    formState.idUnit = '';
     handleShowModal(false, false);
   }
 
@@ -348,6 +365,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     formState.designation = record.designation;
     formState.description = record.description;
     formState.idCategory = record.category.uuid;
+    formState.idUnit = record.unit.uuid;
 
     handleShowModal(false, true);
   };
@@ -376,6 +394,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     formState.designation = record.designation;
     formState.description = record.description;
     formState.idCategory = record.category.uuid;
+    formState.idUnit = record.unit.uuid;
     productId.value = record.uuid;
 
     handleShowModal(true, false);
@@ -683,6 +702,41 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
       });
     }
   }
+
+  const getAllDataUnit = async () => {
+    try {
+      loadingUnitFilterList.value = true;
+      const response: Paginate<IUnit[]> = await getAllUnit(
+          '',
+          '',
+          '',
+          STCodeList.ACTIVE);
+      response.data.map((item: IUnit) => {
+        if (optionsUnit.value) {
+          optionsUnit.value.push({ value: item.uuid, label: item.designation });
+        }
+      });
+
+      await nextTick(); // Ensure the DOM updates before proceeding
+      loadingUnitFilterList.value = false;
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: 'Error',
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+    }
+  }
   //******************End of CRUD controller********************
 
   //******************Beginning of filter and paginator methods****
@@ -710,6 +764,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
   onMounted(() => {
     getAllDataProduct();
     getAllDataCategory();
+    getAllDataUnit();
   })
 </script>
 
@@ -816,6 +871,27 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
             </a-row>
           </a-form-item>
           <a-form-item
+              name="idUnit"
+              type="select"
+              :rules="[{ required: true, message: 'Please the unit of this product!' }]"
+              class="w-full mt-10"
+          >
+            <a-row>
+              <a-col span="5"><label for="basic_idUnit"><span class="required_toil">*</span> Unit:</label></a-col>
+              <a-col span="19">
+                <a-select
+                    class="w-44"
+                    v-model:value="formState.idUnit"
+                    show-search
+                    :options="optionsUnit"
+                    :filter-option="filterOption"
+                    :disabled="isView"
+                    :loading="loadingUnitFilterList"
+                ></a-select>
+              </a-col>
+            </a-row>
+          </a-form-item>
+          <a-form-item
               name="idCategory"
               type="select"
               :rules="[{ required: true, message: 'Please the category of this product!' }]"
@@ -877,6 +953,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     <template #title>
       <span>Sales price of : {{ currentProductDesignation }}</span>
       <a-button
+          v-if="props.activePage === STCodeList.ACTIVE"
           class="btn--success ml-4"
           :icon="h(PlusOutlined)"
           @click="handleShowFormAddProductSalesPrice"

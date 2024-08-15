@@ -2,6 +2,7 @@ export const API = {
     "LOGIN" : "/api/auth/login",
     "USER" : "/api/user",
     "CATEGORY" : "/api/category",
+    "UNIT" : "/api/unit",
     "PRODUCT" : "/api/product",
     "PRODUCT_SALES_PRICE" : "/api/sales-price",
 }

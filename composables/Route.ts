@@ -6,5 +6,6 @@ export const RouteList = {
     'INVENTORY': '/inventory',
     'USER': '/user',
     'CATEGORY': '/category',
+    'UNIT': '/unit',
     'PRODUCT': '/product',
 };
