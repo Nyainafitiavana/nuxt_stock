@@ -28,7 +28,7 @@
     title: h('div', { style: { textAlign: 'center' } }, ['Status']),
     key: 'status',
     customRender: ({ record }: { record: IUser}) => h('div', [
-      record.status.code === STCodeList.ACTIVE ?
+      record.status && (record.status.code === STCodeList.ACTIVE) ?
           h('div',
               {
                 style: { textAlign: 'center', color: 'white' },
@@ -46,7 +46,7 @@
     ])
   }
 
-  const actifActionsColumns = {
+  const activeActionsColumns = {
     title: 'Actions',
     key: 'actions',
     width: 200,
@@ -159,7 +159,7 @@
           )
     },
     statusColumn,
-    props.activePage === STCodeList.ACTIVE ?  actifActionsColumns : deletedActionColumns,
+    props.activePage === STCodeList.ACTIVE ?  activeActionsColumns : deletedActionColumns,
   ];
 
   const loading = ref<boolean>(false);
@@ -346,7 +346,7 @@
       //reload data
       await getAllDataUser();
     } catch (error) {
-      //Verification code status if equal 401 then we redirect to login
+      //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
         if (error.status === 401) {
           //call the global handle action if in authorized
@@ -382,7 +382,7 @@
       //reload data
       await getAllDataUser();
     } catch (error) {
-      //Verification code status if equal 401 then we redirect to login
+      //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
         if (error.status === 401) {
           //call the global handle action if in authorized

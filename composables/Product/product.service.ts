@@ -10,12 +10,13 @@ export const getAllDataProductService = async (
     pageSize: number,
     currentPage: number,
     status: TStatus,
-    category: string
+    category: string,
+    unit: string,
 ): Promise<Paginate<IProduct[]>> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessToken: string | null = getAccessToken();
-        const response: any = await fetch(`${BASE_URL_API}${API.PRODUCT}?limit=${pageSize}&page=${currentPage}&value=${keyword}&status=${status}&category=${category}`, {
+        const response: any = await fetch(`${BASE_URL_API}${API.PRODUCT}?limit=${pageSize}&page=${currentPage}&value=${keyword}&status=${status}&category=${category}&unit=${unit}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -121,6 +122,31 @@ export const deleteProductService = async (id: string | null): Promise<IProduct>
 
         const response: any = await fetch(path, {
             method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new CustomError(errorData.message, response.status);
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const changeToActiveOrOldSalesPriceService = async (salesPriceId: string, productId: string): Promise<IProduct> => {
+    try {
+        const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
+        const path: string = `${BASE_URL_API}${API.PRODUCT_SALES_PRICE}/active_or_old/${salesPriceId}/product/${productId}`;
+        const accessToken: string | null = getAccessToken();
+
+        const response: any = await fetch(path, {
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`

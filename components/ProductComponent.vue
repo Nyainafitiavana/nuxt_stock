@@ -38,12 +38,12 @@ interface Props {
   const props = defineProps<Props>();
 
   //**************Beginning of Column datatable property***********
-  const standardSalesPrice = {
-    title: 'Standard unit price',
+  const unitPrice = {
+    title: 'Unit price',
     key: 'productSalesPrice',
     dataIndex: ['productSalesPrice', 'unitPrice'],
     customRender: ({ record }: { record: IProduct}) => {
-      let value = '---';
+      let value = '0.00';
 
       if (record.productSalesPrice.length > 0) {
         record.productSalesPrice.map((item: IProductSalesPrice) => {
@@ -66,7 +66,7 @@ interface Props {
   key: 'productSalesPrice',
   dataIndex: ['productSalesPrice', 'wholesale'],
   customRender: ({ record }: { record: IProduct}) => {
-    let value = '---';
+    let value = '0.00';
 
     if (record.productSalesPrice.length > 0) {
       record.productSalesPrice.map((item: IProductSalesPrice) => {
@@ -81,6 +81,29 @@ interface Props {
     }
 
     return h('div', { style: { textAlign: 'right' } }, [value]);
+  }
+}
+
+  const purchasePrice = {
+    title: 'Purchase price',
+    key: 'purchasePrice',
+    dataIndex: ['productSalesPrice', 'purchasePrice'],
+    customRender: ({ record }: { record: IProduct}) => {
+      let value = '0.00';
+
+      if (record.productSalesPrice.length > 0) {
+        record.productSalesPrice.map((item: IProductSalesPrice) => {
+          if (item.status.code === STCodeList.ACTIVE) {
+            value = new Intl.NumberFormat('en-US', {
+              style: 'decimal',
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }).format(item.purchasePrice);
+          }
+        })
+      }
+
+      return h('div', { style: { textAlign: 'right' } }, [value]);
   }
 }
 
@@ -184,8 +207,9 @@ interface Props {
       key: 'category',
       customRender: ({ text }: { text: string }) => text ? text : '---'
     },
-    standardSalesPrice,
+    unitPrice,
     wholeSalesPrice,
+    purchasePrice,
     statusColumn,
     props.activePage === STCodeList.ACTIVE ?  activeActionsColumns : deletedActionColumns,
   ];
@@ -193,29 +217,55 @@ interface Props {
   //Columns for product sales price datatable
   const columnsSalesPrice = [
     {
-      title: 'Standard U.price',
+      title: 'Unit price',
       key: 'unitPrice',
       dataIndex: 'unitPrice',
       customRender: ({ record }: { record: IProductSalesPrice}) => {
-        const value = new Intl.NumberFormat('en-US', {
-          style: 'decimal',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(record.unitPrice);
+        let value = '0';
+
+        if (record.unitPrice) {
+          value = new Intl.NumberFormat('en-US', {
+            style: 'decimal',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }).format(record.unitPrice);
+        }
 
         return h('div', {style: {textAlign: 'right'}}, [value]);
       }
     },
     {
-      title: 'Wholesale U.price',
+      title: 'Wholesale price',
       key: 'wholesale',
-      dataIndex: 'unitPrice',
+      dataIndex: 'wholesale',
       customRender: ({ record }: { record: IProductSalesPrice}) => {
-        const value = new Intl.NumberFormat('en-US', {
-          style: 'decimal',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(record.wholesale);
+        let value = '0';
+
+        if (record.wholesale) {
+          value = new Intl.NumberFormat('en-US', {
+            style: 'decimal',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }).format(record.wholesale);
+        }
+
+        return h('div', {style: {textAlign: 'right'}}, [value]);
+      }
+    },
+    {
+      title: 'Purchase price',
+      key: 'purchasePrice',
+      dataIndex: 'purchasePrice',
+      customRender: ({ record }: { record: IProductSalesPrice}) => {
+        let value = '0';
+
+        if (record.purchasePrice) {
+          value = new Intl.NumberFormat('en-US', {
+            style: 'decimal',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }).format(record.purchasePrice);
+        }
 
         return h('div', {style: {textAlign: 'right'}}, [value]);
       }
@@ -270,6 +320,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
       idProduct: '',
       unitPrice: 0,
       wholesale: 0,
+      purchasePrice: 0,
     }
 );
   const optionsCategory = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
@@ -288,7 +339,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
   };
 
   const handleChangeFilterUnitInList = () => {
-    getAllDataUnit();
+    getAllDataProduct();
   };
   //***********End of select method of category product***************
 
@@ -329,6 +380,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     resetForm();
     formStateSalesPrice.unitPrice = 0;
     formStateSalesPrice.wholesale = 0;
+    formStateSalesPrice.purchasePrice = 0;
 
     isShowFormAddProductSalePrice.value = true;
   }
@@ -380,6 +432,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     //Reset value of form product sales price
     formStateSalesPrice.unitPrice = 0;
     formStateSalesPrice.wholesale = 0;
+    formStateSalesPrice.purchasePrice = 0;
 
     //Get All data product sales price
     getAllDataProductSalesPrice();
@@ -614,7 +667,8 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
           pageSize.value,
           currentPage.value,
           props.activePage,
-          currentCategoryList.value
+          currentCategoryList.value,
+          currentUnitList.value
       );
       dataProduct.value = response.data;
       totalPage.value = response.totalRows;
@@ -772,7 +826,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
   <!-- Sort page, add btn, sort by category, search -->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <!-- Page size -->
-    <a-col class="mt-8" span="5">
+    <a-col class="mt-8" span="4">
       <a-select
           ref="select"
           v-model:value="pageSize"
@@ -790,7 +844,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
       <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">Add</a-button>
     </a-col>
     <!-- Sort by category -->
-    <a-col class="mt-8" span="8">
+    <a-col class="mt-8" span="6">
       <span>Sort by category : </span>
       <a-select
           class="w-44"
@@ -803,8 +857,21 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
           :loading="loadingCategoryFilterList"
       ></a-select>
     </a-col>
+    <!-- Sort by unit -->
+    <a-col class="mt-8" span="6">
+      <span>Sort by unit : </span>
+      <a-select
+          class="w-44"
+          v-model:value="currentUnitList"
+          show-search
+          :options="optionsUnit"
+          :filter-option="filterOption"
+          @change="handleChangeFilterUnitInList"
+          :loading="loadingUnitFilterList"
+      ></a-select>
+    </a-col>
     <!-- Search input -->
-    <a-col class="mt-8 flex justify-end" span="8">
+    <a-col class="mt-8 flex justify-end" span="5">
       <a-input type="text" class="w-48" v-model:value="keyword" placeholder="Search"/>&nbsp;
       <a-button class="btn--primary" :icon="h(SearchOutlined)" @click="handleSearch"/>
     </a-col>
@@ -974,18 +1041,18 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
         >
           <!-- Form items -->
           <a-row>
-            <a-col span="11">
+            <a-col span="7">
               <a-form-item
                   name="unitPrice"
                   type="text"
                   :rules="[
-                      { required: true, message: 'Please input the standard unit price !' },
+                      { required: true, message: 'Please input the unit price !' },
                       { validator: validatePrice, trigger: 'change' }
                   ]"
                   class="w-full mt-10"
               >
                 <a-row>
-                  <a-col span="24"><label for="basic_unitPrice"><span class="required_toil">*</span> Standard unit price:</label></a-col>
+                  <a-col span="24"><label for="basic_unitPrice"><span class="required_toil">*</span> Unit price:</label></a-col>
                   <a-col span="24">
                     <a-input-number v-model:value="formStateSalesPrice.unitPrice" :min="0">
                       <template #addonAfter><SettingOutlined /></template>
@@ -993,17 +1060,37 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
                   </a-col>
                 </a-row>
               </a-form-item>
-            </a-col>&emsp;
-            <a-col span="11">
+            </a-col>
+            <a-col span="7">
               <a-form-item
                   name="wholesale"
                   type="text"
                   class="w-full mt-10"
               >
                 <a-row>
-                  <a-col span="24"><label for="basic_wholesale"><span class="required_toil"></span> Wholesale unit price:</label></a-col>
+                  <a-col span="24"><label for="basic_wholesale"><span class="required_toil"></span> Wholesale price:</label></a-col>
                   <a-col span="24">
-                    <a-input-number v-model:value="formStateSalesPrice.wholesale" :min="1">
+                    <a-input-number v-model:value="formStateSalesPrice.wholesale" :min="0">
+                      <template #addonAfter><SettingOutlined /></template>
+                    </a-input-number>
+                  </a-col>
+                </a-row>
+              </a-form-item>
+            </a-col>
+            <a-col span="7">
+              <a-form-item
+                  name="purchasePrice"
+                  type="text"
+                  :rules="[
+                      { required: true, message: 'Please input the Purchase price !' },
+                      { validator: validatePrice, trigger: 'change' }
+                  ]"
+                  class="w-full mt-10"
+              >
+                <a-row>
+                  <a-col span="24"><label for="basic_purchasePrice"><span class="required_toil">*</span> Purchase price:</label></a-col>
+                  <a-col span="24">
+                    <a-input-number v-model:value="formStateSalesPrice.purchasePrice" :min="0">
                       <template #addonAfter><SettingOutlined /></template>
                     </a-input-number>
                   </a-col>

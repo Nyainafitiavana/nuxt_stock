@@ -7,7 +7,7 @@ export interface IUser {
     isAdmin?: boolean;
     email: string;
     phone: string;
-    status: IStatus;
+    status?: IStatus;
 }
 export interface FormStateUser {
     firstName: string;

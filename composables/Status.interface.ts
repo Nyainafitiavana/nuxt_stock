@@ -6,6 +6,7 @@ export interface IStatus {
 
 export const STCodeList = {
     'ACTIVE': 'ACT',
+    'OLD': 'OLD',
     'DELETED': 'DLT',
     'COMPLETED': 'CMP',
     'OUTSTANDING': 'OSD',
