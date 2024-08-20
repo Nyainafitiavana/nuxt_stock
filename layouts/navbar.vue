@@ -26,8 +26,7 @@ if (ssrContext) {
   state.collapsed = false; // Adjust if needed
 }
 
-// Menu items
-const items = reactive([
+const adminMenuItems = reactive([
   {
     key: '1',
     icon: () => h(BarChartOutlined),
@@ -69,6 +68,39 @@ const items = reactive([
     label: 'Product',
     title: 'Product',
     onClick: () => navigateTo(RouteList.PRODUCT),
+  },
+  {
+    key: 'inventory',
+    icon: () => h(ShoppingCartOutlined),
+    label: 'Inventory',
+    title: 'Inventory',
+    children: [
+      {
+        key: '8',
+        icon: () => h(VerticalAlignBottomOutlined),
+        label: 'Purchase',
+        title: 'Purchase',
+        onClick: () => navigateTo(RouteList.INVENTORY_PURCHASE),
+      },
+      {
+        key: '9',
+        icon: () => h(ToTopOutlined),
+        label: 'Sales',
+        title: 'Sales',
+        onClick: () => navigateTo(RouteList.INVENTORY_SALES),
+      },
+    ],
+  },
+]);
+
+// Menu items
+const managerMenuItems = reactive([
+  {
+    key: '2',
+    icon: () => h(UserOutlined),
+    label: 'Profile',
+    title: 'Profile',
+    onClick: () => navigateTo(RouteList.PROFILE + '/' + userId.value),
   },
   {
     key: 'inventory',
@@ -181,7 +213,7 @@ const toggleCollapsed = () => {
         mode="inline"
         theme="dark"
         :inline-collapsed="state.collapsed"
-        :items="items"
+        :items="isAdmin === 'true' ? adminMenuItems : managerMenuItems"
     ></a-menu>
     </a-layout-sider>
     <a-layout :style="{ marginLeft: sideWidth }">
