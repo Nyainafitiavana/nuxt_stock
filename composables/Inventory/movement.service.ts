@@ -60,7 +60,7 @@ export const getAllDetailsMovementService = async (
     }
 };
 
-export const insertOrUpdateCategory = async (
+export const insertOrUpdateMovement = async (
     isSales: boolean,
     details: IDetails[],
     idMovement: string | null,
@@ -95,7 +95,7 @@ export const insertOrUpdateCategory = async (
     }
 };
 
-export const deleteCategoryService = async (id: string | null): Promise<ICategory> => {
+export const deleteMovementService = async (id: string | null): Promise<IMovement> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const path: string = `${BASE_URL_API}${API.CATEGORY}/${id}`;
