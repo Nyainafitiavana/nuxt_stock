@@ -5,6 +5,7 @@ export const API = {
     "UNIT" : "/api/unit",
     "PRODUCT" : "/api/product",
     "PRODUCT_SALES_PRICE" : "/api/sales-price",
+    "MOVEMENT" : "/api/movement",
 }
 
 export const getAccessToken = (): string | null => {
