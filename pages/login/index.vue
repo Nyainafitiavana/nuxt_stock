@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import type {IUser} from "~/composables/User/User.interface";
   import {loginUser} from "~/composables/Auth/auth.service";
   import type {AuthInterface} from "~/composables/Auth/auth.interface";
   interface FormState {
@@ -30,7 +29,7 @@
       if (data.is_admin) {
         await router.push(RouteList.DASHBOARD);
       } else {
-        await router.push(RouteList.INVENTORY);
+        await router.push(RouteList.INVENTORY_SALES);
       }
 
     } catch (error) {
