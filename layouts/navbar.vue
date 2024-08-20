@@ -1,134 +1,202 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import {ref, computed, onMounted, reactive, h, watch, useSSRContext} from 'vue';
+import { useRoute } from 'vue-router';
 import { RouteList } from '~/composables/Route';
+import {
+  AppstoreAddOutlined,
+  AppstoreOutlined,
+  BarChartOutlined,
+  ShopOutlined, ShoppingCartOutlined,
+  TeamOutlined, ToTopOutlined,
+  UserOutlined, VerticalAlignBottomOutlined
+} from "#components";
 
-const selectedKeys = ref<string[]>(['1']);
-const collapsed = ref<boolean>(false);
+// State
+const state = reactive({
+  collapsed: false,
+  selectedKeys: ['1'],
+  openKeys: ['inventory'],
+  preOpenKeys: ['inventory'],
+});
+
+// SSR context to ensure consistent initial state
+const ssrContext = useSSRContext();
+if (ssrContext) {
+  // Set collapsed state to the same value on both server and client
+  state.collapsed = false; // Adjust if needed
+}
+
+// Menu items
+const items = reactive([
+  {
+    key: '1',
+    icon: () => h(BarChartOutlined),
+    label: 'Dashboard',
+    title: 'Dashboard',
+    onClick: () => navigateTo(RouteList.DASHBOARD),
+  },
+  {
+    key: '2',
+    icon: () => h(UserOutlined),
+    label: 'Profile',
+    title: 'Profile',
+    onClick: () => navigateTo(RouteList.PROFILE + '/' + userId.value),
+  },
+  {
+    key: '3',
+    icon: () => h(TeamOutlined),
+    label: 'User',
+    title: 'User',
+    onClick: () => navigateTo(RouteList.USER),
+  },
+  {
+    key: '4',
+    icon: () => h(AppstoreOutlined),
+    label: 'Category',
+    title: 'Category',
+    onClick: () => navigateTo(RouteList.CATEGORY),
+  },
+  {
+    key: '5',
+    icon: () => h(AppstoreAddOutlined),
+    label: 'Unit',
+    title: 'Unit',
+    onClick: () => navigateTo(RouteList.UNIT),
+  },
+  {
+    key: '6',
+    icon: () => h(ShopOutlined),
+    label: 'Product',
+    title: 'Product',
+    onClick: () => navigateTo(RouteList.PRODUCT),
+  },
+  {
+    key: 'inventory',
+    icon: () => h(ShoppingCartOutlined),
+    label: 'Inventory',
+    title: 'Inventory',
+    children: [
+      {
+        key: '8',
+        icon: () => h(VerticalAlignBottomOutlined),
+        label: 'Purchase',
+        title: 'Purchase',
+        onClick: () => navigateTo(RouteList.INVENTORY_PURCHASE),
+      },
+      {
+        key: '9',
+        icon: () => h(ToTopOutlined),
+        label: 'Sales',
+        title: 'Sales',
+        onClick: () => navigateTo(RouteList.INVENTORY_SALES),
+      },
+    ],
+  },
+]);
+
+// Route and Router
 const route = useRoute();
-const router = useRouter();
-// Compute the width of the sider based on its collapsed state
-const siderWidth = computed(() => (collapsed.value ? '80px' : '200px'));
 
-// Adjust current menu with current route
+// Computed width of the side based on collapsed state
+const sideWidth = computed(() => (state.collapsed ? '80px' : '200px'));
+
+// Update selected menu keys based on the current route
 const updateSelectedKeys = () => {
   switch (route.path) {
     case RouteList.DASHBOARD:
-      selectedKeys.value = ['1'];
+      state.selectedKeys = ['1'];
       break;
     case RouteList.PROFILE:
-      selectedKeys.value = ['2'];
+      state.selectedKeys = ['2'];
       break;
     case RouteList.USER:
-      selectedKeys.value = ['3'];
+      state.selectedKeys = ['3'];
       break;
     case RouteList.CATEGORY:
-      selectedKeys.value = ['4'];
+      state.selectedKeys = ['4'];
       break;
     case RouteList.UNIT:
-      selectedKeys.value = ['5'];
+      state.selectedKeys = ['5'];
       break;
     case RouteList.PRODUCT:
-      selectedKeys.value = ['6'];
+      state.selectedKeys = ['6'];
       break;
-    case RouteList.INVENTORY:
-      selectedKeys.value = ['7'];
+    case RouteList.INVENTORY_PURCHASE:
+      state.selectedKeys = ['8'];
+      break;
+    case RouteList.INVENTORY_SALES:
+      state.selectedKeys = ['9'];
       break;
     default:
-      selectedKeys.value = ['2'];
+      state.selectedKeys = ['2'];
       break;
   }
 };
 
+// On component mount, update selected keys and retrieve user data
 onMounted(() => {
   updateSelectedKeys();
   isAdmin.value = localStorage.getItem("is_admin");
   userId.value = localStorage.getItem("userId");
 });
 
+// Admin and User ID refs
 const isAdmin = ref<string | null>(null);
 const userId = ref<string | null>(null);
 
-const toggleCollapse = () => {
-  collapsed.value = !collapsed.value;
-};
+// Watch for changes in open keys and update previous open keys
+watch(
+    () => state.openKeys,
+    (_val, oldVal) => {
+      state.preOpenKeys = oldVal;
+    },
+);
 
-const navigateTo = (route: string) => {
-  router.push(route);
+// Toggle sidebar collapsed state
+const toggleCollapsed = () => {
+  state.collapsed = !state.collapsed;
+  state.openKeys = state.collapsed ? [] : state.preOpenKeys;
 };
 </script>
 
 <template>
   <a-layout>
+    <!-- Force re-render on collapse :key="state.collapsed ? 'collapsed' : 'expanded'"-->
     <a-layout-sider
-        v-model:collapsed="collapsed"
-        :trigger="null"
-        collapsible
-        class="sider"
-        :style="{ width: siderWidth, transition: 'width 0.2s' }"
+      :key="state.collapsed ? 'collapsed' : 'expanded'"
+      v-model:collapsed="state.collapsed"
+      :trigger="null"
+      collapsible
+      class="side"
+      :style="{ width: sideWidth, transition: 'width 0.2s' }"
     >
-      <div class="logo flex justify-start mt-2">
-        <img src="/favicon.ico" alt="" class="ml-2">
-        <h1 class="text-white pt-2 ml-2" v-if="!collapsed">Stock App</h1>
-      </div>
-      <a-menu :class="collapsed ? '' : 'mt-5'" v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
-        <a-menu-item key="1" v-if="isAdmin === 'true'">
-          <NuxtLink :to="RouteList.DASHBOARD">
-            <BarChartOutlined style="font-size: 18px;" />
-            <span>Dashboard</span>
-          </NuxtLink>
-        </a-menu-item>
-        <a-menu-item key="2">
-          <NuxtLink :to="`${RouteList.PROFILE}/${userId}`">
-            <user-outlined style="font-size: 18px;" />
-            <span>Profile</span>
-          </NuxtLink>
-        </a-menu-item>
-        <a-menu-item key="3" v-if="isAdmin === 'true'">
-          <NuxtLink :to="RouteList.USER">
-            <TeamOutlined style="font-size: 18px;" />
-            <span>User</span>
-          </NuxtLink>
-        </a-menu-item>
-        <a-menu-item key="4" v-if="isAdmin === 'true'">
-          <NuxtLink :to="RouteList.CATEGORY">
-            <AppstoreOutlined style="font-size: 18px;" />
-            <span>Category</span>
-          </NuxtLink>
-        </a-menu-item>
-        <a-menu-item key="5" v-if="isAdmin === 'true'">
-          <NuxtLink :to="RouteList.UNIT">
-            <AppstoreAddOutlined style="font-size: 18px;" />
-            <span>Unit</span>
-          </NuxtLink>
-        </a-menu-item>
-        <a-menu-item key="6" v-if="isAdmin === 'true'">
-          <NuxtLink :to="RouteList.PRODUCT">
-            <ShopOutlined style="font-size: 18px;" />
-            <span>Product</span>
-          </NuxtLink>
-        </a-menu-item>
-        <a-menu-item key="7">
-          <NuxtLink :to="RouteList.INVENTORY">
-            <ShoppingCartOutlined style="font-size: 18px;" />
-            <span>Inventory</span>
-          </NuxtLink>
-        </a-menu-item>
-      </a-menu>
+
+    <div class="logo flex justify-start mt-2">
+      <img src="/favicon.ico" alt="" class="ml-2">
+      <h1 class="text-white pt-2 ml-2" v-if="!state.collapsed">Stock App</h1>
+    </div>
+    <a-menu
+        v-model:openKeys="state.openKeys"
+        v-model:selectedKeys="state.selectedKeys"
+        mode="inline"
+        theme="dark"
+        :inline-collapsed="state.collapsed"
+        :items="items"
+    ></a-menu>
     </a-layout-sider>
-    <a-layout :style="{ marginLeft: siderWidth }">
+    <a-layout :style="{ marginLeft: sideWidth }">
       <a-layout-header style="background: #fff; padding: 0 15px;">
         <menu-unfold-outlined
-            v-if="collapsed"
+            v-if="state.collapsed"
             class="trigger"
             style="font-size: 20px;"
-            @click="toggleCollapse"
+            @click="toggleCollapsed"
         />
         <menu-fold-outlined
             v-else
             class="trigger"
             style="font-size: 20px;"
-            @click="toggleCollapse"
+            @click="toggleCollapsed"
         />
       </a-layout-header>
       <a-layout-content
@@ -148,13 +216,13 @@ const navigateTo = (route: string) => {
 </template>
 
 <style scoped>
-.sider {
+.side {
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh; /* Full viewport height */
-  background: #001529; /* Background color of the sider */
-  z-index: 1; /* Ensure the sider is above other content */
+  background: #001529; /* Background color of the side */
+  z-index: 1; /* Ensure the side is above other content */
   transition: width 0.2s; /* Smooth transition for width changes */
 }
 
@@ -162,9 +230,5 @@ const navigateTo = (route: string) => {
   height: 32px;
   background: rgba(255, 255, 255, 0.2);
   margin: 16px;
-}
-
-.site-layout .site-layout-background {
-  background: #fff;
 }
 </style>

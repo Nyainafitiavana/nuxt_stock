@@ -1,14 +1,14 @@
 <script setup lang="ts">
 definePageMeta({
   layout: 'navbar',
-  title: 'Order',
+  title: 'Purchase',
   middleware: ['user-middleware']
 });
 </script>
 
 <template>
-  <Title>Order</Title>
-  <h1>Order</h1>
+  <Title>Purchase</Title>
+  <h1>Purchase</h1>
 </template>
 
 <style scoped>
