@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import {TeamOutlined} from "#components";
 
   definePageMeta({
     layout: 'navbar',

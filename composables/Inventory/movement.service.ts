@@ -33,15 +33,11 @@ export const getAllMovementService = async (
     }
 };
 
-export const getAllDetailsMovementService = async (
-    idMovement: string,
-    pageSize: number | string,
-    currentPage: number | string
-): Promise<ICategory> => {
+export const getAllDetailsMovementService = async (idMovement: string): Promise<Paginate<IDetails[]>> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessToken: string | null = getAccessToken();
-        const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}/${idMovement}/details?limit=${pageSize}&page=${currentPage}`, {
+        const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}/${idMovement}/details`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

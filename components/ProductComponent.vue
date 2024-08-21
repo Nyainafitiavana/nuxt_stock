@@ -40,7 +40,7 @@ interface Props {
   //**************Beginning of Column datatable property***********
   const unitPrice = {
     title: 'Unit price',
-    key: 'productSalesPrice',
+    key: 'unitPrice',
     dataIndex: ['productSalesPrice', 'unitPrice'],
     customRender: ({ record }: { record: IProduct}) => {
       let value = '0.00';
@@ -63,7 +63,7 @@ interface Props {
 
   const wholeSalesPrice = {
   title: 'Wholesale unit price',
-  key: 'productSalesPrice',
+  key: 'wholesalePrice',
   dataIndex: ['productSalesPrice', 'wholesale'],
   customRender: ({ record }: { record: IProduct}) => {
     let value = '0.00';

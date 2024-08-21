@@ -1,5 +1,7 @@
 import type {IStatus} from "~/composables/Status.interface";
 import type {IUser} from "~/composables/User/User.interface";
+import type {IProduct} from "~/composables/Product/Product.interface";
+import type {IProductSalesPrice} from "~/composables/Product/ProductSalesPrice.interface";
 
 export interface IMovement {
     uuid: string;
@@ -12,6 +14,14 @@ export interface IMovement {
 }
 
 export interface IDetails {
+    uuid: string;
+    product: IProduct;
+    quantity: number;
+    isUnitPrice: boolean;
+    salesPrice: IProductSalesPrice;
+}
+
+export interface IFormDetails {
     idProduct: string;
     isUnitPrice: boolean;
     quantity: number;
@@ -19,5 +29,5 @@ export interface IDetails {
 
 export interface IBodyMovement {
     isSales: boolean;
-    details: IDetails[];
+    details: IFormDetails[];
 }
