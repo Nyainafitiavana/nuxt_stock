@@ -2,7 +2,7 @@ import {CustomError} from "~/composables/CustomError";
 import type {Paginate} from "~/composables/apiResponse.interface";
 import type {TStatus} from "~/composables/Status.interface";
 import {getAccessToken} from "~/composables/api";
-import type {FormProduct, IProduct} from "~/composables/Product/Product.interface";
+import type {FormProduct, IProduct, IProductRemainingStock} from "~/composables/Product/Product.interface";
 import type {FormProductSalesPrice, IProductSalesPrice} from "~/composables/Product/ProductSalesPrice.interface";
 
 export const getAllDataProductService = async (
@@ -139,14 +139,12 @@ export const deleteProductService = async (id: string | null): Promise<IProduct>
     }
 };
 
-export const changeToActiveOrOldSalesPriceService = async (salesPriceId: string, productId: string): Promise<IProduct> => {
+export const getAllProductWithRemainingStockService = async (): Promise<IProductRemainingStock[]> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const path: string = `${BASE_URL_API}${API.PRODUCT_SALES_PRICE}/active_or_old/${salesPriceId}/product/${productId}`;
         const accessToken: string | null = getAccessToken();
-
-        const response: any = await fetch(path, {
-            method: 'PATCH',
+        const response: any = await fetch(`${BASE_URL_API}${API.PRODUCT}/remaining/stock`, {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`
@@ -163,3 +161,4 @@ export const changeToActiveOrOldSalesPriceService = async (salesPriceId: string,
         throw error;
     }
 };
+

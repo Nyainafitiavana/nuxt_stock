@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {h} from 'vue';
+import {createVNode, h} from 'vue';
 import {
-  AInputNumber,
+  AInputNumber, ASelect,
   CheckOutlined,
-  CloseOutlined,
+  CloseOutlined, ExclamationCircleOutlined,
   InfoOutlined,
   PlusOutlined,
   SearchOutlined,
@@ -14,13 +14,16 @@ import {handleInAuthorizedError} from "~/composables/CustomError";
 import type {Paginate} from "~/composables/apiResponse.interface";
 import {Switch} from "ant-design-vue";
 import {STCodeList, type TStatus} from "~/composables/Status.interface";
-import type {IDetails, IMovement} from "~/composables/Inventory/Movement.interface";
+import type {IDetails, IFormDetails, IMovement} from "~/composables/Inventory/Movement.interface";
 import {
-  deleteMovementService,
   getAllDetailsMovementService,
-  getAllMovementService
+  getAllMovementService,
+  updateDetailMovementService
 } from "~/composables/Inventory/movement.service";
 import {formatDateString} from "~/composables/helper";
+import type {SelectProps} from "ant-design-vue/lib";
+import type {IProductRemainingStock} from "~/composables/Product/Product.interface";
+import {getAllProductWithRemainingStockService} from "~/composables/Product/product.service";
 
 
 interface Props {
@@ -147,6 +150,20 @@ const columnsDetailsMovement = [
     title: 'Product',
     key: 'product',
     dataIndex: 'product_name',
+    width: 200,
+    customRender: ({ record }: { record: IDetails}) => [
+        h(ASelect, {
+          style:'width: 100%',
+          'placeholder':'Select a product',
+          'show-search': true,
+          value: record.product_id,
+          options: optionsProductDetails.value,
+          'filter-option': filterOption,
+          onSelect: (value) => {
+            changeItemDetails(value, record);
+          }
+        })
+    ]
   },
   {
     title: 'Category',
@@ -157,7 +174,7 @@ const columnsDetailsMovement = [
     title: 'Unit',
     key: 'unit',
     dataIndex: 'unit_name',
-    width: 100,
+    width: 80,
   },
   {
     title: 'Unit price',
@@ -191,6 +208,7 @@ const columnsDetailsMovement = [
     title: 'Price type',
     key: 'priceType',
     dataIndex: 'is_unit_price',
+    width: 120,
     customRender: ({ record }: { record: IDetails }) => {
       return h(Switch, {
         checked: record.is_unit_price,
@@ -213,6 +231,7 @@ const columnsDetailsMovement = [
     title: 'Quantity',
     key: 'quantity',
     dataIndex: 'quantity',
+    width: 120,
     customRender: ({ record }: { record: IDetails }) => {
       return h(AInputNumber, {
         value: record.quantity,
@@ -268,9 +287,13 @@ const currentPageMovement = ref<number>(1);
 const totalPageMovement = ref<number>(0);
 const dataMovement = ref<IMovement[]>([]);
 const dataDetailsMovement = ref<IDetails[]>([]);
+const dataProductWithRemainingStock = ref<IProductRemainingStock[]>([]);
 const isOpenModal = ref<boolean>(false);
 const movementId = ref<string>('');
 const amountDetail = ref<string>('');
+const optionsProductDetails = ref<SelectProps['options']>([]);
+const isShowErrorDetail = ref<boolean>(false);
+const errorMessageDetails = ref<string>('xx');
 
 //************Beginning of modal actions*********************
 const handleShowModalDetails = () => {
@@ -279,6 +302,29 @@ const handleShowModalDetails = () => {
 
 const handleCloseModalDetails = () => {
   isOpenModal.value = false;
+}
+
+const handleSaveChangeDetails = () => {
+  //Check if an item of the details contains empty product_id
+  const indexEmptyProduct = dataDetailsMovement.value.findIndex(item => item.product_id === '' || item.quantity === 0);
+
+  if (indexEmptyProduct !== -1) {
+    errorMessageDetails.value = `You have not selected a product or the quantity is not greater than 0 in the ${indexEmptyProduct + 1} line`;
+    isShowErrorDetail.value = true;
+  } else {
+    isShowErrorDetail.value = false;
+    Modal.confirm({
+      title: 'Confirmation Required',
+      icon: createVNode(ExclamationCircleOutlined),
+      content: 'Are you sure you want to proceed? This action is irreversible.',
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk: async () => {
+        loadingBtn.value = true;
+        await updateDetailsMovement();
+      }
+    });
+  }
 }
 //************End of modal actions*********************
 
@@ -289,14 +335,93 @@ const handleAdd = () => {
 
 
 //************Beginning of actions datatable button method**********
+const filterOption = (input: string, option: any) => {
+  return option?.label?.toLowerCase().includes(input.toLowerCase());
+};
+
 const handleViewDetailsMovement = (record: IMovement) => {
   movementId.value = record.uuid;
   getAllDetailsMovement();
   handleShowModalDetails();
 };
 
+const changeItemDetails = (value: string, record: IDetails) => {
+  const findSelectProductInDetails = dataDetailsMovement.value.find(item => item.product_id === value);
+
+  if (findSelectProductInDetails) {
+    notification.error({
+      message: 'Error',
+      description: 'Can not select a product already selected!',
+      class: 'custom-error-notification'
+    });
+
+    record.product_id = '';
+    record.product_name = '';
+    record.quantity = 0;
+    record.category_id = '';
+    record.category_name = '';
+    record.unit_id = '';
+    record.unit_name = '';
+    record.is_unit_price = true;
+    record.product_sales_price_id = '';
+    record.unit_price = 0;
+    record.wholesale_price = 0;
+    record.purchase_price = 0;
+    record.remaining_stock = 0;
+  } else {
+    //find a product in dataProductWithRemainingStock to make a update of details item
+    const findProduct = dataProductWithRemainingStock.value.find(product => product.product_id === value);
+
+    if (findProduct) {
+      record.product_id = findProduct.product_id;
+      record.product_name = findProduct.product_id;
+      record.quantity = 0;
+      record.category_id = findProduct.category_id;
+      record.category_name = findProduct.category_name;
+      record.unit_id = findProduct.unit_id;
+      record.unit_name = findProduct.unit_name;
+      record.is_unit_price = true;
+      record.product_sales_price_id = findProduct.product_sales_price_id;
+      record.unit_price = findProduct.unit_price;
+      record.wholesale_price = findProduct.wholesale_price;
+      record.purchase_price = findProduct.purchase_price;
+      record.remaining_stock = findProduct.remaining_stock;
+    }
+  }
+}
+
+const handleAddNewItemDetails = () => {
+  //find in detail if an row is not completed so we can't create a new row
+  const findProduct = dataDetailsMovement.value.find(product => product.product_id === '');
+
+  if (findProduct) {
+    // Show error notification
+    notification.error({
+      message: 'Error',
+      description: 'Impossible to add a new line if you have a line that does not yet have a product.',
+      class: 'custom-error-notification'
+    });
+  } else {
+    dataDetailsMovement.value.push({
+      product_id: '',
+      product_name: '',
+      quantity: 0,
+      category_id: '',
+      category_name: '',
+      unit_id: '',
+      unit_name: '',
+      is_unit_price: true,
+      product_sales_price_id: '',
+      unit_price: 0,
+      wholesale_price: 0,
+      purchase_price: 0,
+      remaining_stock: 0,
+    })
+  }
+}
+
 const handleRemoveItemDetails = (record: IDetails) => {
-  dataDetailsMovement.value = dataDetailsMovement.value.filter(item => item.detail_id !== record.detail_id);
+  dataDetailsMovement.value = dataDetailsMovement.value.filter(item => item.product_id !== record.product_id);
   //We need to reload the amount of details
   getAmountDetails();
 };
@@ -304,42 +429,6 @@ const handleRemoveItemDetails = (record: IDetails) => {
 
 
 //******************Beginning of CRUD controller**************
-
-const deleteCategory = async () => {
-
-  try {
-    //Call operation API in service
-    await deleteMovementService(movementId.value);
-    //turn off of loading button and close modal
-    loadingBtn.value = false;
-    isOpenModal.value = false;
-    // Show success notification
-    notification.success({
-      message: 'Success',
-      description: 'Operation Successful!',
-      class: 'custom-success-notification'
-    });
-
-    //reload data
-    await getAllDataMovement();
-  } catch (error) {
-    //Verification code status if equal 401 then we redirect to log in
-    if (error instanceof CustomError) {
-      if (error.status === 401) {
-        //call the global handle action if in authorized
-        handleInAuthorizedError(error);
-        return;
-      }
-    }
-
-    // Show error notification
-    notification.error({
-      message: 'Error',
-      description: (error as Error).message,
-      class: 'custom-error-notification'
-    });
-  }
-}
 
 const getAllDataMovement = async () => {
   try {
@@ -397,6 +486,82 @@ const getAllDetailsMovement = async () => {
   }
 }
 
+const getAllProductWithRemainingStock = async () => {
+  try {
+    const response = await getAllProductWithRemainingStockService();
+    //Keep all data
+    dataProductWithRemainingStock.value = response;
+    //Format data to the options of select product
+    response.map((item: IProductRemainingStock) => {
+      if (optionsProductDetails.value) {
+        optionsProductDetails.value.push({ value: item.product_id, label: item.product_name });
+      }
+    });
+  } catch (error) {
+    //Verification code status if equal 401 then we redirect to log in
+    if (error instanceof CustomError) {
+      if (error.status === 401) {
+        //call the global handle action if in authorized
+        handleInAuthorizedError(error);
+        return;
+      }
+    }
+
+    // Show error notification
+    notification.error({
+      message: 'Error',
+      description: (error as Error).message,
+      class: 'custom-error-notification'
+    });
+  }
+}
+
+const updateDetailsMovement = async () => {
+  try {
+    let data: IFormDetails[] = [];
+    //Create a data dictionary
+    dataDetailsMovement.value.forEach((item: IDetails) => {
+      data.push({
+        idProduct: item.product_id,
+        isUnitPrice: item.is_unit_price,
+        quantity: item.quantity,
+      })
+    })
+
+    await updateDetailMovementService(movementId.value, data);
+
+    // Show success notification
+    notification.success({
+      message: 'Success',
+      description: 'Operation Successful!',
+      class: 'custom-success-notification'
+    });
+
+    loadingBtn.value = false;
+
+    //We need to reload the amount of details
+    await getAllDetailsMovement();
+  } catch (error) {
+    //Verification code status if equal 401 then we redirect to log in
+    if (error instanceof CustomError) {
+      if (error.status === 401) {
+        //call the global handle action if in authorized
+        handleInAuthorizedError(error);
+        return;
+      }
+    }
+
+    // Show error notification
+    notification.error({
+      message: 'Error',
+      description: (error as Error).message,
+      class: 'custom-error-notification'
+    });
+
+    loadingBtn.value = false;
+  }
+}
+
 const getAmountDetails = async () => {
   let amount: number = 0;
   //Browse all item to calculi amount
@@ -437,6 +602,7 @@ const handleSearch = () => {
 
 onMounted(() => {
   getAllDataMovement();
+  getAllProductWithRemainingStock();
 })
 </script>
 
@@ -494,11 +660,21 @@ onMounted(() => {
       v-if="isOpenModal"
       closable
       :footer="null"
-      title="Movement details"
       style="top: 20px"
       @ok=""
-      width="1200px"
+      width="1300px"
   >
+    <!-- Template title modal -->
+    <template #title>
+      <span>Movement details</span>
+      <a-button
+          class="btn--success ml-4"
+          :icon="h(PlusOutlined)"
+          @click="handleAddNewItemDetails"
+          size="middle"
+      >
+      </a-button>
+    </template>
     <!--Datatable details movement-->
     <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
       <a-col class="mt-8" span="24">
@@ -508,15 +684,30 @@ onMounted(() => {
               :columns="columnsDetailsMovement"
               :data-source="dataDetailsMovement"
               :pagination="false"
-              :scroll="{ x: 1000, y: 1000 }"
+              :scroll="{ x: 1200, y: 1000 }"
               bordered
           />
         </a-spin>
       </a-col>
     </a-row>
+    <!-- Amount row -->
     <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
       <a-col class="mt-8" span="24">
         <p style="font-size: 18px;">Total : {{ amountDetail }}</p>
+      </a-col>
+    </a-row>
+    <!-- Action modal of details -->
+    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+      <a-col class="mt-8" span="24">
+        <a-button class="btn btn--default" size="middle" @click="handleCloseModalDetails">Cancel</a-button>
+        <a-button
+            class="btn btn--primary ml-4"
+            html-type="submit"
+            size="middle"
+            :loading="loadingBtn"
+            @click="handleSaveChangeDetails"
+        >Save</a-button>
+        <span class="danger-color ml-5" style="font-size: 18px;" v-if="isShowErrorDetail">{{ errorMessageDetails }}</span>
       </a-col>
     </a-row>
   </a-modal>

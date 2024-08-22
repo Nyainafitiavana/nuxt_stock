@@ -13,6 +13,20 @@ export interface IProduct {
     status: IStatus;
 }
 
+export interface IProductRemainingStock {
+    product_id: string;
+    product_name: string;
+    category_id: string;
+    category_name: string;
+    unit_id: string;
+    unit_name: string;
+    remaining_stock: number;
+    product_sales_price_id: string;
+    unit_price: number;
+    wholesale_price: number;
+    purchase_price: number;
+}
+
 export interface FormProduct {
     designation: string;
     description: string;
