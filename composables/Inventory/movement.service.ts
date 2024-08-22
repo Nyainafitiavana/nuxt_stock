@@ -71,7 +71,7 @@ export const updateDetailMovementService = async (
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessTokenCategory}`
             },
-            body: JSON.stringify(details),
+            body: JSON.stringify({ details: details }),
         });
 
         if (!response.ok) {
