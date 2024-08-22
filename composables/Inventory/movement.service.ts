@@ -33,7 +33,7 @@ export const getAllMovementService = async (
     }
 };
 
-export const getAllDetailsMovementService = async (idMovement: string): Promise<Paginate<IDetails[]>> => {
+export const getAllDetailsMovementService = async (idMovement: string): Promise<IDetails[]> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessToken: string | null = getAccessToken();

@@ -14,11 +14,20 @@ export interface IMovement {
 }
 
 export interface IDetails {
-    uuid: string;
-    product: IProduct;
+    detail_id: string;
+    product_id: string;
+    product_name: string;
     quantity: number;
-    isUnitPrice: boolean;
-    salesPrice: IProductSalesPrice;
+    category_id: string;
+    category_name: string;
+    unit_id: string;
+    unit_name: string;
+    is_unit_price: boolean;
+    product_sales_price_id: string;
+    unit_price: number;
+    wholesale_price: number;
+    purchase_price: number;
+    remaining_stock: number;
 }
 
 export interface IFormDetails {
