@@ -85,6 +85,32 @@ export const updateDetailMovementService = async (
     }
 };
 
+export const validateMovementService = async (
+    idMovement: string,
+): Promise<ExecuteResponse> => {
+    try {
+        const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
+        const accessTokenCategory: string | null = getAccessToken();
+
+        const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}/${idMovement}/validate`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessTokenCategory}`
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new CustomError(errorData.message, response.status);
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const insertOrUpdateMovement = async (
     isSales: boolean,
     details: IDetails[],

@@ -18,7 +18,7 @@ import type {IDetails, IFormDetails, IMovement} from "~/composables/Inventory/Mo
 import {
   getAllDetailsMovementService,
   getAllMovementService,
-  updateDetailMovementService
+  updateDetailMovementService, validateMovementService
 } from "~/composables/Inventory/movement.service";
 import {formatDateString} from "~/composables/helper";
 import type {SelectProps} from "ant-design-vue/lib";
@@ -80,7 +80,7 @@ const activeActionsColumns = {
       class: 'btn--success-outline btn-tab',
       size: 'large',
       style: { marginRight: '8px' },
-      onClick: () => handleViewDetailsMovement(record)
+      onClick: () => handleValidateMovement(record)
     }, [h(CheckOutlined)]),
     h('a-button', {
       class: 'btn--danger-outline btn-tab',
@@ -425,6 +425,19 @@ const handleRemoveItemDetails = (record: IDetails) => {
   //We need to reload the amount of details
   getAmountDetails();
 };
+
+const handleValidateMovement = (record: IMovement) => {
+  Modal.confirm({
+    title: 'Confirmation Required',
+    icon: createVNode(ExclamationCircleOutlined),
+    content: 'Are you sure you want to proceed? This action is irreversible.',
+    okText: 'Yes',
+    cancelText: 'No',
+    onOk: async () => {
+      await validateMovement(record);
+    }
+  });
+};
 //************End of actions datatable button method**********
 
 
@@ -539,8 +552,9 @@ const updateDetailsMovement = async () => {
 
     loadingBtn.value = false;
 
-    //We need to reload the amount of details
-    await getAllDetailsMovement();
+    handleCloseModalDetails();
+    //Reload data movement
+    await getAllDataMovement();
   } catch (error) {
     //Verification code status if equal 401 then we redirect to log in
     if (error instanceof CustomError) {
@@ -559,6 +573,40 @@ const updateDetailsMovement = async () => {
     });
 
     loadingBtn.value = false;
+  }
+}
+
+const validateMovement = async (record: IMovement) => {
+  try {
+    loading.value = true;
+    await validateMovementService(record.uuid);
+    loading.value = false;
+    // Show success notification
+    notification.success({
+      message: 'Success',
+      description: 'Operation Successful!',
+      class: 'custom-success-notification'
+    });
+
+    //Reload data movement
+    await getAllDataMovement();
+  } catch (error) {
+    //Verification code status if equal 401 then we redirect to log in
+    if (error instanceof CustomError) {
+      if (error.status === 401) {
+        //call the global handle action if in authorized
+        handleInAuthorizedError(error);
+        return;
+      }
+    }
+
+    // Show error notification
+    notification.error({
+      message: 'Error',
+      description: (error as Error).message,
+      class: 'custom-error-notification'
+    });
+    loading.value = false;
   }
 }
 
