@@ -10,6 +10,7 @@ export const STCodeList = {
     'DELETED': 'DLT',
     'COMPLETED': 'CMP',
     'OUTSTANDING': 'OSD',
+    'REJECTED': 'RJT',
 } as const;
 
 export type TStatus = (typeof STCodeList)[keyof typeof STCodeList];

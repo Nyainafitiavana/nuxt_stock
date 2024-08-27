@@ -1,9 +1,14 @@
 import {CustomError} from "~/composables/CustomError";
 import type {ExecuteResponse, Paginate} from "~/composables/apiResponse.interface";
 import type {TStatus} from "~/composables/Status.interface";
-import type {FormCategory, ICategory} from "~/composables/Category/Category.interface";
 import {getAccessToken} from "~/composables/api";
-import type {IBodyMovement, IDetails, IFormDetails, IMovement} from "~/composables/Inventory/Movement.interface";
+import type {
+    IBodyMovement,
+    IDetails,
+    IFormDetails,
+    IFormReject,
+    IMovement
+} from "~/composables/Inventory/Movement.interface";
 
 export const getAllMovementService = async (
     isSales: boolean,
@@ -85,19 +90,23 @@ export const updateDetailMovementService = async (
     }
 };
 
-export const validateMovementService = async (
+export const validateOrRejectMovementService = async (
     idMovement: string,
+    isValidate: boolean,
+    observation: IFormReject | null,
 ): Promise<ExecuteResponse> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessTokenCategory: string | null = getAccessToken();
+        const path = `${BASE_URL_API}${API.MOVEMENT}/${idMovement}/${isValidate ? 'validate' : 'reject'}`;
 
-        const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}/${idMovement}/validate`, {
+        const response: any = await fetch(path, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessTokenCategory}`
             },
+            body: observation ? JSON.stringify(observation) : '',
         });
 
         if (!response.ok) {
@@ -133,31 +142,6 @@ export const insertOrUpdateMovement = async (
                 'Authorization': `Bearer ${accessTokenCategory}`
             },
             body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new CustomError(errorData.message, response.status);
-        }
-
-        return await response.json();
-    } catch (error) {
-        throw error;
-    }
-};
-
-export const deleteMovementService = async (id: string | null): Promise<IMovement> => {
-    try {
-        const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const path: string = `${BASE_URL_API}${API.CATEGORY}/${id}`;
-        const accessToken: string | null = getAccessToken();
-
-        const response: any = await fetch(path, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
         });
 
         if (!response.ok) {

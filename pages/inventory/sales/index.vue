@@ -25,7 +25,7 @@ const activeKey = ref('1');
       </template>
       <Suspense>
         <template #default>
-          <SalesComponent v-if="activeKey === '1'"  :active-page="'OSD'"/>
+          <SalesComponent v-if="activeKey === '1'"  :active-page="STCodeList.OUTSTANDING"/>
         </template>
       </Suspense>
     </a-tab-pane>
@@ -38,7 +38,7 @@ const activeKey = ref('1');
       </template>
       <Suspense>
         <template #default>
-          <SalesComponent v-if="activeKey === '2'"  :active-page="'CMP'"/>
+          <SalesComponent v-if="activeKey === '2'"  :active-page="STCodeList.COMPLETED"/>
         </template>
       </Suspense>
     </a-tab-pane>
@@ -51,7 +51,7 @@ const activeKey = ref('1');
       </template>
       <Suspense>
         <template #default>
-          <SalesComponent v-if="activeKey === '3'" :active-page="'DLT'"/>
+          <SalesComponent v-if="activeKey === '3'" :active-page="STCodeList.REJECTED"/>
         </template>
       </Suspense>
     </a-tab-pane>

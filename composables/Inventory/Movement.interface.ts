@@ -40,3 +40,7 @@ export interface IBodyMovement {
     isSales: boolean;
     details: IFormDetails[];
 }
+
+export interface IFormReject {
+    observation: string;
+}

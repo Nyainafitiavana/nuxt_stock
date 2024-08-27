@@ -19,12 +19,10 @@ const state = reactive({
   preOpenKeys: ['inventory'],
 });
 
-// SSR context to ensure consistent initial state
-const ssrContext = useSSRContext();
-if (ssrContext) {
-  // Set collapsed state to the same value on both server and client
-  state.collapsed = false; // Adjust if needed
-}
+// Admin and User ID refs
+const isAdmin = ref<string | null>(null);
+const userId = ref<string | null>(null);
+
 
 const adminMenuItems = reactive([
   {
@@ -167,14 +165,10 @@ const updateSelectedKeys = () => {
 
 // On component mount, update selected keys and retrieve user data
 onMounted(() => {
-  updateSelectedKeys();
   isAdmin.value = localStorage.getItem("is_admin");
   userId.value = localStorage.getItem("userId");
+  updateSelectedKeys();
 });
-
-// Admin and User ID refs
-const isAdmin = ref<string | null>(null);
-const userId = ref<string | null>(null);
 
 // Watch for changes in open keys and update previous open keys
 watch(
@@ -208,6 +202,7 @@ const toggleCollapsed = () => {
       <h1 class="text-white pt-2 ml-2" v-if="!state.collapsed">Stock App</h1>
     </div>
     <a-menu
+        v-if="isAdmin !== null"
         v-model:openKeys="state.openKeys"
         v-model:selectedKeys="state.selectedKeys"
         mode="inline"

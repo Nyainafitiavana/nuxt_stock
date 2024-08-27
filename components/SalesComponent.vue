@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import {createVNode, h} from 'vue';
+import {createVNode, h, type UnwrapRef} from 'vue';
 import {
+  AButton,
   AInputNumber, ASelect,
   CheckOutlined,
-  CloseOutlined, ExclamationCircleOutlined,
+  DeleteOutlined, ExclamationCircleOutlined,
   InfoOutlined,
   PlusOutlined,
   SearchOutlined,
@@ -12,13 +13,13 @@ import {
 import type {SelectValue} from "ant-design-vue/es/select";
 import {handleInAuthorizedError} from "~/composables/CustomError";
 import type {Paginate} from "~/composables/apiResponse.interface";
-import {Switch} from "ant-design-vue";
+import {type FormInstance, Switch} from "ant-design-vue";
 import {STCodeList, type TStatus} from "~/composables/Status.interface";
-import type {IDetails, IFormDetails, IMovement} from "~/composables/Inventory/Movement.interface";
+import type {IDetails, IFormDetails, IFormReject, IMovement} from "~/composables/Inventory/Movement.interface";
 import {
   getAllDetailsMovementService,
   getAllMovementService,
-  updateDetailMovementService, validateMovementService
+  updateDetailMovementService, validateOrRejectMovementService
 } from "~/composables/Inventory/movement.service";
 import {formatDateString} from "~/composables/helper";
 import type {SelectProps} from "ant-design-vue/lib";
@@ -32,6 +33,28 @@ interface Props {
 
 
 const props = defineProps<Props>();
+const isAdmin = ref<string>(null);
+const loading = ref<boolean>(false);
+const loadingDetailsMovement = ref<boolean>(false);
+const loadingBtn = ref<boolean>(false);
+const keyword = ref<string>('');
+const pageSizeMovement = ref<number>(10);
+const currentPageMovement = ref<number>(1);
+const totalPageMovement = ref<number>(0);
+const dataMovement = ref<IMovement[]>([]);
+const dataDetailsMovement = ref<IDetails[]>([]);
+const dataProductWithRemainingStock = ref<IProductRemainingStock[]>([]);
+const isOpenModal = ref<boolean>(false);
+const isOpenModalReject = ref<boolean>(false);
+const movementId = ref<string>('');
+const amountDetail = ref<string>('');
+const optionsProductDetails = ref<SelectProps['options']>([]);
+const isShowErrorDetail = ref<boolean>(false);
+const errorMessageDetails = ref<string>('');
+const formStateReject: UnwrapRef<IFormReject> = reactive({
+  observation: '',
+});
+const formRef = ref<FormInstance>();
 
 const statusColumn = {
   title: h('div', { style: { textAlign: 'center' } }, ['Status']),
@@ -43,7 +66,7 @@ const statusColumn = {
               style: { textAlign: 'center', color: 'white' },
               class: 'info-background-color'
             },
-            ['Outstanding']
+            [record.status.designation]
         )
         : (
             record.status.code === STCodeList.COMPLETED ?
@@ -52,14 +75,14 @@ const statusColumn = {
                       style: { textAlign: 'center', color: 'white' },
                       class: 'success-background-color'
                     },
-                    ['Completed']
+                    [record.status.designation]
                 ) :
                 h('div',
                     {
                       style: { textAlign: 'center', color: 'white' },
                       class: 'danger-background-color'
                     },
-                    ['Deleted']
+                    [record.status.designation]
                 )
         )
   ])
@@ -85,7 +108,7 @@ const activeActionsColumns = {
     h('a-button', {
       class: 'btn--danger-outline btn-tab',
       size: 'large',
-      onClick: () => handleViewDetailsMovement(record)
+      onClick: () => handleRejectMovement(record)
     }, [h(StopOutlined)])
   ])
 };
@@ -142,7 +165,7 @@ const columnsMovement = [
     customRender: ({ record }: { record: IMovement}) => [record.validator ? record.editor.firstName + ' ' + record.editor.lastName : '---'],
   },
   statusColumn,
-  props.activePage === STCodeList.OUTSTANDING ?  activeActionsColumns : deletedActionColumns,
+  props.activePage === STCodeList.OUTSTANDING && localStorage.getItem('is_admin') === 'true' ?  activeActionsColumns : deletedActionColumns,
 ];
 
 const columnsDetailsMovement = [
@@ -153,6 +176,7 @@ const columnsDetailsMovement = [
     width: 200,
     customRender: ({ record }: { record: IDetails}) => [
         h(ASelect, {
+          disabled: props.activePage === 'OSD' && isAdmin.value === 'false' || props.activePage === 'CMP' || props.activePage === 'RJT' && isAdmin.value === 'true',
           style:'width: 100%',
           'placeholder':'Select a product',
           'show-search': true,
@@ -211,6 +235,7 @@ const columnsDetailsMovement = [
     width: 120,
     customRender: ({ record }: { record: IDetails }) => {
       return h(Switch, {
+        disabled: props.activePage === 'OSD' && isAdmin.value === 'false' || props.activePage === 'CMP' || props.activePage === 'RJT' && isAdmin.value === 'true',
         checked: record.is_unit_price,
         'checked-children': 'Unit',
         'un-checked-children': 'Wholesale',
@@ -234,6 +259,7 @@ const columnsDetailsMovement = [
     width: 120,
     customRender: ({ record }: { record: IDetails }) => {
       return h(AInputNumber, {
+        disabled: props.activePage === 'OSD' && isAdmin.value === 'false' || props.activePage === 'CMP' || props.activePage === 'RJT' && isAdmin.value === 'true',
         value: record.quantity,
         class: 'ant-input-status-error',
         min: 0,
@@ -273,60 +299,24 @@ const columnsDetailsMovement = [
         {
           class: 'flex justify-center',
         },
-        [h(CloseOutlined, { class: 'danger-color', style: 'font-size: 20px;', onClick: () => {handleRemoveItemDetails(record)} })]
+        [
+          h(AButton, {
+            disabled: props.activePage === 'OSD' && isAdmin.value === 'false' || props.activePage === 'CMP' || props.activePage === 'RJT' && isAdmin.value === 'true',
+            class: 'btn--danger-outline btn-tab',
+            size: 'large',
+            onClick: () => handleRemoveItemDetails(record)
+          }, [h(DeleteOutlined)])
+        ]
     )
   },
 ];
 
-const loading = ref<boolean>(false);
-const loadingDetailsMovement = ref<boolean>(false);
-const loadingBtn = ref<boolean>(false);
-const keyword = ref<string>('');
-const pageSizeMovement = ref<number>(10);
-const currentPageMovement = ref<number>(1);
-const totalPageMovement = ref<number>(0);
-const dataMovement = ref<IMovement[]>([]);
-const dataDetailsMovement = ref<IDetails[]>([]);
-const dataProductWithRemainingStock = ref<IProductRemainingStock[]>([]);
-const isOpenModal = ref<boolean>(false);
-const movementId = ref<string>('');
-const amountDetail = ref<string>('');
-const optionsProductDetails = ref<SelectProps['options']>([]);
-const isShowErrorDetail = ref<boolean>(false);
-const errorMessageDetails = ref<string>('xx');
-
-//************Beginning of modal actions*********************
-const handleShowModalDetails = () => {
-  isOpenModal.value = true;
-}
-
-const handleCloseModalDetails = () => {
-  isOpenModal.value = false;
-}
-
-const handleSaveChangeDetails = () => {
-  //Check if an item of the details contains empty product_id
-  const indexEmptyProduct = dataDetailsMovement.value.findIndex(item => item.product_id === '' || item.quantity === 0);
-
-  if (indexEmptyProduct !== -1) {
-    errorMessageDetails.value = `You have not selected a product or the quantity is not greater than 0 in the ${indexEmptyProduct + 1} line`;
-    isShowErrorDetail.value = true;
-  } else {
-    isShowErrorDetail.value = false;
-    Modal.confirm({
-      title: 'Confirmation Required',
-      icon: createVNode(ExclamationCircleOutlined),
-      content: 'Are you sure you want to proceed? This action is irreversible.',
-      okText: 'Yes',
-      cancelText: 'No',
-      onOk: async () => {
-        loadingBtn.value = true;
-        await updateDetailsMovement();
-      }
-    });
+//**********Reset all value and validator form*******
+const resetForm = () => {
+  if (formRef.value) {
+    formRef.value.resetFields();
   }
-}
-//************End of modal actions*********************
+};
 
 //************Add button action*********
 const handleAdd = () => {
@@ -342,6 +332,7 @@ const filterOption = (input: string, option: any) => {
 const handleViewDetailsMovement = (record: IMovement) => {
   movementId.value = record.uuid;
   getAllDetailsMovement();
+  getAllProductWithRemainingStock();
   handleShowModalDetails();
 };
 
@@ -369,7 +360,7 @@ const changeItemDetails = (value: string, record: IDetails) => {
     record.purchase_price = 0;
     record.remaining_stock = 0;
   } else {
-    //find a product in dataProductWithRemainingStock to make a update of details item
+    //find a product in dataProductWithRemainingStock to make an update of details item
     const findProduct = dataProductWithRemainingStock.value.find(product => product.product_id === value);
 
     if (findProduct) {
@@ -391,7 +382,7 @@ const changeItemDetails = (value: string, record: IDetails) => {
 }
 
 const handleAddNewItemDetails = () => {
-  //find in detail if an row is not completed so we can't create a new row
+  //find in detail if a row is not completed, so we can't create a new row
   const findProduct = dataDetailsMovement.value.find(product => product.product_id === '');
 
   if (findProduct) {
@@ -434,12 +425,77 @@ const handleValidateMovement = (record: IMovement) => {
     okText: 'Yes',
     cancelText: 'No',
     onOk: async () => {
-      await validateMovement(record);
+      loading.value = true;
+      await validateOrRejectMovement(record.uuid, true, null);
+      loading.value = false;
     }
   });
 };
+
+const handleRejectMovement = (record: IMovement) => {
+  movementId.value = record.uuid;
+  resetForm();
+  formStateReject.observation = '';
+  handleShowModalReject();
+};
 //************End of actions datatable button method**********
 
+//************Beginning of modal actions*********************
+const handleShowModalDetails = () => {
+  isOpenModal.value = true;
+}
+
+const handleCloseModalDetails = () => {
+  isOpenModal.value = false;
+}
+
+const handleShowModalReject = () => {
+  isOpenModalReject.value = true;
+}
+
+const handleCloseModalReject = () => {
+  isOpenModalReject.value = false;
+}
+
+const handleSaveChangeDetails = () => {
+  //Check if an item of the details contains empty product_id
+  const indexEmptyProduct = dataDetailsMovement.value.findIndex(item => item.product_id === '' || item.quantity === 0);
+
+  if (indexEmptyProduct !== -1) {
+    errorMessageDetails.value = `You have not selected a product or the quantity is not greater than 0 in the ${indexEmptyProduct + 1} line`;
+    isShowErrorDetail.value = true;
+  } else {
+    isShowErrorDetail.value = false;
+    Modal.confirm({
+      title: 'Confirmation Required',
+      icon: createVNode(ExclamationCircleOutlined),
+      content: 'Are you sure you want to proceed? This action is irreversible.',
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk: async () => {
+        loadingBtn.value = true;
+        await updateDetailsMovement();
+      }
+    });
+  }
+}
+
+const onFinishReject = () => {
+  Modal.confirm({
+    title: 'Confirmation Required',
+    icon: createVNode(ExclamationCircleOutlined),
+    content: 'Are you sure you want to proceed? This action is irreversible.',
+    okText: 'Yes',
+    cancelText: 'No',
+    onOk: async () => {
+      loadingBtn.value = true;
+      await validateOrRejectMovement(movementId.value, false, formStateReject);
+      loadingBtn.value = false;
+      await handleCloseModalReject();
+    }
+  });
+}
+//************End of modal actions*********************
 
 //******************Beginning of CRUD controller**************
 
@@ -576,11 +632,9 @@ const updateDetailsMovement = async () => {
   }
 }
 
-const validateMovement = async (record: IMovement) => {
+const validateOrRejectMovement = async (movementId: string, isValidate: boolean, observation: IFormReject | null) => {
   try {
-    loading.value = true;
-    await validateMovementService(record.uuid);
-    loading.value = false;
+    await validateOrRejectMovementService(movementId, isValidate, observation);
     // Show success notification
     notification.success({
       message: 'Success',
@@ -649,12 +703,13 @@ const handleSearch = () => {
 
 
 onMounted(() => {
+  isAdmin.value = localStorage.getItem('is_admin');
   getAllDataMovement();
-  getAllProductWithRemainingStock();
 })
 </script>
 
 <template>
+  <!--Filter datatable-->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="mt-8" span="5">
       <a-select
@@ -677,6 +732,7 @@ onMounted(() => {
       <a-button class="btn--primary" :icon="h(SearchOutlined)" @click="handleSearch"/>
     </a-col>
   </a-row>
+  <!--Datatable-->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="mt-8" span="24">
       <a-spin :spinning="loading" size="large">
@@ -687,10 +743,12 @@ onMounted(() => {
             :pagination="false"
             :scroll="{ x: 1000, y: 1000 }"
             bordered
+            v-if="isAdmin"
         />
       </a-spin>
     </a-col>
   </a-row>
+  <!--Paginator datatable-->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="mt-8 flex justify-end" span="24">
       <a-pagination
@@ -703,6 +761,7 @@ onMounted(() => {
           :showSizeChanger="false" />
     </a-col>
   </a-row>
+  <!--Details Modal-->
   <a-modal
       v-model:open="isOpenModal"
       v-if="isOpenModal"
@@ -720,6 +779,7 @@ onMounted(() => {
           :icon="h(PlusOutlined)"
           @click="handleAddNewItemDetails"
           size="middle"
+          v-if="props.activePage === 'OSD' && isAdmin === 'true' || props.activePage === 'RJT' && isAdmin !== 'true'"
       >
       </a-button>
     </template>
@@ -754,10 +814,49 @@ onMounted(() => {
             size="middle"
             :loading="loadingBtn"
             @click="handleSaveChangeDetails"
+            v-if="props.activePage === 'OSD' && isAdmin === 'true' || props.activePage === 'RJT' && isAdmin !== 'true'"
         >Save</a-button>
         <span class="danger-color ml-5" style="font-size: 18px;" v-if="isShowErrorDetail">{{ errorMessageDetails }}</span>
       </a-col>
     </a-row>
+  </a-modal>
+  <!--Reject Modal-->
+  <a-modal
+      v-model:open="isOpenModalReject"
+      v-if="isOpenModalReject"
+      closable
+      :footer="null"
+      style="top: 20px"
+      @ok=""
+      title="Reject movement"
+  >
+    <a-form
+        :model="formStateReject"
+        name="basic"
+        autocomplete="off"
+        @finish="onFinishReject"
+        ref="formRef"
+    >
+      <a-form-item
+          class="mt-5"
+          label="Observation"
+          name="observation"
+          :rules="[{ required: true, message: 'Please input your observation!' }]"
+      >
+        <a-textarea v-model:value="formStateReject.observation" />
+      </a-form-item>
+      <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+        <a-col class="mt-8" span="24">
+          <a-button class="btn btn--default" size="middle" @click="handleCloseModalReject">Cancel</a-button>
+          <a-button
+              class="btn btn--primary ml-4"
+              html-type="submit"
+              size="middle"
+              :loading="loadingBtn"
+          >Save</a-button>
+        </a-col>
+      </a-row>
+    </a-form>
   </a-modal>
 </template>
 
