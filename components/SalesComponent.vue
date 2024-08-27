@@ -4,7 +4,7 @@ import {
   AButton,
   AInputNumber, ASelect,
   CheckOutlined,
-  DeleteOutlined, ExclamationCircleOutlined,
+  DeleteOutlined, ExclamationCircleOutlined, HistoryOutlined,
   InfoOutlined,
   PlusOutlined,
   SearchOutlined,
@@ -15,9 +15,15 @@ import {handleInAuthorizedError} from "~/composables/CustomError";
 import type {Paginate} from "~/composables/apiResponse.interface";
 import {type FormInstance, Switch} from "ant-design-vue";
 import {STCodeList, type TStatus} from "~/composables/Status.interface";
-import type {IDetails, IFormDetails, IFormReject, IMovement} from "~/composables/Inventory/Movement.interface";
+import type {
+  IDetails,
+  IFormDetails,
+  IFormReject,
+  IHistoryValidation,
+  IMovement
+} from "~/composables/Inventory/Movement.interface";
 import {
-  getAllDetailsMovementService,
+  getAllDetailsMovementService, getAllHistoryValidationMovementService,
   getAllMovementService,
   updateDetailMovementService, validateOrRejectMovementService
 } from "~/composables/Inventory/movement.service";
@@ -36,6 +42,7 @@ const props = defineProps<Props>();
 const isAdmin = ref<string>(null);
 const loading = ref<boolean>(false);
 const loadingDetailsMovement = ref<boolean>(false);
+const loadingHistoryValidation = ref<boolean>(false);
 const loadingBtn = ref<boolean>(false);
 const keyword = ref<string>('');
 const pageSizeMovement = ref<number>(10);
@@ -44,8 +51,10 @@ const totalPageMovement = ref<number>(0);
 const dataMovement = ref<IMovement[]>([]);
 const dataDetailsMovement = ref<IDetails[]>([]);
 const dataProductWithRemainingStock = ref<IProductRemainingStock[]>([]);
+const dataHistoryValidation = ref<IHistoryValidation[]>([]);
 const isOpenModal = ref<boolean>(false);
 const isOpenModalReject = ref<boolean>(false);
+const isOpenModalHistoryValidation = ref<boolean>(false);
 const movementId = ref<string>('');
 const amountDetail = ref<string>('');
 const optionsProductDetails = ref<SelectProps['options']>([]);
@@ -94,6 +103,12 @@ const activeActionsColumns = {
   width: 200,
   customRender: ({ record }: { record: IMovement }) => h('a-row', [
     h('a-button', {
+      class: 'btn--primary-outline btn-tab',
+      size: 'large',
+      style: { marginRight: '8px' },
+      onClick: () => handleViewHistoryValidationMovement(record)
+    }, [h(HistoryOutlined)]),
+    h('a-button', {
       class: 'btn--info-outline btn-tab',
       size: 'large',
       style: { marginRight: '8px' },
@@ -119,6 +134,12 @@ const deletedActionColumns = {
   width: 200,
   customRender: ({ record }: { record: IMovement }) => h('div', [
     h('a-button', {
+      class: 'btn--primary-outline btn-tab',
+      size: 'large',
+      style: { marginRight: '8px' },
+      onClick: () => handleViewHistoryValidationMovement(record)
+    }, [h(HistoryOutlined)]),
+    h('a-button', {
       class: 'btn--info-outline btn-tab',
       size: 'large',
       style: { marginRight: '8px' },
@@ -140,7 +161,7 @@ const columnsMovement = [
     dataIndex: 'createdAt',
     customRender: ({ record }: { record: IMovement}) => {
       const createdAt: string = formatDateString(record.createdAt);
-      return h('div', {style: {textAlign: 'right'}}, [createdAt]);
+      return h('div', {style: {textAlign: 'left'}}, [createdAt]);
     }
   },
   {
@@ -149,7 +170,7 @@ const columnsMovement = [
     dataIndex: 'updatedAt',
     customRender: ({ record }: { record: IMovement}) => {
       const updatedAt: string = formatDateString(record.updatedAt);
-      return h('div', {style: {textAlign: 'right'}}, [updatedAt]);
+      return h('div', {style: {textAlign: 'left'}}, [updatedAt]);
     }
   },
   {
@@ -157,12 +178,6 @@ const columnsMovement = [
     key: 'editor',
     dataIndex: 'editor',
     customRender: ({ record }: { record: IMovement}) => [record.editor.firstName + ' ' + record.editor.lastName],
-  },
-  {
-    title: 'Validator',
-    key: 'validator',
-    dataIndex: 'validator',
-    customRender: ({ record }: { record: IMovement}) => [record.validator ? record.editor.firstName + ' ' + record.editor.lastName : '---'],
   },
   statusColumn,
   props.activePage === STCodeList.OUTSTANDING && localStorage.getItem('is_admin') === 'true' ?  activeActionsColumns : deletedActionColumns,
@@ -311,6 +326,31 @@ const columnsDetailsMovement = [
   },
 ];
 
+const columnsHistoryValidation = [
+  {
+    title: 'Date',
+    key: 'createdAt',
+    dataIndex: 'createdAt',
+    customRender: ({ record }: { record: IHistoryValidation}) => {
+      const createdAt: string = formatDateString(record.createdAt);
+      return h('div', {style: {textAlign: 'left'}}, [createdAt]);
+    }
+  },
+  {
+    title: 'Validator',
+    key: 'validator',
+    dataIndex: 'validator',
+    customRender: ({ record }: { record: IHistoryValidation}) => [record.validator ? record.validator.firstName + ' ' + record.validator.lastName : '---'],
+  },
+  {
+    title: 'Observation',
+    key: 'observation',
+    dataIndex: 'observation',
+    customRender: ({ record }: { record: IHistoryValidation}) => [record.observation ? record.observation : '---'],
+  },
+  statusColumn,
+];
+
 //**********Reset all value and validator form*******
 const resetForm = () => {
   if (formRef.value) {
@@ -334,6 +374,12 @@ const handleViewDetailsMovement = (record: IMovement) => {
   getAllDetailsMovement();
   getAllProductWithRemainingStock();
   handleShowModalDetails();
+};
+
+const handleViewHistoryValidationMovement = (record: IMovement) => {
+  movementId.value = record.uuid;
+  getAllHistoryMovement();
+  handleShowModalHistoryValidation();
 };
 
 const changeItemDetails = (value: string, record: IDetails) => {
@@ -449,6 +495,10 @@ const handleCloseModalDetails = () => {
   isOpenModal.value = false;
 }
 
+const handleShowModalHistoryValidation = () => {
+  isOpenModalHistoryValidation.value = true;
+}
+
 const handleShowModalReject = () => {
   isOpenModalReject.value = true;
 }
@@ -552,6 +602,31 @@ const getAllDetailsMovement = async () => {
       description: (error as Error).message,
       class: 'custom-error-notification'
     });
+  }
+}
+
+const getAllHistoryMovement = async () => {
+  try {
+    loadingHistoryValidation.value = true;
+    dataHistoryValidation.value = await getAllHistoryValidationMovementService(movementId.value);
+    loadingHistoryValidation.value = false;
+  } catch (error) {
+    //Verification code status if equal 401 then we redirect to log in
+    if (error instanceof CustomError) {
+      if (error.status === 401) {
+        //call the global handle action if in authorized
+        handleInAuthorizedError(error);
+        return;
+      }
+    }
+
+    // Show error notification
+    notification.error({
+      message: 'Error',
+      description: (error as Error).message,
+      class: 'custom-error-notification'
+    });
+    loadingHistoryValidation.value = false;
   }
 }
 
@@ -857,6 +932,36 @@ onMounted(() => {
         </a-col>
       </a-row>
     </a-form>
+  </a-modal>
+  <!--History validation Modal-->
+  <a-modal
+      v-model:open="isOpenModalHistoryValidation"
+      v-if="isOpenModalHistoryValidation"
+      closable
+      :footer="null"
+      style="top: 20px"
+      @ok=""
+      width="1000px"
+  >
+    <!-- Template title modal -->
+    <template #title>
+      <span>History validation</span>
+    </template>
+    <!--Datatable details movement-->
+    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+      <a-col class="mt-8" span="24">
+        <a-spin :spinning="loadingHistoryValidation" size="large">
+          <a-table
+              class="w-full"
+              :columns="columnsHistoryValidation"
+              :data-source="dataHistoryValidation"
+              :pagination="false"
+              :scroll="{ x: 800, y: 1000 }"
+              bordered
+          />
+        </a-spin>
+      </a-col>
+    </a-row>
   </a-modal>
 </template>
 

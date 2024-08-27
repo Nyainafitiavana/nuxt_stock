@@ -44,3 +44,18 @@ export interface IBodyMovement {
 export interface IFormReject {
     observation: string;
 }
+
+export interface IHistoryValidation {
+    uuid: string;
+    createdAt: string;
+    observation: string;
+    validator: {
+        firstName: string;
+        lastName: string;
+    };
+    status: {
+        uuid: string;
+        designation: string;
+        code: string;
+    };
+}
