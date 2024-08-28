@@ -192,7 +192,7 @@
       customRender: ({ record }: { record: IMovement}) => [record.editor.firstName + ' ' + record.editor.lastName],
     },
     statusColumn,
-    props.activePage === STCodeList.OUTSTANDING && localStorage.getItem('is_admin') === 'true' ?  activeActionsColumns : deletedActionColumns,
+    props.activePage === STCodeList.OUTSTANDING && isAdmin.value === true ?  activeActionsColumns : deletedActionColumns,
   ];
 
   const columnsDetailsMovement = [
@@ -830,7 +830,6 @@
             :pagination="false"
             :scroll="{ x: 1000, y: 1000 }"
             bordered
-            v-if="isAdmin"
         />
       </a-spin>
     </a-col>
