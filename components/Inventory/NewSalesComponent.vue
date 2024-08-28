@@ -369,7 +369,7 @@
   }
 
   const handleSaveMovement = async () => {
-    if (dataDetailsMovement.value !== []) {
+    if (dataDetailsMovement.value.length > 0) {
       const indexEmptyQuantity = dataDetailsMovement.value.findIndex(item => item.quantity === 0);
 
       if (indexEmptyQuantity !== -1) {
@@ -392,7 +392,7 @@
       // Show error notification
       notification.warning({
         message: 'Warning',
-        description: "Can't create a movement with empty details!",
+        description: "Can't create an movement without details!",
         class: 'custom-warning-notification'
       });
     }

@@ -548,24 +548,34 @@
   }
 
   const handleSaveChangeDetails = () => {
-    //Check if an item of the details contains empty product_id
-    const indexEmptyProduct = dataDetailsMovement.value.findIndex(item => item.product_id === '' || item.quantity === 0);
+    //Verify if we have an details with the movement
+    if (dataDetailsMovement.value.length > 0) {
+      //Check if an item of the details contains empty product_id
+      const indexEmptyProduct = dataDetailsMovement.value.findIndex(item => item.product_id === '' || item.quantity === 0);
 
-    if (indexEmptyProduct !== -1) {
-      errorMessageDetails.value = `You have not selected a product or the quantity is not greater than 0 in the ${indexEmptyProduct + 1} line`;
-      isShowErrorDetail.value = true;
+      if (indexEmptyProduct !== -1) {
+        errorMessageDetails.value = `You have not selected a product or the quantity is not greater than 0 in the ${indexEmptyProduct + 1} line`;
+        isShowErrorDetail.value = true;
+      } else {
+        isShowErrorDetail.value = false;
+        Modal.confirm({
+          title: 'Confirmation Required',
+          icon: createVNode(ExclamationCircleOutlined),
+          content: 'Are you sure you want to proceed? This action is irreversible.',
+          okText: 'Yes',
+          cancelText: 'No',
+          onOk: async () => {
+            loadingBtn.value = true;
+            await updateDetailsMovement();
+          }
+        });
+      }
     } else {
-      isShowErrorDetail.value = false;
-      Modal.confirm({
-        title: 'Confirmation Required',
-        icon: createVNode(ExclamationCircleOutlined),
-        content: 'Are you sure you want to proceed? This action is irreversible.',
-        okText: 'Yes',
-        cancelText: 'No',
-        onOk: async () => {
-          loadingBtn.value = true;
-          await updateDetailsMovement();
-        }
+      // Show error notification
+      notification.error({
+        message: 'Error',
+        description: "Can't update an movement without details!",
+        class: 'custom-error-notification'
       });
     }
   }
@@ -817,8 +827,8 @@
   };
 
   const handleChangePageSizeMovement = (value: SelectValue) => {
-    pageSize.value = Number(value);
-    currentPage.value = 1;
+    pageSizeMovement.value = Number(value);
+    currentPageMovement.value = 1;
     getAllDataMovement();
   };
 
