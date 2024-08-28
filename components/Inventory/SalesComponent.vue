@@ -203,7 +203,7 @@
       width: 200,
       customRender: ({ record }: { record: IDetails}) => [
           h(ASelect, {
-            disabled: props.activePage === 'OSD' && isAdmin.value === 'false' || props.activePage === 'CMP' || props.activePage === 'RJT' && isAdmin.value === 'true',
+            disabled: props.activePage === STCodeList.OUTSTANDING && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
             style:'width: 100%',
             'placeholder':'Select a product',
             'show-search': true,
@@ -262,7 +262,7 @@
       width: 120,
       customRender: ({ record }: { record: IDetails }) => {
         return h(Switch, {
-          disabled: props.activePage === 'OSD' && isAdmin.value === 'false' || props.activePage === 'CMP' || props.activePage === 'RJT' && isAdmin.value === 'true',
+          disabled: props.activePage === STCodeList.OUTSTANDING && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
           checked: record.is_unit_price,
           'checked-children': 'Unit',
           'un-checked-children': 'Wholesale',
@@ -286,7 +286,7 @@
       width: 120,
       customRender: ({ record }: { record: IDetails }) => {
         return h(AInputNumber, {
-          disabled: props.activePage === 'OSD' && isAdmin.value === 'false' || props.activePage === 'CMP' || props.activePage === 'RJT' && isAdmin.value === 'true',
+          disabled: props.activePage === STCodeList.OUTSTANDING && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
           value: record.quantity,
           class: 'ant-input-status-error',
           min: 0,
@@ -328,7 +328,7 @@
           },
           [
             h(AButton, {
-              disabled: props.activePage === 'OSD' && isAdmin.value === 'false' || props.activePage === 'CMP' || props.activePage === 'RJT' && isAdmin.value === 'true',
+              disabled: props.activePage === STCodeList.OUTSTANDING && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
               class: 'btn--danger-outline btn-tab',
               size: 'large',
               onClick: () => handleRemoveItemDetails(record)
