@@ -14,7 +14,7 @@ export interface IMovement {
 }
 
 export interface IDetails {
-    detail_id: string;
+    detail_id?: string;
     product_id: string;
     product_name: string;
     quantity: number;

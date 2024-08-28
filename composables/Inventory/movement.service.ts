@@ -143,23 +143,20 @@ export const validateOrRejectMovementService = async (
     }
 };
 
-export const insertOrUpdateMovement = async (
+export const createNewMovementService = async (
     isSales: boolean,
-    details: IDetails[],
-    idMovement: string | null,
-    method: string
+    details: IFormDetails[]
 ): Promise<IMovement> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const path: string = idMovement ? `${BASE_URL_API}${API.MOVEMENT}/${idMovement}` : `${BASE_URL_API}${API.MOVEMENT}`;
         const accessTokenCategory: string | null = getAccessToken();
         const data: IBodyMovement = {
             isSales: isSales,
             details: details,
         }
 
-        const response: any = await fetch(path, {
-            method: method,
+        const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessTokenCategory}`

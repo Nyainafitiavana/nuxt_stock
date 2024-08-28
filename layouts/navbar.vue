@@ -157,6 +157,9 @@ const updateSelectedKeys = () => {
     case RouteList.INVENTORY_SALES:
       state.selectedKeys = ['9'];
       break;
+      case RouteList.INVENTORY_SALES_NEW:
+      state.selectedKeys = ['9'];
+      break;
     default:
       state.selectedKeys = ['2'];
       break;

@@ -1,12 +1,13 @@
 <script setup lang="ts">
+  import SalesComponent from "~/components/Inventory/SalesComponent.vue";
 
-definePageMeta({
-  layout: 'navbar',
-  title: 'Sales',
-  middleware: ['user-middleware']
-});
+  definePageMeta({
+    layout: 'navbar',
+    title: 'Sales',
+    middleware: ['user-middleware']
+  });
 
-const activeKey = ref('1');
+  const activeKey = ref('1');
 </script>
 
 <template>

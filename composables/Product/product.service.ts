@@ -139,11 +139,16 @@ export const deleteProductService = async (id: string | null): Promise<IProduct>
     }
 };
 
-export const getAllProductWithRemainingStockService = async (): Promise<IProductRemainingStock[]> => {
+export const getAllProductWithRemainingStockService = async (
+    keyword: string = null,
+    limit: number = null,
+    page: number = null,
+): Promise<IProductRemainingStock[]> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessToken: string | null = getAccessToken();
-        const response: any = await fetch(`${BASE_URL_API}${API.PRODUCT}/remaining/stock`, {
+        const path: string = limit && page && keyword ? `${BASE_URL_API}${API.PRODUCT}/remaining/stock?limit=${limit}&page=${page}&value=${keyword}` : `${BASE_URL_API}${API.PRODUCT}/remaining/stock`;
+        const response: any = await fetch(path, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
