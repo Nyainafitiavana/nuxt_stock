@@ -77,22 +77,34 @@
               },
               [record.status.designation]
           )
-          : (
+          :
+          (
               record.status.code === STCodeList.COMPLETED ?
-                  h('div',
-                      {
-                        style: { textAlign: 'center', color: 'white' },
-                        class: 'success-background-color'
-                      },
-                      [record.status.designation]
-                  ) :
-                  h('div',
-                      {
-                        style: { textAlign: 'center', color: 'white' },
-                        class: 'danger-background-color'
-                      },
-                      [record.status.designation]
-                  )
+              h('div',
+                  {
+                    style: { textAlign: 'center', color: 'white' },
+                    class: 'primary-background-color'
+                  },
+                  [record.status.designation]
+              ) :
+              (
+                  record.status.code === STCodeList.VALIDATED ?
+                      h('div',
+                          {
+                            style: { textAlign: 'center', color: 'white' },
+                            class: 'success-background-color'
+                          },
+                          [record.status.designation]
+                      ) :
+                      h('div',
+                          {
+                            style: { textAlign: 'center', color: 'white' },
+                            class: 'danger-background-color'
+                          },
+                          [record.status.designation]
+                      )
+              )
+
           )
     ])
   }
@@ -153,7 +165,7 @@
       title: 'Type',
       key: 'isSales',
       dataIndex: 'isSales',
-      customRender: ({ record }: { record: IMovement}) => [record.isSales ? 'Purchase' : 'Sales'],
+      customRender: ({ record }: { record: IMovement}) => [record.isSales ? 'Sales' : 'Purchase'],
     },
     {
       title: 'CreatedAt',
@@ -634,9 +646,9 @@
     try {
       const response = await getAllProductWithRemainingStockService();
       //Keep all data
-      dataProductWithRemainingStock.value = response;
+      dataProductWithRemainingStock.value = response.data;
       //Format data to the options of select product
-      response.map((item: IProductRemainingStock) => {
+      response.data.map((item: IProductRemainingStock) => {
         if (optionsProductDetails.value) {
           optionsProductDetails.value.push({ value: item.product_id, label: item.product_name });
         }
