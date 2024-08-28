@@ -32,7 +32,7 @@
   const totalPage = ref<number>(0);
   const dataProductWithRemainingStock = ref<IProductRemainingStock[]>([]);
   const dataDetailsMovement = ref<IDetails[]>([]);
-  const itemInPannier = ref<number>(localStorage.getItem('pannier') ? (JSON.parse(localStorage.getItem('pannier'))).length : 0);
+  const itemInPannier = ref<number>(0);
   const amountDetail = ref<string>('');
   const errorMessageDetails = ref<string>('');
   const isShowErrorDetail = ref<boolean>(false);

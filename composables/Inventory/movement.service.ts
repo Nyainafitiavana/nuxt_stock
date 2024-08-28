@@ -14,18 +14,28 @@ export const getAllMovementService = async (
     isSales: boolean,
     pageSize: number | string,
     currentPage: number | string,
-    status: TStatus
+    status: TStatus,
+    startDate: string,
+    endDate: string,
 ): Promise<Paginate<IMovement[]>> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessToken: string | null = getAccessToken();
-        const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}?limit=${pageSize}&page=${currentPage}&isSales=${isSales}&status=${status}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-        });
+        let response: Response;
+        [response] = await Promise.all(
+            [
+                fetch(
+                `${BASE_URL_API}${API.MOVEMENT}?limit=${pageSize}&page=${currentPage}&isSales=${isSales}&status=${status}&startDate=${startDate}&endDate=${endDate}`,
+                {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`
+                        },
+                    }
+                )
+            ]
+        );
 
         if (!response.ok) {
             const errorData = await response.json();

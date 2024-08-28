@@ -4,9 +4,9 @@
     AButton,
     AInputNumber, ASelect,
     CheckOutlined,
-    DeleteOutlined, ExclamationCircleOutlined, HistoryOutlined,
+    DeleteOutlined, ExclamationCircleOutlined, FilterOutlined, HistoryOutlined,
     InfoOutlined,
-    PlusOutlined,
+    PlusOutlined, PrinterOutlined,
     SearchOutlined,
     StopOutlined,
   } from "#components";
@@ -31,6 +31,7 @@
   import type {SelectProps} from "ant-design-vue/lib";
   import type {IProductRemainingStock} from "~/composables/Product/Product.interface";
   import {getAllProductWithRemainingStockService} from "~/composables/Product/product.service";
+  import type {RangeValue} from "~/composables/dayJs.type";
 
 
   interface Props {
@@ -39,7 +40,8 @@
 
 
   const props = defineProps<Props>();
-  const isAdmin = ref<string>(null);
+  const dateFilter = ref<RangeValue>();
+  const isAdmin = ref<string>('');
   const loading = ref<boolean>(false);
   const loadingDetailsMovement = ref<boolean>(false);
   const loadingHistoryValidation = ref<boolean>(false);
@@ -140,7 +142,32 @@
     ])
   };
 
-  const deletedActionColumns = {
+  const validatedActionColumns = {
+    title: 'Actions',
+    key: 'actions',
+    width: 200,
+    customRender: ({ record }: { record: IMovement }) => h('div', [
+      h('a-button', {
+        class: 'btn--primary-outline btn-tab',
+        size: 'large',
+        style: { marginRight: '8px' },
+        onClick: () => handleViewHistoryValidationMovement(record)
+      }, [h(HistoryOutlined)]),
+      h('a-button', {
+        class: 'btn--info-outline btn-tab',
+        size: 'large',
+        style: { marginRight: '8px' },
+        onClick: () => handleViewDetailsMovement(record)
+      }, [h(InfoOutlined)]),
+      h('a-button', {
+        class: 'btn--success btn-tab',
+        size: 'large',
+        style: { marginRight: '8px' },
+      }, [h(PrinterOutlined)]),
+    ])
+  };
+
+  const rejectOrCompletedActionColumns = {
     title: 'Actions',
     key: 'actions',
     width: 200,
@@ -160,40 +187,7 @@
     ])
   };
 
-  const columnsMovement = [
-    {
-      title: 'Type',
-      key: 'isSales',
-      dataIndex: 'isSales',
-      customRender: ({ record }: { record: IMovement}) => [record.isSales ? 'Sales' : 'Purchase'],
-    },
-    {
-      title: 'CreatedAt',
-      key: 'createdAt',
-      dataIndex: 'createdAt',
-      customRender: ({ record }: { record: IMovement}) => {
-        const createdAt: string = formatDateString(record.createdAt);
-        return h('div', {style: {textAlign: 'left'}}, [createdAt]);
-      }
-    },
-    {
-      title: 'UpdatedAt',
-      key: 'updatedAt',
-      dataIndex: 'updatedAt',
-      customRender: ({ record }: { record: IMovement}) => {
-        const updatedAt: string = formatDateString(record.updatedAt);
-        return h('div', {style: {textAlign: 'left'}}, [updatedAt]);
-      }
-    },
-    {
-      title: 'Editor',
-      key: 'editor',
-      dataIndex: 'editor',
-      customRender: ({ record }: { record: IMovement}) => [record.editor.firstName + ' ' + record.editor.lastName],
-    },
-    statusColumn,
-    props.activePage === STCodeList.OUTSTANDING && isAdmin.value === true ?  activeActionsColumns : deletedActionColumns,
-  ];
+  let columnsMovement = [];
 
   const columnsDetailsMovement = [
     {
@@ -362,6 +356,40 @@
     },
     statusColumn,
   ];
+
+  //**********Init column of datatable*****************
+  const initColumnDatableMovement = () => {
+    columnsMovement = [
+      {
+        title: 'Type',
+        key: 'isSales',
+        dataIndex: 'isSales',
+        customRender: ({ record }: { record: IMovement}) => [record.isSales ? 'Sales' : 'Purchase'],
+      },
+      {
+        title: 'Date',
+        key: 'createdAt',
+        dataIndex: 'createdAt',
+        customRender: ({ record }: { record: IMovement}) => {
+          const createdAt: string = formatDateString(record.createdAt);
+          return h('div', {style: {textAlign: 'left'}}, [createdAt]);
+        }
+      },
+      {
+        title: 'Editor',
+        key: 'editor',
+        dataIndex: 'editor',
+        customRender: ({ record }: { record: IMovement}) => [record.editor.firstName + ' ' + record.editor.lastName],
+      },
+      statusColumn,
+      props.activePage === STCodeList.OUTSTANDING && isAdmin.value === 'true' ?
+          activeActionsColumns :
+          (
+              (props.activePage === STCodeList.VALIDATED && isAdmin.value === 'true') ?
+                  validatedActionColumns : rejectOrCompletedActionColumns
+          ),
+    ];
+  }
 
   //**********Reset all value and validator form*******
   const resetForm = () => {
@@ -564,11 +592,23 @@
   const getAllDataMovement = async () => {
     try {
       loading.value = true;
+      let startDateStr: string = '';
+      let endDateStr: string = '';
+
+      if (dateFilter.value) {
+        const [startDate, endDate] = dateFilter.value;
+        startDateStr = startDate.format('YYYY-MM-DD');
+        endDateStr = endDate.format('YYYY-MM-DD');
+      }
+
       const response: Paginate<IMovement[]> = await getAllMovementService(
           true,
           pageSizeMovement.value,
           currentPageMovement.value,
-          props.activePage);
+          props.activePage,
+          startDateStr,
+          endDateStr
+      );
       dataMovement.value = response.data;
       totalPageMovement.value = response.totalRows;
       loading.value = false;
@@ -782,15 +822,15 @@
     getAllDataMovement();
   };
 
-  const handleSearch = () => {
-    currentPage.value = 1;
-    getAllDataMovement();
+  const handleFilterByDate = () => {
+      getAllDataMovement();
   }
   //******************End filter of and paginator methods****
 
 
   onMounted(() => {
     isAdmin.value = localStorage.getItem('is_admin');
+    initColumnDatableMovement();
     getAllDataMovement();
   })
 </script>
@@ -798,7 +838,8 @@
 <template>
   <!--Filter datatable-->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-    <a-col class="mt-8" span="5">
+    <!--Page size select-->
+    <a-col class="mt-8" span="8">
       <a-select
           ref="select"
           v-model:value="pageSizeMovement"
@@ -811,12 +852,14 @@
       </a-select>
       <span> entries per page</span>
     </a-col>
-    <a-col class="mt-8" span="7">
+    <!--Add new btn-->
+    <a-col class="mt-8" span="4">
       <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.OUTSTANDING" class="btn--success ml-5">Add new</a-button>
     </a-col>
+    <!--Filter by date-->
     <a-col class="mt-8 flex justify-end" span="12">
-      <a-input type="text" class="w-56" v-model:value="keyword" />&nbsp;
-      <a-button class="btn--primary" :icon="h(SearchOutlined)" @click="handleSearch"/>
+      <a-range-picker v-model:value="dateFilter" />
+      <a-button class="btn--primary ml-2" :icon="h(FilterOutlined)" @click="handleFilterByDate"/>
     </a-col>
   </a-row>
   <!--Datatable-->
