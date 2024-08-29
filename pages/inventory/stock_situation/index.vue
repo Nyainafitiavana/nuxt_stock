@@ -12,8 +12,14 @@
   import type {IUnit} from "~/composables/Unit/Unit.interface";
   import {getAllUnit} from "~/composables/Unit/unit.service";
   import {h} from "vue";
-  import {AButton, ARow, ASelect, CaretDownOutlined, CaretUpOutlined, SearchOutlined} from "#components";
-  import type {IDetails} from "~/composables/Inventory/Movement.interface";
+  import {
+    AButton,
+    ARow,
+    ASelect,
+    CaretDownOutlined,
+    CaretUpOutlined,
+    SearchOutlined
+  } from "#components";
 
   definePageMeta({
     layout: 'navbar',
