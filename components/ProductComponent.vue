@@ -845,7 +845,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     </a-col>
     <!-- Sort by category -->
     <a-col class="mt-8" span="6">
-      <span>Sort by category : </span>
+      <span>Category : </span>
       <a-select
           class="w-44"
           v-model:value="currentCategoryList"
@@ -859,7 +859,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     </a-col>
     <!-- Sort by unit -->
     <a-col class="mt-8" span="6">
-      <span>Sort by unit : </span>
+      <span>Unit : </span>
       <a-select
           class="w-44"
           v-model:value="currentUnitList"
@@ -872,7 +872,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     </a-col>
     <!-- Search input -->
     <a-col class="mt-8 flex justify-end" span="5">
-      <a-input type="text" class="w-48" v-model:value="keyword" placeholder="Search"/>&nbsp;
+      <a-input type="text" class="w-48 h-9" v-model:value="keyword" placeholder="Search"/>&nbsp;
       <a-button class="btn--primary" :icon="h(SearchOutlined)" @click="handleSearch"/>
     </a-col>
   </a-row>

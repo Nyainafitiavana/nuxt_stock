@@ -17,7 +17,6 @@
     PlusOutlined,
     SearchOutlined
   } from "#components";
-  import {Switch} from "ant-design-vue";
   import {createNewMovementService} from "~/composables/Inventory/movement.service";
   import type {SelectProps} from "ant-design-vue/lib";
   import type {ICategory} from "~/composables/Category/Category.interface";
@@ -84,29 +83,15 @@
       width: 80,
     },
     {
-      title: 'Unit price',
-      key: 'unitPrice',
-      dataIndex: 'unit_price',
+      title: 'Purchase price',
+      key: 'purchasePrice',
+      dataIndex: 'purchase_price',
       customRender: ({ record }: { record: IProductRemainingStock}) => {
         const value = new Intl.NumberFormat('en-US', {
           style: 'decimal',
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
-        }).format(record.unit_price ? record.unit_price : 0);
-
-        return h('div', { style: { textAlign: 'right' } }, [value]);
-      }
-    },
-    {
-      title: 'Wholesale price',
-      key: 'wholesalePrice',
-      dataIndex: 'wholesale_price',
-      customRender: ({ record }: { record: IProductRemainingStock}) => {
-        const value = new Intl.NumberFormat('en-US', {
-          style: 'decimal',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(record.wholesale_price ? record.wholesale_price : 0);
+        }).format(record.purchase_price ? record.purchase_price : 0);
 
         return h('div', { style: { textAlign: 'right' } }, [value]);
       }
@@ -129,7 +114,7 @@
       key: 'actions',
       width: 100,
       customRender: ({ record }: { record: IProductRemainingStock }) => {
-        const pannierStorage = localStorage.getItem('pannierSales');
+        const pannierStorage = localStorage.getItem('pannierPurchase');
         //If pannier is not empty, we need to check if record is not already there
         if (pannierStorage && pannierStorage !== '') {
           const pannierList: IProductRemainingStock[] = JSON.parse(pannierStorage);
@@ -138,14 +123,14 @@
 
           if (findRecordInPannier) {
             //if already exist, we return the remove btn
-            return h(AButton, { class: 'btn--danger', disabled: record.remaining_stock === 0, onClick: () => handleRemoveItemPannier(record)}, [h(DeleteOutlined)])
+            return h(AButton, { class: 'btn--danger', onClick: () => handleRemoveItemPannier(record)}, [h(DeleteOutlined)])
           } else {
             //record not exist in pannier we return the add btn
-            return h(AButton, { class: 'btn--primary', disabled: record.remaining_stock === 0, onClick: () => handleAddItemPannier(record)}, [h(PlusOutlined)])
+            return h(AButton, { class: 'btn--primary', disabled: record.purchase_price === 0, onClick: () => handleAddItemPannier(record)}, [h(PlusOutlined)])
           }
         } else {
           //If pannier is empty we return the add btn
-          return h(AButton, { class: 'btn--primary', disabled: record.remaining_stock === 0, onClick: () => handleAddItemPannier(record)}, [h(PlusOutlined)])
+          return h(AButton, { class: 'btn--primary', disabled: record.purchase_price === 0, onClick: () => handleAddItemPannier(record)}, [h(PlusOutlined)])
         }
       }
     },
@@ -170,50 +155,18 @@
       width: 80,
     },
     {
-      title: 'Unit price',
-      key: 'unitPrice',
-      dataIndex: 'unit_price',
+      title: 'Purchase price',
+      key: 'purchasePrice',
+      dataIndex: 'purchase_price',
       customRender: ({ record }: { record: IDetails}) => {
         const value = new Intl.NumberFormat('en-US', {
           style: 'decimal',
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
-        }).format(record.unit_price ? record.unit_price : 0);
+        }).format(record.purchase_price ? record.purchase_price : 0);
 
         return h('div', { style: { textAlign: 'right' } }, [value]);
       }
-    },
-    {
-      title: 'Wholesale price',
-      key: 'wholesalePrice',
-      dataIndex: 'wholesale_price',
-      customRender: ({ record }: { record: IDetails}) => {
-        const value = new Intl.NumberFormat('en-US', {
-          style: 'decimal',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(record.wholesale_price ? record.wholesale_price : 0);
-
-        return h('div', { style: { textAlign: 'right' } }, [value]);
-      }
-    },
-    {
-      title: 'Price type',
-      key: 'priceType',
-      dataIndex: 'is_unit_price',
-      width: 120,
-      customRender: ({ record }: { record: IDetails }) => {
-        return h(Switch, {
-          checked: record.is_unit_price,
-          'checked-children': 'Unit',
-          'un-checked-children': 'Wholesale',
-          onChange: () => {
-            record.is_unit_price = !record.is_unit_price;
-            //We need to reload the amount of details
-            getAmountDetails();
-          },
-        });
-      },
     },
     {
       title: h('div', { style: { textAlign: 'center' } }, ['Remaining stock']),
@@ -237,16 +190,11 @@
         return h(AInputNumber, {
           value: record.quantity,
           class: 'ant-input-status-error',
+          disabled: record.purchase_price === 0,
           min: 0,
-          max: record.remaining_stock,
           onChange: (value: number) => {
             //Guard of max quantity
-            if (record.quantity > record.remaining_stock) {
-              record.quantity = 0;
-            } else {
               record.quantity = value ? value : 0;
-            }
-
             //We need to reload the amount of details
             getAmountDetails();
           },
@@ -261,7 +209,7 @@
           style: 'decimal',
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
-        }).format(record.is_unit_price ? (record.unit_price * record.quantity) : (record.wholesale_price * record.quantity));
+        }).format(record.purchase_price ? (record.purchase_price * record.quantity) : 0);
 
         return h('div', { style: { textAlign: 'right' } }, [price]);
       }
@@ -304,34 +252,34 @@
       remaining_stock: record.remaining_stock,
     };
 
-    const pannierStorage = await localStorage.getItem('pannierSales');
+    const pannierStorage = await localStorage.getItem('pannierPurchase');
 
     if (pannierStorage) {
       let pannierList: IDetails[] = JSON.parse(pannierStorage);
       pannierList.push(newDataPannier);
 
-      await localStorage.setItem('pannierSales', JSON.stringify(pannierList));
+      await localStorage.setItem('pannierPurchase', JSON.stringify(pannierList));
       await updateCountPannier();
       await getAllDataProductWithRemainingStock();
     } else {
-      await localStorage.setItem('pannierSales', JSON.stringify([newDataPannier]));
+      await localStorage.setItem('pannierPurchase', JSON.stringify([newDataPannier]));
       await updateCountPannier();
       await getAllDataProductWithRemainingStock();
     }
   }
 
   const handleRemoveItemPannier = async (record: IProductRemainingStock) => {
-    const pannierStorage = await localStorage.getItem('pannierSales');
+    const pannierStorage = await localStorage.getItem('pannierPurchase');
     const pannierList: IDetails[] = JSON.parse(pannierStorage);
 
     const updatedPannier: IDetails[] = pannierList.filter(item => item.product_id !== record.product_id);
-    await localStorage.setItem('pannierSales', JSON.stringify(updatedPannier));
+    await localStorage.setItem('pannierPurchase', JSON.stringify(updatedPannier));
     await updateCountPannier();
     await getAllDataProductWithRemainingStock();
   }
 
   const updateCountPannier = async () => {
-    const pannierStorage = await localStorage.getItem('pannierSales');
+    const pannierStorage = await localStorage.getItem('pannierPurchase');
 
     if (pannierStorage) {
       const pannierList: IDetails[] = JSON.parse(pannierStorage);
@@ -345,7 +293,7 @@
   }
 
   const updatePannierList = async () => {
-    const pannierStorage = await localStorage.getItem('pannierSales');
+    const pannierStorage = await localStorage.getItem('pannierPurchase');
 
     if (pannierStorage) {
       dataDetailsMovement.value = JSON.parse(pannierStorage);
@@ -355,7 +303,7 @@
   }
 
   const saveChangePannierTemporarily = async () => {
-    localStorage.setItem('pannierSales', JSON.stringify(dataDetailsMovement.value));
+    localStorage.setItem('pannierPurchase', JSON.stringify(dataDetailsMovement.value));
     await updateCountPannier();
     await getAllDataProductWithRemainingStock();
   }
@@ -397,7 +345,7 @@
     let amount: number = 0;
     //Browse all item to calculi amount
     dataDetailsMovement.value.map((item: IDetails) => {
-      amount += item.is_unit_price ? (item.unit_price * item.quantity) : (item.wholesale_price * item.quantity);
+      amount += item.purchase_price ? (item.purchase_price * item.quantity) : 0;
     });
     //format total price
     const formatNumber: string =  new Intl.NumberFormat('en-US', {
@@ -561,7 +509,7 @@
       })
 
       await createNewMovementService(
-          true,
+          false,
           data,
       );
       // Show success notification
@@ -573,9 +521,9 @@
 
       loadingBtn.value = false;
       isOpenModalPannier.value = false;
-      await localStorage.setItem('pannierSales', '[]');
+      await localStorage.setItem('pannierPurchase', '[]');
 
-      await navigateTo(RouteList.INVENTORY_SALES);
+      await navigateTo(RouteList.INVENTORY_PURCHASE);
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {

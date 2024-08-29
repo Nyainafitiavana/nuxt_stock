@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, computed, onMounted, reactive, h, watch, useSSRContext} from 'vue';
+import {ref, computed, onMounted, reactive, h, watch} from 'vue';
 import { useRoute } from 'vue-router';
 import { RouteList } from '~/composables/Route';
 import {
@@ -8,7 +8,7 @@ import {
   BarChartOutlined,
   ShopOutlined, ShoppingCartOutlined,
   TeamOutlined, ToTopOutlined,
-  UserOutlined, VerticalAlignBottomOutlined
+  UserOutlined, VerticalAlignBottomOutlined, VerticalAlignMiddleOutlined
 } from "#components";
 
 // State
@@ -87,6 +87,13 @@ const adminMenuItems = reactive([
         title: 'Sales',
         onClick: () => navigateTo(RouteList.INVENTORY_SALES),
       },
+      {
+        key: '10',
+        icon: () => h(VerticalAlignMiddleOutlined),
+        label: 'Stock situation',
+        title: 'Stock situation',
+        onClick: () => navigateTo(RouteList.STOCK_SITUATION),
+      },
     ],
   },
 ]);
@@ -154,11 +161,17 @@ const updateSelectedKeys = () => {
     case RouteList.INVENTORY_PURCHASE:
       state.selectedKeys = ['8'];
       break;
+    case RouteList.INVENTORY_PURCHASE_NEW:
+      state.selectedKeys = ['8'];
+      break;
     case RouteList.INVENTORY_SALES:
       state.selectedKeys = ['9'];
       break;
       case RouteList.INVENTORY_SALES_NEW:
       state.selectedKeys = ['9'];
+      break;
+      case RouteList.STOCK_SITUATION:
+      state.selectedKeys = ['10'];
       break;
     default:
       state.selectedKeys = ['2'];

@@ -376,13 +376,13 @@ interface Props {
         <a-select-option value="25">25</a-select-option>
         <a-select-option value="50">50</a-select-option>
       </a-select>
-      <span> entries per page</span>
+      <span> / page</span>
     </a-col>
     <a-col class="mt-8" span="7">
       <a-button :icon="h(PlusOutlined)" @click="handleAddCategory" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">Add new</a-button>
     </a-col>
     <a-col class="mt-8 flex justify-end" span="12">
-      <a-input type="text" class="w-56" v-model:value="keyword" />&nbsp;
+      <a-input type="text" class="w-56 h-9" v-model:value="keyword" />&nbsp;
       <a-button class="btn--primary" :icon="h(SearchOutlined)" @click="handleSearch"/>
     </a-col>
   </a-row>

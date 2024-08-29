@@ -20,6 +20,8 @@ export interface IProductRemainingStock {
     category_name: string;
     unit_id: string;
     unit_name: string;
+    stock_input: number;
+    stock_output: number;
     remaining_stock: number;
     product_sales_price_id: string;
     unit_price: number;

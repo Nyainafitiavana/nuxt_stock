@@ -62,6 +62,7 @@
   const optionsProductDetails = ref<SelectProps['options']>([]);
   const isShowErrorDetail = ref<boolean>(false);
   const errorMessageDetails = ref<string>('');
+  const stockThreshold = ref<number>(70);
   const formStateReject: UnwrapRef<IFormReject> = reactive({
     observation: '',
   });
@@ -269,9 +270,17 @@
       },
     },
     {
-      title: 'Remaining stock',
+      title: h('div', { style: { textAlign: 'center' } }, ['Remaining stock']),
       key: 'remainingStock',
       dataIndex: 'remaining_stock',
+      customRender: ({ record }: { record: IDetails}) => [
+        h('div', {
+          style: { textAlign: 'center', color: 'white', fontWeight: '800' },
+          class: record.remaining_stock === 0 ? 'danger-background-color' : ( record.remaining_stock > 0 && record.remaining_stock <= stockThreshold.value ? 'warning-background-color' : 'primary-background-color')
+        }, [
+          h('span', [record.remaining_stock]),
+        ]),
+      ]
     },
     {
       title: 'Quantity',
@@ -939,8 +948,23 @@
     </a-row>
     <!-- Amount row -->
     <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-      <a-col class="mt-8" span="24">
+      <a-col class="mt-8" span="8">
         <p style="font-size: 18px;">Total : {{ amountDetail }}</p>
+      </a-col>
+      <!-- Legend -->
+      <a-col class="mt-8 flex" span="16">
+        <a-col  span="8" class="flex">
+          <div class="primary-background-color w-12 h-4"></div>
+          <h6 class="ml-4">Product available in stock</h6>
+        </a-col>
+        <a-col  span="8" class="flex">
+          <div class="warning-background-color w-12 h-4"></div>
+          <h6 class="ml-4">Product out of stock</h6>
+        </a-col>
+        <a-col  span="8" class="flex">
+          <div class="danger-background-color w-12 h-4"></div>
+          <h6 class="ml-4">Product unavailable stock</h6>
+        </a-col>
       </a-col>
     </a-row>
     <!-- Action modal of details -->

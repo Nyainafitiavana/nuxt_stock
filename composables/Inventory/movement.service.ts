@@ -98,7 +98,6 @@ export const updateDetailMovementService = async (
     idMovement: string,
     details: IFormDetails[],
 ): Promise<ExecuteResponse> => {
-    console.log(details);
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessTokenCategory: string | null = getAccessToken();
