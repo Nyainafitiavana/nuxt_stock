@@ -145,11 +145,13 @@ export const getAllProductWithRemainingStockService = async (
     page: number = null,
     categoryId: string = null,
     unitId: string = null,
+    startDate: string,
+    endDate: string,
 ): Promise<IProductRemainingStock[]> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessToken: string | null = getAccessToken();
-        const path: string = limit && page ? `${BASE_URL_API}${API.PRODUCT}/remaining/stock?limit=${limit}&page=${page}&value=${keyword}&category=${categoryId ? categoryId : ''}&unit=${unitId ? unitId : ''}` : `${BASE_URL_API}${API.PRODUCT}/remaining/stock`;
+        const path: string = limit && page ? `${BASE_URL_API}${API.PRODUCT}/remaining/stock?limit=${limit}&page=${page}&value=${keyword}&category=${categoryId ? categoryId : ''}&unit=${unitId ? unitId : ''}&startDate=${startDate}&endDate=${endDate}` : `${BASE_URL_API}${API.PRODUCT}/remaining/stock`;
         const response: any = await fetch(path, {
             method: 'GET',
             headers: {
