@@ -311,7 +311,7 @@
     </a-col>
   </a-row>
   <!--Filter by date-->
-  <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+  <a-row v-if="props.activePage === 'STOCK_INPUT_OUTPUT'" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="mt-8 flex justify-start" span="24">
       <a-range-picker v-model:value="dateFilter" />
       <a-button class="btn--primary ml-2" :icon="h(FilterOutlined)" @click="handleFilterByDate"/>
