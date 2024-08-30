@@ -4,6 +4,7 @@ import type {FormStateUser, IUser} from "~/composables/User/User.interface";
   import {handleInAuthorizedError} from "~/composables/CustomError";
   import {createVNode, ref} from "vue";
   import {ExclamationCircleOutlined} from "#components";
+import {translations} from "../../composables/translations";
 
   definePageMeta({
     layout: 'navbar',
@@ -11,6 +12,8 @@ import type {FormStateUser, IUser} from "~/composables/User/User.interface";
     middleware: ['user-middleware']
   });
 
+  //This is a global state for language of the app
+  const language = useLanguage();
   const isLoading = ref<boolean>(true);
 
   const route = useRoute();
@@ -113,10 +116,10 @@ import type {FormStateUser, IUser} from "~/composables/User/User.interface";
 
 <template>
   <div>
-    <Title>Profile</Title>
+    <Title>{{translations[language].profile}}</Title>
     <ATypographyTitle class="flex" style="font-size: 20px;">
       <user-outlined  />&nbsp;
-      <span>Profile</span>
+      <span>{{translations[language].profile}}</span>
     </ATypographyTitle>
     <Loading :is-loading="isLoading" :size="'large'"/>
     <a-row v-if="!isLoading">
@@ -148,7 +151,7 @@ import type {FormStateUser, IUser} from "~/composables/User/User.interface";
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="3"><label for="basic_firstName"><span class="required_toil">*</span> First Name:</label></a-col>
+              <a-col span="3"><label for="basic_firstName"><span class="required_toil">*</span> {{translations[language].firstName}}:</label></a-col>
               <a-col span="12">
                 <a-input v-model:value="formState.firstName" size="large" placeholder="First Name"></a-input>
               </a-col>
@@ -161,7 +164,7 @@ import type {FormStateUser, IUser} from "~/composables/User/User.interface";
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="3"><label for="basic_lastName"><span class="required_toil">*</span> Last Name:</label></a-col>
+              <a-col span="3"><label for="basic_lastName"><span class="required_toil">*</span> {{translations[language].lastName}}:</label></a-col>
               <a-col span="12">
                 <a-input v-model:value="formState.lastName" size="large" placeholder="Last Name"></a-input>
               </a-col>
@@ -173,7 +176,7 @@ import type {FormStateUser, IUser} from "~/composables/User/User.interface";
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="3"><label for="basic_phone">Phone number:</label></a-col>
+              <a-col span="3"><label for="basic_phone">{{translations[language].phoneNumber}}:</label></a-col>
               <a-col span="12">
                 <a-input v-model:value="formState.phone" size="large" placeholder="Phone number"></a-input>
               </a-col>
@@ -181,7 +184,7 @@ import type {FormStateUser, IUser} from "~/composables/User/User.interface";
           </a-form-item>
           <a-row class="mt-10">
             <a-form-item class="w-full">
-              <a-button class="btn btn--primary w-full" html-type="submit" size="large">Update profile</a-button>
+              <a-button class="btn btn--primary w-full" html-type="submit" size="large">{{translations[language].updateProfile}}</a-button>
             </a-form-item>
           </a-row>
         </a-form>

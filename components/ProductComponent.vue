@@ -327,6 +327,8 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
   const currentCategoryList = ref<string>('');
   const optionsUnit = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
   const currentUnitList = ref<string>('');
+  const optionsCategoryInModal = ref<SelectProps['options']>([]);
+  const optionsUnitInModal = ref<SelectProps['options']>([]);
   //**************End of state management**************
 
   //***********Beginning of select method of category product***************
@@ -733,6 +735,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
       response.data.map((item: ICategory) => {
         if (optionsCategory.value) {
           optionsCategory.value.push({ value: item.uuid, label: item.designation });
+          optionsCategoryInModal.value.push({ value: item.uuid, label: item.designation });
         }
       });
 
@@ -768,6 +771,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
       response.data.map((item: IUnit) => {
         if (optionsUnit.value) {
           optionsUnit.value.push({ value: item.uuid, label: item.designation });
+          optionsUnitInModal.value.push({ value: item.uuid, label: item.designation });
         }
       });
 
@@ -927,7 +931,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
           <a-form-item
               name="designation"
               type="text"
-              :rules="[{ required: true, message: 'Please input the designation of the new category!' }]"
+              :rules="[{ required: true, message: 'Please input the designation of the new product!' }]"
               class="w-full mt-10"
           >
             <a-row>
@@ -950,7 +954,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
                     class="w-44"
                     v-model:value="formState.idUnit"
                     show-search
-                    :options="optionsUnit"
+                    :options="optionsUnitInModal"
                     :filter-option="filterOption"
                     :disabled="isView"
                     :loading="loadingUnitFilterList"
@@ -971,10 +975,11 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
                     class="w-44"
                     v-model:value="formState.idCategory"
                     show-search
-                    :options="optionsCategory"
+                    :options="optionsCategoryInModal"
                     :filter-option="filterOption"
                     :disabled="isView"
                     :loading="loadingCategoryFilterList"
+                    placeholder="Select an category"
                 ></a-select>
               </a-col>
             </a-row>

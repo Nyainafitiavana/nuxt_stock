@@ -10,6 +10,8 @@ import {
   TeamOutlined, ToTopOutlined,
   UserOutlined, VerticalAlignBottomOutlined, VerticalAlignMiddleOutlined
 } from "#components";
+import {useLanguage} from "~/composables/states";
+import {translations} from "~/composables/translations";
 
 // State
 const state = reactive({
@@ -22,114 +24,118 @@ const state = reactive({
 // Admin and User ID refs
 const isAdmin = ref<string | null>(null);
 const userId = ref<string | null>(null);
+//This is a global state for language of the app
+const language = useLanguage();
 
 
-const adminMenuItems = reactive([
+
+
+const adminMenuItems = computed(() => [
   {
     key: '1',
     icon: () => h(BarChartOutlined),
-    label: 'Dashboard',
-    title: 'Dashboard',
+    label: translations[language.value].dashboard,
+    title: translations[language.value].dashboard,
     onClick: () => navigateTo(RouteList.DASHBOARD),
   },
   {
     key: '2',
     icon: () => h(UserOutlined),
-    label: 'Profile',
-    title: 'Profile',
+    label: translations[language.value].profile,
+    title: translations[language.value].profile,
     onClick: () => navigateTo(RouteList.PROFILE + '/' + userId.value),
   },
   {
     key: '3',
     icon: () => h(TeamOutlined),
-    label: 'User',
-    title: 'User',
+    label: translations[language.value].user,
+    title: translations[language.value].user,
     onClick: () => navigateTo(RouteList.USER),
   },
   {
     key: '4',
     icon: () => h(AppstoreOutlined),
-    label: 'Category',
-    title: 'Category',
+    label: translations[language.value].category,
+    title: translations[language.value].category,
     onClick: () => navigateTo(RouteList.CATEGORY),
   },
   {
     key: '5',
     icon: () => h(AppstoreAddOutlined),
-    label: 'Unit',
-    title: 'Unit',
+    label: translations[language.value].unit,
+    title: translations[language.value].unit,
     onClick: () => navigateTo(RouteList.UNIT),
   },
   {
     key: '6',
     icon: () => h(ShopOutlined),
-    label: 'Product',
-    title: 'Product',
+    label: translations[language.value].product,
+    title: translations[language.value].product,
     onClick: () => navigateTo(RouteList.PRODUCT),
   },
   {
     key: 'inventory',
     icon: () => h(ShoppingCartOutlined),
-    label: 'Inventory',
-    title: 'Inventory',
+    label: translations[language.value].inventory,
+    title: translations[language.value].inventory,
     children: [
       {
         key: '8',
         icon: () => h(VerticalAlignBottomOutlined),
-        label: 'Purchase',
-        title: 'Purchase',
+        label: translations[language.value].purchase,
+        title: translations[language.value].purchase,
         onClick: () => navigateTo(RouteList.INVENTORY_PURCHASE),
       },
       {
         key: '9',
         icon: () => h(ToTopOutlined),
-        label: 'Sales',
-        title: 'Sales',
+        label: translations[language.value].sales,
+        title: translations[language.value].sales,
         onClick: () => navigateTo(RouteList.INVENTORY_SALES),
       },
       {
         key: '10',
         icon: () => h(VerticalAlignMiddleOutlined),
-        label: 'Stock situation',
-        title: 'Stock situation',
+        label: translations[language.value].stockSituation,
+        title: translations[language.value].stockSituation,
         onClick: () => navigateTo(RouteList.STOCK_SITUATION),
       },
     ],
   },
 ]);
 
-// Menu items
-const managerMenuItems = reactive([
+const managerMenuItems = computed(() => [
   {
     key: '2',
     icon: () => h(UserOutlined),
-    label: 'Profile',
-    title: 'Profile',
+    label: translations[language.value].profile,
+    title: translations[language.value].profile,
     onClick: () => navigateTo(RouteList.PROFILE + '/' + userId.value),
   },
   {
     key: 'inventory',
     icon: () => h(ShoppingCartOutlined),
-    label: 'Inventory',
-    title: 'Inventory',
+    label: translations[language.value].inventory,
+    title: translations[language.value].inventory,
     children: [
       {
         key: '8',
         icon: () => h(VerticalAlignBottomOutlined),
-        label: 'Purchase',
-        title: 'Purchase',
+        label: translations[language.value].purchase,
+        title: translations[language.value].purchase,
         onClick: () => navigateTo(RouteList.INVENTORY_PURCHASE),
       },
       {
         key: '9',
         icon: () => h(ToTopOutlined),
-        label: 'Sales',
-        title: 'Sales',
+        label: translations[language.value].sales,
+        title: translations[language.value].sales,
         onClick: () => navigateTo(RouteList.INVENTORY_SALES),
       },
     ],
   },
 ]);
+
 
 // Route and Router
 const route = useRoute();
@@ -229,25 +235,54 @@ const toggleCollapsed = () => {
     </a-layout-sider>
     <a-layout :style="{ marginLeft: sideWidth }">
       <a-layout-header style="background: #fff; padding: 0 15px;">
-        <menu-unfold-outlined
-            v-if="state.collapsed"
-            class="trigger"
-            style="font-size: 20px;"
-            @click="toggleCollapsed"
-        />
-        <menu-fold-outlined
-            v-else
-            class="trigger"
-            style="font-size: 20px;"
-            @click="toggleCollapsed"
-        />
+        <a-row>
+          <a-col span="12">
+            <menu-unfold-outlined
+                v-if="state.collapsed"
+                class="trigger"
+                style="font-size: 20px;"
+                @click="toggleCollapsed"
+            />
+            <menu-fold-outlined
+                v-else
+                class="trigger"
+                style="font-size: 20px;"
+                @click="toggleCollapsed"
+            />
+          </a-col>
+          <a-col span="12" class="flex justify-end">
+            <div class="mr-5">
+              <a-select
+                  v-model:value="language"
+                  style="width: 100%"
+              >
+                <a-select-option value="ENG" label="USA">
+                  <span role="img" aria-label="USA">🇺🇸</span>
+                  &nbsp;&nbsp;English
+                </a-select-option>
+                <a-select-option value="FR" label="USA">
+                  <span role="img" aria-label="USA">🇫🇷</span>
+                  &nbsp;&nbsp;Français
+                </a-select-option>
+              </a-select>
+            </div>
+            <div>
+              <a-button class="btn--primary" size="middle">
+                <template #icon>
+                  <LogoutOutlined />
+                </template>
+              </a-button>
+            </div>
+          </a-col>
+        </a-row>
+
       </a-layout-header>
       <a-layout-content
           :style="{ margin: '24px 16px 0', overflow: 'initial', padding: '24px', background: '#fff', minHeight: '800px' }"
       >
         <Suspense>
           <template #default>
-            <slot />
+            <slot/>
           </template>
         </Suspense>
       </a-layout-content>

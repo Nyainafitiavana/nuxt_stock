@@ -1,6 +1,8 @@
 <script setup lang="ts">
 
   import {ref} from "vue";
+  import {useLanguage} from "~/composables/states";
+  import {translations} from "~/composables/translations";
 
   definePageMeta({
     layout: 'navbar',
@@ -8,6 +10,8 @@
     middleware: ['user-middleware', 'admin-middleware']
   });
 
+  //This is a global state for language of the app
+  const language = useLanguage();
   const isLoading = ref<boolean>(true);
 
   //Call chart function
@@ -114,10 +118,10 @@
 
 <template>
   <div>
-    <Title>Dashboard</Title>
+    <Title>{{translations[language].dashboard}}</Title>
     <ATypographyTitle class="flex" style="font-size: 20px;">
       <user-outlined  />&nbsp;
-      <span>Dashboard</span>
+      <span>{{translations[language].dashboard}}</span>
     </ATypographyTitle>
     <Loading :is-loading="isLoading" :size="'large'"/>
     <a-row v-if="!isLoading" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
