@@ -24,27 +24,21 @@ interface Props {
 
   const props = defineProps<Props>();
 
-  const statusColumn = {
-    title: h('div', { style: { textAlign: 'center' } }, ['Status']),
-    key: 'status',
-    customRender: ({ record }: { record: IUnit}) => h('div', [
-      record.status.code === STCodeList.ACTIVE ?
-          h('div',
-          {
-              style: { textAlign: 'center', color: 'white' },
-              class: 'primary-background-color'
-            },
-          ['Active']
-          )
-          : h('div',
-              {
-                style: { textAlign: 'center', color: 'white' },
-                class: 'danger-background-color'
-              },
-              ['Deleted']
-          ),
-    ])
-  }
+  //This is a global state for language of the app
+  const language = useLanguage();
+  const loading = ref<boolean>(false);
+  const loadingBtn = ref<boolean>(false);
+  const keyword = ref<string>('');
+  const pageSize = ref<number>(10);
+  const currentPage = ref<number>(1);
+  const totalPage = ref<number>(0);
+  const data = ref<IUnit[]>([]);
+  const isOpenModal = ref<boolean>(false);
+  const isEdit = ref<boolean>(false);
+  const isView = ref<boolean>(false);
+  const formRef = ref<FormInstance>();
+  const unitId = ref<string>('');
+  const formState = reactive<FormUnit>({designation: ''});
 
   const activeActionsColumns = {
     title: 'Actions',
@@ -85,29 +79,35 @@ interface Props {
     ])
   };
 
-  const columns = [
+  const columns = computed(() =>[
     {
-      title: 'Designation',
+      title: translations[language.value].designation,
       dataIndex: 'designation',
       key: 'designation',
     },
-    statusColumn,
+    {
+      title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
+      key: 'status',
+      customRender: ({ record }: { record: IUnit}) => h('div', [
+        record.status.code === STCodeList.ACTIVE ?
+            h('div',
+                {
+                  style: { textAlign: 'center', color: 'white' },
+                  class: 'primary-background-color'
+                },
+                [translations[language.value].active]
+            )
+            : h('div',
+                {
+                  style: { textAlign: 'center', color: 'white' },
+                  class: 'danger-background-color'
+                },
+                [translations[language.value].deleted]
+            ),
+      ])
+    },
     props.activePage === STCodeList.ACTIVE ?  activeActionsColumns : deletedActionColumns,
-  ];
-
-  const loading = ref<boolean>(false);
-  const loadingBtn = ref<boolean>(false);
-  const keyword = ref<string>('');
-  const pageSize = ref<number>(10);
-  const currentPage = ref<number>(1);
-  const totalPage = ref<number>(0);
-  const data = ref<IUnit[]>([]);
-  const isOpenModal = ref<boolean>(false);
-  const isEdit = ref<boolean>(false);
-  const isView = ref<boolean>(false);
-  const formRef = ref<FormInstance>();
-  const unitId = ref<string>('');
-  const formState = reactive<FormUnit>({designation: ''});
+  ]);
 
   //**********Reset all value and validator form*******
   const resetForm = () => {
@@ -162,11 +162,11 @@ interface Props {
     }
 
     Modal.confirm({
-      title: 'Confirmation Required',
+      title: translations[language.value].confirmationTitle,
       icon: createVNode(ExclamationCircleOutlined),
-      content: 'Are you sure you want to proceed? This action is irreversible.',
-      okText: 'Yes',
-      cancelText: 'No',
+      content: translations[language.value].confirmationDescription,
+      okText: translations[language.value].yes,
+      cancelText: translations[language.value].no,
       onOk: async () => {
         loadingBtn.value = true;
         await deleteUnit();
@@ -178,11 +178,11 @@ interface Props {
   //*******Global method on submit user form********************
   const onSubmitForm = async () => {
     Modal.confirm({
-      title: 'Confirmation Required',
+      title: translations[language.value].confirmationTitle,
       icon: createVNode(ExclamationCircleOutlined),
-      content: 'Are you sure you want to proceed? This action is irreversible.',
-      okText: 'Yes',
-      cancelText: 'No',
+      content: translations[language.value].confirmationDescription,
+      okText: translations[language.value].yes,
+      cancelText: translations[language.value].no,
       onOk: async () => {
         loadingBtn.value = true;
 
@@ -208,8 +208,8 @@ interface Props {
 
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
 
@@ -227,7 +227,7 @@ interface Props {
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -247,8 +247,8 @@ interface Props {
       isOpenModal.value = false;
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
 
@@ -266,7 +266,7 @@ interface Props {
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -283,8 +283,8 @@ interface Props {
       isOpenModal.value = false;
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
 
@@ -302,7 +302,7 @@ interface Props {
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -364,6 +364,7 @@ interface Props {
 </script>
 
 <template>
+  <!--Filter datatable-->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="mt-8" span="5">
       <a-select
@@ -379,13 +380,14 @@ interface Props {
       <span> / page</span>
     </a-col>
     <a-col class="mt-8" span="7">
-      <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">Add new</a-button>
+      <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">{{translations[language].add}}</a-button>
     </a-col>
     <a-col class="mt-8 flex justify-end" span="12">
       <a-input type="text" class="w-56 h-9" v-model:value="keyword" />&nbsp;
       <a-button class="btn--primary" :icon="h(SearchOutlined)" @click="handleSearch"/>
     </a-col>
   </a-row>
+  <!--Datatable-->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="mt-8" span="24">
       <a-spin :spinning="loading" size="large">
@@ -400,6 +402,7 @@ interface Props {
       </a-spin>
     </a-col>
   </a-row>
+  <!--Paginator datatable-->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="mt-8 flex justify-end" span="24">
       <a-pagination
@@ -416,7 +419,7 @@ interface Props {
       v-model:open="isOpenModal"
       closable
       :footer="null"
-      title="Category"
+      :title="translations[language].unit"
       style="top: 20px"
       @ok=""
   >
@@ -433,26 +436,26 @@ interface Props {
           <a-form-item
               name="designation"
               type="text"
-              :rules="[{ required: true, message: 'Please input the designation of the new category!' }]"
+              :rules="[{ required: true, message: translations[language].errorDesignation }]"
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="5"><label for="basic_designation"><span class="required_toil">*</span> Designation:</label></a-col>
+              <a-col span="5"><label for="basic_designation"><span class="required_toil">*</span> {{translations[language].designation}}:</label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.designation" size="large" placeholder="Designation" :disabled="isView"></a-input>
+                <a-input v-model:value="formState.designation" size="large" :placeholder="translations[language].designation" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
           <a-row class="mt-10">
             <a-form-item class="w-full flex justify-start">
-              <a-button class="btn btn--default" size="large" @click="handleCloseModal">Cancel</a-button>
+              <a-button class="btn btn--default" size="middle" @click="handleCloseModal">{{translations[language].cancel}}</a-button>
               <a-button
                   v-if="!isView"
                   class="btn btn--primary ml-4"
                   html-type="submit"
-                  size="large"
+                  size="middle"
                   :loading="loading"
-              >Save</a-button>
+              >{{translations[language].save}}</a-button>
             </a-form-item>
           </a-row>
         </a-form>

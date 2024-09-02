@@ -47,28 +47,6 @@
     isAdmin: false
   });
 
-  const statusColumn = {
-    title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
-    key: 'status',
-    customRender: ({ record }: { record: IUser}) => h('div', [
-      record.status && (record.status.code === STCodeList.ACTIVE) ?
-          h('div',
-              {
-                style: { textAlign: 'center', color: 'white' },
-                class: 'primary-background-color'
-              },
-              [translations[language.value].active]
-          )
-          : h('div',
-              {
-                style: { textAlign: 'center', color: 'white' },
-                class: 'danger-background-color'
-              },
-              [translations[language.value].deleted]
-          ),
-    ])
-  }
-
   const activeActionsColumns = {
     title: 'Actions',
     key: 'actions',
@@ -181,7 +159,27 @@
               ]
           )
     },
-    statusColumn,
+    {
+      title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
+      key: 'status',
+      customRender: ({ record }: { record: IUser}) => h('div', [
+        record.status && (record.status.code === STCodeList.ACTIVE) ?
+            h('div',
+                {
+                  style: { textAlign: 'center', color: 'white' },
+                  class: 'primary-background-color'
+                },
+                [translations[language.value].active]
+            )
+            : h('div',
+                {
+                  style: { textAlign: 'center', color: 'white' },
+                  class: 'danger-background-color'
+                },
+                [translations[language.value].deleted]
+            ),
+      ])
+    },
     props.activePage === STCodeList.ACTIVE ?  activeActionsColumns : deletedActionColumns,
   ]);
 

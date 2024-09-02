@@ -6,21 +6,23 @@
     middleware: ['user-middleware', 'admin-middleware']
   });
 
+  //This is a global state for language of the app
+  const language = useLanguage();
   const activeKey = ref('1');
 </script>
 
 <template>
-  <Title>Unit</Title>
+  <Title>{{translations[language].unit}}</Title>
   <ATypographyTitle class="flex" style="font-size: 20px;">
     <AppstoreAddOutlined />&nbsp;
-    <span>Unit</span>
+    <span>{{translations[language].unit}}</span>
   </ATypographyTitle>
   <a-tabs v-model:activeKey="activeKey" centered>
     <a-tab-pane key="1" @click="() => activeKey = '1'">
       <template #tab>
         <span>
           <check-circle-filled />
-          Active
+          {{translations[language].active}}
         </span>
       </template>
       <Suspense>
@@ -33,7 +35,7 @@
       <template #tab>
         <span>
           <delete-outlined/>
-          Deleted
+          {{translations[language].deleted}}
         </span>
       </template>
       <Suspense>

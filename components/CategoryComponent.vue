@@ -15,7 +15,6 @@ import type {FormInstance} from "ant-design-vue";
 import {STCodeList, type TStatus} from "~/composables/Status.interface";
 import type {FormCategory, ICategory} from "~/composables/Category/Category.interface";
 import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/composables/Category/category.service";
-import {translations} from "~/composables/translations";
 
 
   interface Props {
@@ -39,28 +38,6 @@ import {translations} from "~/composables/translations";
   const formState = reactive<FormCategory>({designation: ''});
 
   const props = defineProps<Props>();
-
-  const statusColumn = {
-    title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
-    key: 'status',
-    customRender: ({ record }: { record: ICategory}) => h('div', [
-      record.status.code === STCodeList.ACTIVE ?
-          h('div',
-          {
-              style: { textAlign: 'center', color: 'white' },
-              class: 'primary-background-color'
-            },
-          [translations[language.value].active]
-          )
-          : h('div',
-              {
-                style: { textAlign: 'center', color: 'white' },
-                class: 'danger-background-color'
-              },
-              [translations[language.value].deleted]
-          ),
-    ])
-  }
 
   const activeActionsColumns = {
     title: 'Actions',
@@ -107,7 +84,27 @@ import {translations} from "~/composables/translations";
       dataIndex: 'designation',
       key: 'designation',
     },
-    statusColumn,
+    {
+      title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
+      key: 'status',
+      customRender: ({ record }: { record: ICategory}) => h('div', [
+        record.status.code === STCodeList.ACTIVE ?
+            h('div',
+                {
+                  style: { textAlign: 'center', color: 'white' },
+                  class: 'primary-background-color'
+                },
+                [translations[language.value].active]
+            )
+            : h('div',
+                {
+                  style: { textAlign: 'center', color: 'white' },
+                  class: 'danger-background-color'
+                },
+                [translations[language.value].deleted]
+            ),
+      ])
+    },
     props.activePage === STCodeList.ACTIVE ?  activeActionsColumns : deletedActionColumns,
   ]);
 
@@ -257,7 +254,7 @@ import {translations} from "~/composables/translations";
       //reload data
       await getAllDataCategory();
     } catch (error) {
-      //Verification code status if equal 401 then we redirect to login
+      //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
         if (error.status === 401) {
           //call the global handle action if in authorized
@@ -293,7 +290,7 @@ import {translations} from "~/composables/translations";
       //reload data
       await getAllDataCategory();
     } catch (error) {
-      //Verification code status if equal 401 then we redirect to login
+      //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
         if (error.status === 401) {
           //call the global handle action if in authorized
