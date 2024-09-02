@@ -4,7 +4,7 @@ import type {FormStateUser, IUser} from "~/composables/User/User.interface";
   import {handleInAuthorizedError} from "~/composables/CustomError";
   import {createVNode, ref} from "vue";
   import {ExclamationCircleOutlined} from "#components";
-import {translations} from "../../composables/translations";
+  import {translations} from "~/composables/translations";
 
   definePageMeta({
     layout: 'navbar',
@@ -41,7 +41,7 @@ import {translations} from "../../composables/translations";
       formState.phone = user.phone;
 
     } catch (error) {
-      //Verification code status if equal 401 then we redirect to login
+      //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
         if (error.status === 401) {
           //call the global handle action if in authorized
@@ -95,7 +95,7 @@ import {translations} from "../../composables/translations";
       //hide loading spin
       isLoading.value = false;
     } catch (error) {
-      //Verification code status if equal 401 then we redirect to login
+      //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
         if (error.status === 401) {
           //call the global handle action if in authorized
