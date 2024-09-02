@@ -24,6 +24,8 @@
 
   const props = defineProps<Props>();
 
+  //This is a global state for language of the app
+  const language = useLanguage();
   const loading = ref<boolean>(false);
   const loadingBtn = ref<boolean>(false);
   const keyword = ref<string>('');
@@ -46,7 +48,7 @@
   });
 
   const statusColumn = {
-    title: h('div', { style: { textAlign: 'center' } }, ['Status']),
+    title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
     key: 'status',
     customRender: ({ record }: { record: IUser}) => h('div', [
       record.status && (record.status.code === STCodeList.ACTIVE) ?
@@ -55,14 +57,14 @@
                 style: { textAlign: 'center', color: 'white' },
                 class: 'primary-background-color'
               },
-              ['Active']
+              [translations[language.value].active]
           )
           : h('div',
               {
                 style: { textAlign: 'center', color: 'white' },
                 class: 'danger-background-color'
               },
-              ['Deleted']
+              [translations[language.value].deleted]
           ),
     ])
   }
@@ -108,12 +110,12 @@
 
   const columns = [
     {
-      title: 'First Name',
+      title: translations[language.value].firstName,
       dataIndex: 'firstName',
       key: 'firstName',
     },
     {
-      title: 'Last Name',
+      title: translations[language.value].lastName,
       dataIndex: 'lastName',
       key: 'lastName',
     },
@@ -123,13 +125,13 @@
       key: 'email',
     },
     {
-      title: 'Phone',
+      title: translations[language.value].phoneNumber,
       dataIndex: 'phone',
       key: 'phone',
       customRender: ({ text }: { text: string }) => text ? text : '---'
     },
     {
-      title: 'Role',
+      title: translations[language.value].role,
       dataIndex: 'isAdmin',
       key: 'isAdmin',
       width: 150,
@@ -152,7 +154,7 @@
                       class : 'success-secondary mt-3 ml-1',
                       style: 'font-size: 15px;'
                     },
-                    ['Admin']
+                    [translations[language.value].admin]
                 )
               ]
           ) :
@@ -174,7 +176,7 @@
                       class : 'success-secondary mt-3 ml-1',
                       style: 'font-size: 15px;'
                     },
-                    ['Manager']
+                    [translations[language.value].manager]
                 )
               ]
           )
@@ -248,11 +250,11 @@
     }
 
     Modal.confirm({
-      title: 'Confirmation Required',
+      title: translations[language.value].confirmationTitle,
       icon: createVNode(ExclamationCircleOutlined),
-      content: 'Are you sure you want to proceed? This action is irreversible.',
-      okText: 'Yes',
-      cancelText: 'No',
+      content: translations[language.value].confirmationDescription,
+      okText: translations[language.value].yes,
+      cancelText: translations[language.value].no,
       onOk: async () => {
         loadingBtn.value = true;
         await deleteUser();
@@ -264,11 +266,11 @@
   //*******Global method on submit user form********************
   const onSubmitForm = async () => {
     Modal.confirm({
-      title: 'Confirmation Required',
+      title: translations[language.value].confirmationTitle,
       icon: createVNode(ExclamationCircleOutlined),
-      content: 'Are you sure you want to proceed? This action is irreversible.',
-      okText: 'Yes',
-      cancelText: 'No',
+      content: translations[language.value].confirmationDescription,
+      okText: translations[language.value].yes,
+      cancelText: translations[language.value].no,
       onOk: async () => {
         loadingBtn.value = true;
 
@@ -294,8 +296,8 @@
 
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
 
@@ -313,7 +315,7 @@
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -338,8 +340,8 @@
       isOpenModal.value = false;
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
 
@@ -357,7 +359,7 @@
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -374,8 +376,8 @@
       isOpenModal.value = false;
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
 
@@ -393,7 +395,7 @@
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -455,6 +457,7 @@
 </script>
 
 <template>
+  <!--Filter datatable-->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="mt-8" span="5">
       <a-select
@@ -470,13 +473,14 @@
       <span> / page</span>
     </a-col>
     <a-col class="mt-8" span="7">
-      <a-button :icon="h(PlusOutlined)" @click="handleAddUser" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">Add new</a-button>
+      <a-button :icon="h(PlusOutlined)" @click="handleAddUser" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">{{translations[language].add}}</a-button>
     </a-col>
     <a-col class="mt-8 flex justify-end" span="12">
       <a-input type="text" class="w-56 h-9" v-model:value="keyword" />&nbsp;
       <a-button class="btn--primary" :icon="h(SearchOutlined)" @click="handleSearch"/>
     </a-col>
   </a-row>
+  <!--Datatable-->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="mt-8" span="24">
       <a-spin :spinning="loading" size="large">
@@ -491,6 +495,7 @@
       </a-spin>
     </a-col>
   </a-row>
+  <!--Paginator datatable-->
   <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="mt-8 flex justify-end" span="24">
       <a-pagination
@@ -503,11 +508,12 @@
           :showSizeChanger="false" />
     </a-col>
   </a-row>
+  <!--Modal user-->
   <a-modal
       v-model:open="isOpenModal"
       closable
       :footer="null"
-      title="User"
+      :title="translations[language].user"
       style="top: 20px"
       @ok=""
   >
@@ -524,39 +530,39 @@
           <a-form-item
               name="email"
               type="email"
-              :rules="[{ required: true, type: 'email', message: 'The input is not a valid email format!' }]"
+              :rules="[{ required: true, type: 'email', message: translations[language].errorEmail }]"
               class="w-full mt-10"
           >
             <a-row>
               <a-col span="5"><label for="basic_email"><span class="required_toil">*</span> Email:</label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.email" size="large" placeholder="E-mail" :disabled="isView"></a-input>
+                <a-input v-model:value="formState.email" size="large" :placeholder="translations[language].email" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
           <a-form-item
               name="firstName"
               type="text"
-              :rules="[{ required: true, message: 'Please input your First Name!' }]"
+              :rules="[{ required: true, message: translations[language].firstName }]"
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="5"><label for="basic_firstName"><span class="required_toil">*</span> First Name:</label></a-col>
+              <a-col span="5"><label for="basic_firstName"><span class="required_toil">*</span> {{translations[language].firstName}}:</label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.firstName" size="large" placeholder="First Name" :disabled="isView"></a-input>
+                <a-input v-model:value="formState.firstName" size="large" :placeholder="translations[language].firstName" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
           <a-form-item
               name="lastName"
               type="text"
-              :rules="[{ required: true, message: 'Please input your Last Name!' }]"
+              :rules="[{ required: true, message: translations[language].errorLastName }]"
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="5"><label for="basic_lastName"><span class="required_toil">*</span> Last Name:</label></a-col>
+              <a-col span="5"><label for="basic_lastName"><span class="required_toil">*</span> {{translations[language].lastName}}:</label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.lastName" size="large" placeholder="Last Name" :disabled="isView"></a-input>
+                <a-input v-model:value="formState.lastName" size="large" :placeholder="translations[language].lastName" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -566,9 +572,9 @@
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="5"><label for="basic_phone">Phone number: </label></a-col>
+              <a-col span="5"><label for="basic_phone">{{translations[language].phoneNumber}}: </label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.phone" size="large" placeholder="Phone number" :disabled="isView"></a-input>
+                <a-input v-model:value="formState.phone" size="large" :placeholder="translations[language].phoneNumber" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -578,9 +584,13 @@
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="5"><label for="basic_isAdmin">Role:</label></a-col>
+              <a-col span="5"><label for="basic_isAdmin">{{translations[language].role}}:</label></a-col>
               <a-col span="19">
-                <a-switch v-model:checked="formState.isAdmin" checked-children="Admin" un-checked-children="Manager" :disabled="isView"/>
+                <a-switch
+                    v-model:checked="formState.isAdmin"
+                    :checked-children="translations[language].admin"
+                    :un-checked-children="translations[language].manager"
+                    :disabled="isView"/>
               </a-col>
             </a-row>
           </a-form-item>
@@ -588,26 +598,26 @@
               name="password"
               type="text"
               v-if="isEdit === false && isView === false"
-              :rules="[{ required: true, message: 'Please input the password for this new user!' }]"
+              :rules="[{ required: true, message: translations[language].errorPassword }]"
               class="w-full mt-10 mb-10"
           >
             <a-row>
-              <a-col span="5"><label for="basic_password"><span class="required_toil">*</span> Password:</label></a-col>
+              <a-col span="5"><label for="basic_password"><span class="required_toil">*</span> {{translations[language].password}}: </label></a-col>
               <a-col span="19">
-                <a-input-password v-model:value="formState.password" size="large" placeholder="Password"/>
+                <a-input-password v-model:value="formState.password" size="middle" :placeholder="translations[language].password"/>
               </a-col>
             </a-row>
           </a-form-item>
           <a-row class="mt-10">
             <a-form-item class="w-full flex justify-start">
-              <a-button class="btn btn--default" size="large" @click="handleCloseModal">Cancel</a-button>
+              <a-button class="btn btn--default" size="middle" @click="handleCloseModal">{{translations[language].cancel}}</a-button>
               <a-button
                   v-if="!isView"
                   class="btn btn--primary ml-4"
                   html-type="submit"
-                  size="large"
+                  size="middle"
                   :loading="loading"
-              >Save</a-button>
+              >{{translations[language].save}}</a-button>
             </a-form-item>
           </a-row>
         </a-form>

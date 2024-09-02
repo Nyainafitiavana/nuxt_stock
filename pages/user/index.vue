@@ -2,6 +2,7 @@
   import {
     TeamOutlined,
   } from "#components";
+  import {translations} from "~/composables/translations";
 
   definePageMeta({
     layout: 'navbar',
@@ -9,22 +10,24 @@
     middleware: ['user-middleware', 'admin-middleware']
   });
 
+  //This is a global state for language of the app
+  const language = useLanguage();
   const activeKey = ref('1');
 
 </script>
 
 <template>
-  <Title>User</Title>
+  <Title>{{translations[language].user}}</Title>
   <ATypographyTitle class="flex" style="font-size: 20px;">
     <TeamOutlined/>&nbsp;
-    <span>User</span>
+    <span>{{translations[language].user}}</span>
   </ATypographyTitle>
   <a-tabs v-model:activeKey="activeKey" centered>
     <a-tab-pane key="1" @click="() => activeKey = '1'">
       <template #tab>
         <span>
           <check-circle-filled />
-          Active
+          {{translations[language].active}}
         </span>
       </template>
         <Suspense>
@@ -37,7 +40,7 @@
       <template #tab>
         <span>
           <delete-outlined/>
-          Deleted
+          {{translations[language].deleted}}
         </span>
       </template>
       <Suspense>
