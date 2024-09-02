@@ -37,106 +37,59 @@ interface Props {
 
   const props = defineProps<Props>();
 
+  //**************Beginning of state management**************
+  //This is a global state for language of the app
+  const language = useLanguage();
+  const loading = ref<boolean>(false);
+  const loadingBtn = ref<boolean>(false);
+  const loadingBtnSalesPrice = ref<boolean>(false);
+  const loadingCategoryFilterList = ref<boolean>(false);
+  const loadingUnitFilterList = ref<boolean>(false);
+  const loadingSalesPrice = ref<boolean>(false);
+  const keyword = ref<string>('');
+  const pageSize = ref<number>(10);
+  const currentPage = ref<number>(1);
+  const totalPage = ref<number>(0);
+  const pageSizeSalesPrice = ref<number>(10);
+  const currentPageSalesPrice = ref<number>(1);
+  const totalPageSalesPrice = ref<number>(0);
+  const dataProduct = ref<IProduct[]>([]);
+  const dataProductSalesPrice = ref<IProductSalesPrice[]>([]);
+  const isOpenModal = ref<boolean>(false);
+  const isOpenModalSalesPrice = ref<boolean>(false);
+  const isShowFormAddProductSalePrice = ref<boolean>(false);
+  const isEdit = ref<boolean>(false);
+  const isView = ref<boolean>(false);
+  const formRef = ref<FormInstance>();
+  const productId = ref<string>('');
+  const currentProductDesignation = ref<string>('');
+  const formState = reactive<FormProduct>(
+      {
+        designation: '',
+        description: '',
+        idCategory: '',
+        idUnit: '',
+      }
+  );
+  const formStateSalesPrice = reactive<FormProductSalesPrice>(
+      {
+        idProduct: '',
+        unitPrice: 0,
+        wholesale: 0,
+        purchasePrice: 0,
+      }
+  );
+  const optionsCategory = ref<SelectProps['options']>([{ value: '', label: translations[language.value].all}]);
+  const currentCategoryList = ref<string>('');
+  const optionsUnit = ref<SelectProps['options']>([{ value: '', label: translations[language.value].all}]);
+  const currentUnitList = ref<string>('');
+  const optionsCategoryInModal = ref<SelectProps['options']>([]);
+  const currentCategoryInModal = ref<string>(null);
+  const optionsUnitInModal = ref<SelectProps['options']>([]);
+  const currentUnitInModal = ref<string>(null);
+  //**************End of state management**************
+
   //**************Beginning of Column datatable property***********
-  const unitPrice = {
-    title: 'Unit price',
-    key: 'unitPrice',
-    dataIndex: ['productSalesPrice', 'unitPrice'],
-    customRender: ({ record }: { record: IProduct}) => {
-      let value = '0.00';
-
-      if (record.productSalesPrice.length > 0) {
-        record.productSalesPrice.map((item: IProductSalesPrice) => {
-          if (item.status.code === STCodeList.ACTIVE) {
-            value = new Intl.NumberFormat('en-US', {
-              style: 'decimal',
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }).format(item.unitPrice);
-          }
-        })
-      }
-
-      return h('div', { style: { textAlign: 'right' } }, [value]);
-    }
-  }
-
-  const wholeSalesPrice = {
-  title: 'Wholesale unit price',
-  key: 'wholesalePrice',
-  dataIndex: ['productSalesPrice', 'wholesale'],
-  customRender: ({ record }: { record: IProduct}) => {
-    let value = '0.00';
-
-    if (record.productSalesPrice.length > 0) {
-      record.productSalesPrice.map((item: IProductSalesPrice) => {
-        if (item.status.code === STCodeList.ACTIVE) {
-          value = new Intl.NumberFormat('en-US', {
-            style: 'decimal',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format(item.wholesale);
-        }
-      })
-    }
-
-    return h('div', { style: { textAlign: 'right' } }, [value]);
-  }
-}
-
-  const purchasePrice = {
-    title: 'Purchase price',
-    key: 'purchasePrice',
-    dataIndex: ['productSalesPrice', 'purchasePrice'],
-    customRender: ({ record }: { record: IProduct}) => {
-      let value = '0.00';
-
-      if (record.productSalesPrice.length > 0) {
-        record.productSalesPrice.map((item: IProductSalesPrice) => {
-          if (item.status.code === STCodeList.ACTIVE) {
-            value = new Intl.NumberFormat('en-US', {
-              style: 'decimal',
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }).format(item.purchasePrice);
-          }
-        })
-      }
-
-      return h('div', { style: { textAlign: 'right' } }, [value]);
-  }
-}
-
-  const statusColumn = {
-    title: h('div', { style: { textAlign: 'center' } }, ['Status']),
-    key: 'status',
-    dataIndex: 'status',
-    customRender: ({ record }: { record: ICategory}) => h('div', [
-      record.status.code === STCodeList.ACTIVE ?
-          h('div',
-          {
-              style: { textAlign: 'center', color: 'white' },
-              class: 'primary-background-color'
-            },
-          ['Active']
-          )
-          : (record.status.code === STCodeList.DELETED ? h('div',
-              {
-                style: { textAlign: 'center', color: 'white' },
-                class: 'danger-background-color'
-              },
-              ['Deleted']
-          ):
-          h('div',
-              {
-                style: { textAlign: 'center', color: 'white' },
-                class: 'secondary-background-color'
-              },
-              ['Old']
-          )
-        ),
-    ])
-  }
 
   const activeActionsColumns = {
     title: 'Actions',
@@ -189,35 +142,127 @@ interface Props {
     ])
   };
 
-  const columns = [
+  const columns = computed(() => [
     {
-      title: 'Designation',
+      title: translations[language.value].designation,
       dataIndex: 'designation',
       key: 'designation',
     },
     {
-      title: 'Unit',
+      title: translations[language.value].unit,
       dataIndex: ['unit', 'designation'],
       key: 'unit',
       customRender: ({ text }: { text: string }) => text ? text : '---'
     },
     {
-      title: 'Category',
+      title: translations[language.value].category,
       dataIndex: ['category', 'designation'],
       key: 'category',
       customRender: ({ text }: { text: string }) => text ? text : '---'
     },
-    unitPrice,
-    wholeSalesPrice,
-    purchasePrice,
-    statusColumn,
+    {
+      title: translations[language.value].unitPrice,
+      key: 'unitPrice',
+      dataIndex: ['productSalesPrice', 'unitPrice'],
+      customRender: ({ record }: { record: IProduct}) => {
+        let value = '0.00';
+
+        if (record.productSalesPrice.length > 0) {
+          record.productSalesPrice.map((item: IProductSalesPrice) => {
+            if (item.status.code === STCodeList.ACTIVE) {
+              value = new Intl.NumberFormat('en-US', {
+                style: 'decimal',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(item.unitPrice);
+            }
+          })
+        }
+
+        return h('div', { style: { textAlign: 'right' } }, [value]);
+      }
+    },
+    {
+      title: translations[language.value].wholesalePrice,
+      key: 'wholesalePrice',
+      dataIndex: ['productSalesPrice', 'wholesale'],
+      customRender: ({ record }: { record: IProduct}) => {
+        let value = '0.00';
+
+        if (record.productSalesPrice.length > 0) {
+          record.productSalesPrice.map((item: IProductSalesPrice) => {
+            if (item.status.code === STCodeList.ACTIVE) {
+              value = new Intl.NumberFormat('en-US', {
+                style: 'decimal',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(item.wholesale);
+            }
+          })
+        }
+
+        return h('div', { style: { textAlign: 'right' } }, [value]);
+      }
+    },
+    {
+      title: translations[language.value].purchasePrice,
+      key: 'purchasePrice',
+      dataIndex: ['productSalesPrice', 'purchasePrice'],
+      customRender: ({ record }: { record: IProduct}) => {
+        let value = '0.00';
+
+        if (record.productSalesPrice.length > 0) {
+          record.productSalesPrice.map((item: IProductSalesPrice) => {
+            if (item.status.code === STCodeList.ACTIVE) {
+              value = new Intl.NumberFormat('en-US', {
+                style: 'decimal',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(item.purchasePrice);
+            }
+          })
+        }
+
+        return h('div', { style: { textAlign: 'right' } }, [value]);
+      }
+    },
+    {
+      title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
+      key: 'status',
+      dataIndex: 'status',
+      customRender: ({ record }: { record: ICategory}) => h('div', [
+        record.status.code === STCodeList.ACTIVE ?
+            h('div',
+                {
+                  style: { textAlign: 'center', color: 'white' },
+                  class: 'primary-background-color'
+                },
+                [translations[language.value].active]
+            )
+            : (record.status.code === STCodeList.DELETED ? h('div',
+                        {
+                          style: { textAlign: 'center', color: 'white' },
+                          class: 'danger-background-color'
+                        },
+                        [translations[language.value].deleted]
+                    ):
+                    h('div',
+                        {
+                          style: { textAlign: 'center', color: 'white' },
+                          class: 'secondary-background-color'
+                        },
+                        [translations[language.value].old]
+                    )
+            ),
+      ])
+    },
     props.activePage === STCodeList.ACTIVE ?  activeActionsColumns : deletedActionColumns,
-  ];
+  ]);
 
   //Columns for product sales price datatable
-  const columnsSalesPrice = [
+  const columnsSalesPrice = computed(() => [
     {
-      title: 'Unit price',
+      title: translations[language.value].unitPrice,
       key: 'unitPrice',
       dataIndex: 'unitPrice',
       customRender: ({ record }: { record: IProductSalesPrice}) => {
@@ -235,7 +280,7 @@ interface Props {
       }
     },
     {
-      title: 'Wholesale price',
+      title: translations[language.value].wholesalePrice,
       key: 'wholesale',
       dataIndex: 'wholesale',
       customRender: ({ record }: { record: IProductSalesPrice}) => {
@@ -253,7 +298,7 @@ interface Props {
       }
     },
     {
-      title: 'Purchase price',
+      title: translations[language.value].purchasePrice,
       key: 'purchasePrice',
       dataIndex: 'purchasePrice',
       customRender: ({ record }: { record: IProductSalesPrice}) => {
@@ -271,7 +316,7 @@ interface Props {
       }
     },
     {
-      title: 'CreatedAt',
+      title: 'Date',
       key: 'createdAt',
       dataIndex: 'createdAt',
       customRender: ({ record }: { record: IProductSalesPrice}) => {
@@ -279,57 +324,38 @@ interface Props {
         return h('div', {style: {textAlign: 'right'}}, [createdAd]);
       }
     },
-    statusColumn,
-  ];
-  //**************End of Column datatable property***********
-
-  //**************Beginning of state management**************
-  const loading = ref<boolean>(false);
-  const loadingBtn = ref<boolean>(false);
-  const loadingBtnSalesPrice = ref<boolean>(false);
-  const loadingCategoryFilterList = ref<boolean>(false);
-  const loadingUnitFilterList = ref<boolean>(false);
-  const loadingSalesPrice = ref<boolean>(false);
-  const keyword = ref<string>('');
-  const pageSize = ref<number>(10);
-  const currentPage = ref<number>(1);
-  const totalPage = ref<number>(0);
-  const pageSizeSalesPrice = ref<number>(10);
-  const currentPageSalesPrice = ref<number>(1);
-  const totalPageSalesPrice = ref<number>(0);
-  const dataProduct = ref<IProduct[]>([]);
-  const dataProductSalesPrice = ref<IProductSalesPrice[]>([]);
-  const isOpenModal = ref<boolean>(false);
-  const isOpenModalSalesPrice = ref<boolean>(false);
-  const isShowFormAddProductSalePrice = ref<boolean>(false);
-  const isEdit = ref<boolean>(false);
-  const isView = ref<boolean>(false);
-  const formRef = ref<FormInstance>();
-  const productId = ref<string>('');
-  const currentProductDesignation = ref<string>('');
-  const formState = reactive<FormProduct>(
-      {
-        designation: '',
-        description: '',
-        idCategory: '',
-        idUnit: '',
-      }
-  );
-const formStateSalesPrice = reactive<FormProductSalesPrice>(
     {
-      idProduct: '',
-      unitPrice: 0,
-      wholesale: 0,
-      purchasePrice: 0,
-    }
-);
-  const optionsCategory = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
-  const currentCategoryList = ref<string>('');
-  const optionsUnit = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
-  const currentUnitList = ref<string>('');
-  const optionsCategoryInModal = ref<SelectProps['options']>([]);
-  const optionsUnitInModal = ref<SelectProps['options']>([]);
-  //**************End of state management**************
+      title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
+      key: 'status',
+      dataIndex: 'status',
+      customRender: ({ record }: { record: ICategory}) => h('div', [
+        record.status.code === STCodeList.ACTIVE ?
+            h('div',
+                {
+                  style: { textAlign: 'center', color: 'white' },
+                  class: 'primary-background-color'
+                },
+                [translations[language.value].active]
+            )
+            : (record.status.code === STCodeList.DELETED ? h('div',
+                        {
+                          style: { textAlign: 'center', color: 'white' },
+                          class: 'danger-background-color'
+                        },
+                        [translations[language.value].deleted]
+                    ):
+                    h('div',
+                        {
+                          style: { textAlign: 'center', color: 'white' },
+                          class: 'secondary-background-color'
+                        },
+                        [translations[language.value].old]
+                    )
+            ),
+      ])
+    },
+  ]);
+  //**************End of Column datatable property***********
 
   //***********Beginning of select method of category product***************
   const filterOption = (input: string, option: any) => {
@@ -395,7 +421,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     if (value > 0) {
       callback();
     } else {
-      callback(new Error('The price must be greater than 0'));
+      callback(new Error(translations[language.value].priceErrorGreater));
     }
   }
   //*************Beginning of product sales price form methods**********
@@ -409,6 +435,8 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     formState.description = '';
     formState.idCategory = '';
     formState.idUnit = '';
+    currentUnitInModal.value = null;
+    currentCategoryInModal.value = null;
     handleShowModal(false, false);
   }
 
@@ -420,6 +448,8 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     formState.description = record.description;
     formState.idCategory = record.category.uuid;
     formState.idUnit = record.unit.uuid;
+    currentUnitInModal.value = record.unit.uuid;
+    currentCategoryInModal.value = record.category.uuid;
 
     handleShowModal(false, true);
   };
@@ -451,6 +481,8 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     formState.idCategory = record.category.uuid;
     formState.idUnit = record.unit.uuid;
     productId.value = record.uuid;
+    currentUnitInModal.value = record.unit.uuid;
+    currentCategoryInModal.value = record.category.uuid;
 
     handleShowModal(true, false);
   };
@@ -460,11 +492,11 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     productId.value = record.uuid;
     //Show confirm popup
     Modal.confirm({
-      title: 'Confirmation Required',
+      title: translations[language.value].confirmationTitle,
       icon: createVNode(ExclamationCircleOutlined),
-      content: 'Are you sure you want to proceed? This action is irreversible.',
-      okText: 'Yes',
-      cancelText: 'No',
+      content: translations[language.value].confirmationDescription,
+      okText: translations[language.value].yes,
+      cancelText: translations[language.value].no,
       onOk: async () => {
         loadingBtn.value = true;
         await deleteProduct();
@@ -476,11 +508,11 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
   //*******Global method on submit user form********************
   const onSubmitForm = async () => {
     Modal.confirm({
-      title: 'Confirmation Required',
+      title: translations[language.value].confirmationTitle,
       icon: createVNode(ExclamationCircleOutlined),
-      content: 'Are you sure you want to proceed? This action is irreversible.',
-      okText: 'Yes',
-      cancelText: 'No',
+      content: translations[language.value].confirmationDescription,
+      okText: translations[language.value].yes,
+      cancelText: translations[language.value].no,
       onOk: async () => {
         loadingBtn.value = true;
 
@@ -496,11 +528,11 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
 //*******Method on submit product sales price form********************
   const onSubmitFormProductSalesPrice = async () => {
     Modal.confirm({
-      title: 'Confirmation Required',
+      title: translations[language.value].confirmationTitle,
       icon: createVNode(ExclamationCircleOutlined),
-      content: 'Are you sure you want to proceed? This action is irreversible.',
-      okText: 'Yes',
-      cancelText: 'No',
+      content: translations[language.value].confirmationDescription,
+      okText: translations[language.value].yes,
+      cancelText: translations[language.value].no,
       onOk: async () => {
         loadingBtnSalesPrice.value = true;
         await insertProductSalesPrice();
@@ -521,8 +553,8 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
 
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
 
@@ -540,7 +572,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -558,8 +590,8 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
 
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
 
@@ -581,7 +613,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -599,8 +631,8 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
       isOpenModal.value = false;
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
 
@@ -618,7 +650,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -635,8 +667,8 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
       isOpenModal.value = false;
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
 
@@ -654,7 +686,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -733,10 +765,8 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
           '',
           STCodeList.ACTIVE);
       response.data.map((item: ICategory) => {
-        if (optionsCategory.value) {
           optionsCategory.value.push({ value: item.uuid, label: item.designation });
           optionsCategoryInModal.value.push({ value: item.uuid, label: item.designation });
-        }
       });
 
       await nextTick(); // Ensure the DOM updates before proceeding
@@ -818,6 +848,11 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
   }
   //******************End filter of and paginator methods****
 
+  // Watch the language and update the 'all' label reactively
+  watchEffect(() => {
+    optionsCategory.value[0].label = translations[language.value].all;
+    optionsUnit.value[0].label = translations[language.value].all;
+  });
 
   onMounted(() => {
     getAllDataProduct();
@@ -841,11 +876,11 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
         <a-select-option value="25">25</a-select-option>
         <a-select-option value="50">50</a-select-option>
       </a-select>
-      <span> entries per page</span>
+      <span> / page</span>
     </a-col>
     <!-- Add btn -->
     <a-col class="mt-8" span="3">
-      <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">Add</a-button>
+      <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">{{ translations[language].add }}</a-button>
     </a-col>
     <!-- Sort by category -->
     <a-col class="mt-8" span="6">
@@ -857,9 +892,9 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
           :options="optionsCategory"
           :filter-option="filterOption"
           @change="handleChangeFilterCategoryInList"
-          :disabled="isView"
           :loading="loadingCategoryFilterList"
-      ></a-select>
+          :placeholder="translations[language].selectCategory"
+      />
     </a-col>
     <!-- Sort by unit -->
     <a-col class="mt-8" span="6">
@@ -872,11 +907,12 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
           :filter-option="filterOption"
           @change="handleChangeFilterUnitInList"
           :loading="loadingUnitFilterList"
-      ></a-select>
+          :placeholder="translations[language].selectUnit"
+      />
     </a-col>
     <!-- Search input -->
     <a-col class="mt-8 flex justify-end" span="5">
-      <a-input type="text" class="w-48 h-9" v-model:value="keyword" placeholder="Search"/>&nbsp;
+      <a-input type="text" class="w-48 h-9" v-model:value="keyword" :placeholder="translations[language].search"/>&nbsp;
       <a-button class="btn--primary" :icon="h(SearchOutlined)" @click="handleSearch"/>
     </a-col>
   </a-row>
@@ -913,7 +949,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
       v-model:open="isOpenModal"
       closable
       :footer="null"
-      title="Product"
+      :title="translations[language].product"
       style="top: 20px"
       @ok=""
       v-if="isOpenModal"
@@ -931,33 +967,35 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
           <a-form-item
               name="designation"
               type="text"
-              :rules="[{ required: true, message: 'Please input the designation of the new product!' }]"
+              :rules="[{ required: true, message: translations[language].errorDesignation }]"
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="5"><label for="basic_designation"><span class="required_toil">*</span> Designation:</label></a-col>
+              <a-col span="5"><label for="basic_designation"><span class="required_toil">*</span> {{ translations[language].designation }}:</label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.designation" size="large" placeholder="Designation" :disabled="isView"></a-input>
+                <a-input v-model:value="formState.designation" size="large" :placeholder="translations[language].designation" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
           <a-form-item
               name="idUnit"
               type="select"
-              :rules="[{ required: true, message: 'Please the unit of this product!' }]"
+              :rules="[{ required: true, message: translations[language].errorUnit }]"
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="5"><label for="basic_idUnit"><span class="required_toil">*</span> Unit:</label></a-col>
+              <a-col span="5"><label for="basic_idUnit"><span class="required_toil">*</span> {{ translations[language].unit }}:</label></a-col>
               <a-col span="19">
                 <a-select
                     class="w-44"
-                    v-model:value="formState.idUnit"
+                    v-model:value="currentUnitInModal"
                     show-search
                     :options="optionsUnitInModal"
                     :filter-option="filterOption"
                     :disabled="isView"
                     :loading="loadingUnitFilterList"
+                    :placeholder="translations[language].selectUnit"
+                    @change="(value) => formState.idUnit = value"
                 ></a-select>
               </a-col>
             </a-row>
@@ -965,21 +1003,22 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
           <a-form-item
               name="idCategory"
               type="select"
-              :rules="[{ required: true, message: 'Please the category of this product!' }]"
+              :rules="[{ required: true, message: translations[language].errorCategory }]"
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="5"><label for="basic_idCategory"><span class="required_toil">*</span> Category:</label></a-col>
+              <a-col span="5"><label for="basic_idCategory"><span class="required_toil">*</span> {{ translations[language].category }}:</label></a-col>
               <a-col span="19">
                 <a-select
                     class="w-44"
-                    v-model:value="formState.idCategory"
+                    v-model:value="currentCategoryInModal"
                     show-search
                     :options="optionsCategoryInModal"
                     :filter-option="filterOption"
                     :disabled="isView"
                     :loading="loadingCategoryFilterList"
-                    placeholder="Select an category"
+                    :placeholder="translations[language].selectCategory"
+                    @change="(value) => formState.idCategory = value"
                 ></a-select>
               </a-col>
             </a-row>
@@ -991,20 +1030,20 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
           >
             <a-row>
               <a-col span="24">
-                <a-textarea v-model:value="formState.description" placeholder="You can write an description here." allow-clear :disabled="isView"/>
+                <a-textarea v-model:value="formState.description" :placeholder="translations[language].descriptionPlaceholder" allow-clear :disabled="isView"/>
               </a-col>
             </a-row>
           </a-form-item>
           <a-row class="mt-10">
             <a-form-item class="w-full flex justify-start">
-              <a-button class="btn btn--default" size="large" @click="handleCloseModal">Cancel</a-button>
+              <a-button class="btn btn--default" size="middle" @click="handleCloseModal">{{ translations[language].cancel }}</a-button>
               <a-button
                   v-if="!isView"
                   class="btn btn--primary ml-4"
                   html-type="submit"
-                  size="large"
+                  size="middle"
                   :loading="loading"
-              >Save</a-button>
+              >{{ translations[language].save }}</a-button>
             </a-form-item>
           </a-row>
         </a-form>
@@ -1023,7 +1062,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
   >
     <!-- Template title modal -->
     <template #title>
-      <span>Sales price of : {{ currentProductDesignation }}</span>
+      <span>{{ translations[language].modalSalesPriceTitle }} : {{ currentProductDesignation }}</span>
       <a-button
           v-if="props.activePage === STCodeList.ACTIVE"
           class="btn--success ml-4"
@@ -1051,13 +1090,13 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
                   name="unitPrice"
                   type="text"
                   :rules="[
-                      { required: true, message: 'Please input the unit price !' },
+                      { required: true, message: translations[language].unitPriceError },
                       { validator: validatePrice, trigger: 'change' }
                   ]"
                   class="w-full mt-10"
               >
                 <a-row>
-                  <a-col span="24"><label for="basic_unitPrice"><span class="required_toil">*</span> Unit price:</label></a-col>
+                  <a-col span="24"><label for="basic_unitPrice"><span class="required_toil">*</span> {{ translations[language].unitPrice }}:</label></a-col>
                   <a-col span="24">
                     <a-input-number v-model:value="formStateSalesPrice.unitPrice" :min="0">
                       <template #addonAfter><SettingOutlined /></template>
@@ -1073,7 +1112,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
                   class="w-full mt-10"
               >
                 <a-row>
-                  <a-col span="24"><label for="basic_wholesale"><span class="required_toil"></span> Wholesale price:</label></a-col>
+                  <a-col span="24"><label for="basic_wholesale"><span class="required_toil"></span> {{ translations[language].wholesalePrice }}:</label></a-col>
                   <a-col span="24">
                     <a-input-number v-model:value="formStateSalesPrice.wholesale" :min="0">
                       <template #addonAfter><SettingOutlined /></template>
@@ -1087,13 +1126,13 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
                   name="purchasePrice"
                   type="text"
                   :rules="[
-                      { required: true, message: 'Please input the Purchase price !' },
+                      { required: true, message: translations[language].purchasePriceError },
                       { validator: validatePrice, trigger: 'change' }
                   ]"
                   class="w-full mt-10"
               >
                 <a-row>
-                  <a-col span="24"><label for="basic_purchasePrice"><span class="required_toil">*</span> Purchase price:</label></a-col>
+                  <a-col span="24"><label for="basic_purchasePrice"><span class="required_toil">*</span> {{ translations[language].purchasePrice }}:</label></a-col>
                   <a-col span="24">
                     <a-input-number v-model:value="formStateSalesPrice.purchasePrice" :min="0">
                       <template #addonAfter><SettingOutlined /></template>
@@ -1106,14 +1145,14 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
           <!-- Form actions btn -->
           <a-row class="mt-10">
             <a-form-item class="w-full flex justify-start">
-              <a-button class="btn btn--default" size="middle" @click="handleCancelAddProductSalesPrice">Cancel</a-button>
+              <a-button class="btn btn--default" size="middle" @click="handleCancelAddProductSalesPrice">{{ translations[language].cancel }}</a-button>
               <a-button
                   v-if="!isView"
                   class="btn btn--primary ml-4"
                   html-type="submit"
                   size="middle"
                   :loading="loadingBtnSalesPrice"
-              >Save</a-button>
+              >{{ translations[language].save }}</a-button>
             </a-form-item>
           </a-row>
         </a-form>
@@ -1149,7 +1188,7 @@ const formStateSalesPrice = reactive<FormProductSalesPrice>(
     <!-- Btn close modal -->
     <a-row class="mt-10">
       <a-col span="24">
-        <a-button class="btn btn--secondary-outline w-full" size="middle" @click="handleCloseModalSalesPrice">Close</a-button>
+        <a-button class="btn btn--secondary-outline w-full" size="middle" @click="handleCloseModalSalesPrice">{{ translations[language].close }}</a-button>
       </a-col>
     </a-row>
   </a-modal>
