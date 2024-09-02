@@ -22,12 +22,12 @@
       <template #tab>
         <span>
           <HistoryOutlined />
-          Outstanding
+          In progress
         </span>
       </template>
       <Suspense>
         <template #default>
-          <SalesComponent v-if="activeKey === '1'"  :active-page="STCodeList.OUTSTANDING"/>
+          <SalesComponent v-if="activeKey === '1'"  :active-page="STCodeList.IN_PROGRESS"/>
         </template>
       </Suspense>
     </a-tab-pane>

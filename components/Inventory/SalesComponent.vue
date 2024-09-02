@@ -72,7 +72,7 @@
     title: h('div', { style: { textAlign: 'center' } }, ['Status']),
     key: 'status',
     customRender: ({ record }: { record: IMovement}) => h('a-row', [
-      record.status.code === STCodeList.OUTSTANDING ?
+      record.status.code === STCodeList.IN_PROGRESS ?
           h('div',
               {
                 style: { textAlign: 'center', color: 'white' },
@@ -198,7 +198,7 @@
       width: 200,
       customRender: ({ record }: { record: IDetails}) => [
           h(ASelect, {
-            disabled: props.activePage === STCodeList.OUTSTANDING && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
+            disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
             style:'width: 100%',
             'placeholder':'Select a product',
             'show-search': true,
@@ -257,7 +257,7 @@
       width: 120,
       customRender: ({ record }: { record: IDetails }) => {
         return h(Switch, {
-          disabled: props.activePage === STCodeList.OUTSTANDING && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
+          disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
           checked: record.is_unit_price,
           'checked-children': 'Unit',
           'un-checked-children': 'Wholesale',
@@ -289,7 +289,7 @@
       width: 120,
       customRender: ({ record }: { record: IDetails }) => {
         return h(AInputNumber, {
-          disabled: props.activePage === STCodeList.OUTSTANDING && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
+          disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
           value: record.quantity,
           class: 'ant-input-status-error',
           min: 0,
@@ -331,7 +331,7 @@
           },
           [
             h(AButton, {
-              disabled: props.activePage === STCodeList.OUTSTANDING && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
+              disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
               class: 'btn--danger-outline btn-tab',
               size: 'large',
               onClick: () => handleRemoveItemDetails(record)
@@ -391,7 +391,7 @@
         customRender: ({ record }: { record: IMovement}) => [record.editor.firstName + ' ' + record.editor.lastName],
       },
       statusColumn,
-      props.activePage === STCodeList.OUTSTANDING && isAdmin.value === 'true' ?
+      props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'true' ?
           activeActionsColumns :
           (
               (props.activePage === STCodeList.VALIDATED && isAdmin.value === 'true') ?
@@ -873,7 +873,7 @@
     </a-col>
     <!--Add new btn-->
     <a-col class="mt-8" span="4">
-      <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.OUTSTANDING" class="btn--success ml-5">Add new</a-button>
+      <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.IN_PROGRESS" class="btn--success ml-5">Add new</a-button>
     </a-col>
     <!--Filter by date-->
     <a-col class="mt-8 flex justify-end" span="12">

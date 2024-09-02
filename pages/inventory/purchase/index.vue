@@ -23,12 +23,12 @@ const activeKey = ref('1');
       <template #tab>
         <span>
           <HistoryOutlined />
-          Outstanding
+          In progress
         </span>
       </template>
       <Suspense>
         <template #default>
-          <PurchaseComponent v-if="activeKey === '1'"  :active-page="STCodeList.OUTSTANDING"/>
+          <PurchaseComponent v-if="activeKey === '1'"  :active-page="STCodeList.IN_PROGRESS"/>
         </template>
       </Suspense>
     </a-tab-pane>

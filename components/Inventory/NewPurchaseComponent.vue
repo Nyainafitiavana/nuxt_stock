@@ -401,6 +401,8 @@
           currentPage.value,
           currentCategoryList.value,
           currentUnitList.value,
+          '',
+          ''
       );
       dataProductWithRemainingStock.value = response.data;
       totalPage.value = response.totalRows;

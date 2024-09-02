@@ -54,6 +54,7 @@ export const translations = {
         selectUnit: 'Select unit',
         selectCategory: 'Select category',
         modalSalesPriceTitle: 'Sales price of',
+        inProgress: 'Outstanding'
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -110,5 +111,6 @@ export const translations = {
         selectUnit: "Sélectionner l'unité",
         selectCategory: "Sélectionner une catégorie",
         modalSalesPriceTitle: "Prix de vente du",
+        inProgress: 'En'
     }
 };

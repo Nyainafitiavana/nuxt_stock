@@ -9,7 +9,7 @@ export const STCodeList = {
     'OLD': 'OLD',
     'DELETED': 'DLT',
     'COMPLETED': 'CMP',
-    'OUTSTANDING': 'OSD',
+    'IN_PROGRESS': 'INP',
     'REJECTED': 'RJT',
     'VALIDATED': 'VLD',
 } as const;
