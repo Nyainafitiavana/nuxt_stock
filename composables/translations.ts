@@ -18,6 +18,7 @@ export const translations = {
         errorFirstName: 'Please input your first name !',
         errorLastName: 'Please input your last name !',
         errorPassword: "Please input the password for this new user !",
+        errorDesignation: 'Please enter the designation',
         updateProfile: 'Update profile',
         confirmationTitle: 'Confirmation Required',
         confirmationDescription: 'Are you sure you want to proceed? This action is irreversible.',
@@ -35,6 +36,7 @@ export const translations = {
         add: 'Add',
         save: 'Save',
         cancel: 'Cancel',
+        designation: 'Designation',
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -55,6 +57,7 @@ export const translations = {
         errorFirstName: "Veuillez saisir votre Nom !",
         errorLastName: "Veuillez saisir votre prènoms !",
         errorPassword: "Veuillez saisir le mot de passe de ce nouvel utilisateur !",
+        errorDesignation: 'Veuillez entrer la désignation',
         updateProfile: 'Mettre à jour le profil',
         confirmationTitle: 'Confirmation nécessaire',
         confirmationDescription: 'Êtes-vous sûr de vouloir continuer ? Cette action est irréversible.',
@@ -72,5 +75,6 @@ export const translations = {
         add: 'Ajouter',
         save: 'sauvegarder',
         cancel: 'Annuler',
+        designation: 'Désignation',
     }
 };

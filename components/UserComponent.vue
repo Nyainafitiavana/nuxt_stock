@@ -108,7 +108,7 @@
     ])
   };
 
-  const columns = [
+  const columns = computed(() =>[
     {
       title: translations[language.value].firstName,
       dataIndex: 'firstName',
@@ -183,7 +183,7 @@
     },
     statusColumn,
     props.activePage === STCodeList.ACTIVE ?  activeActionsColumns : deletedActionColumns,
-  ];
+  ]);
 
   //**********Reset all value and validator form*******
   const resetForm = () => {
