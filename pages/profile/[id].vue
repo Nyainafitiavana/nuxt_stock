@@ -61,11 +61,11 @@ import {translations} from "../../composables/translations";
 
   const onSubmitForm = async () => {
     Modal.confirm({
-      title: 'Confirmation Required',
+      title: translations[language.value].confirmationTitle,
       icon: createVNode(ExclamationCircleOutlined),
-      content: 'Are you sure you want to proceed? This action is irreversible.',
-      okText: 'Yes',
-      cancelText: 'No',
+      content: translations[language.value].confirmationDescription,
+      okText: translations[language.value].yes,
+      cancelText: translations[language.value].no,
       onOk: async () => {
         await updateProfile();
       }
@@ -88,8 +88,8 @@ import {translations} from "../../composables/translations";
       await insertOrUpdateUser(dataForm, userId, 'PATCH');
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
       //hide loading spin

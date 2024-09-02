@@ -15,6 +15,13 @@ export const translations = {
         password: 'Password',
         phoneNumber: 'Phone number',
         updateProfile: 'Update profile',
+        confirmationTitle: 'Confirmation Required',
+        confirmationDescription: 'Are you sure you want to proceed? This action is irreversible.',
+        success: 'Success',
+        successDescription: 'Operation Successful !',
+        error: 'Error',
+        yes: 'Yes',
+        no: 'No',
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -32,5 +39,12 @@ export const translations = {
         password: 'Mot de passe',
         phoneNumber: 'Numéro de téléphone',
         updateProfile: 'Mettre à jour le profil',
+        confirmationTitle: 'Confirmation nécessaire',
+        confirmationDescription: 'Êtes-vous sûr de vouloir continuer ? Cette action est irréversible.',
+        success: 'Succès',
+        successDescription: 'Opération réussie !',
+        error: 'Erreur',
+        yes: 'Oui',
+        no: 'Non',
     }
 };

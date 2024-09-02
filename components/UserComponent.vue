@@ -24,6 +24,27 @@
 
   const props = defineProps<Props>();
 
+  const loading = ref<boolean>(false);
+  const loadingBtn = ref<boolean>(false);
+  const keyword = ref<string>('');
+  const pageSize = ref<number>(10);
+  const currentPage = ref<number>(1);
+  const totalPage = ref<number>(0);
+  const data = ref<IUser[]>([]);
+  const isOpenModal = ref<boolean>(false);
+  const isEdit = ref<boolean>(false);
+  const isView = ref<boolean>(false);
+  const formRef = ref<FormInstance>();
+  const userId = ref<string>('');
+  const formState = reactive<FormStateUser>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    password: '',
+    isAdmin: false
+  });
+
   const statusColumn = {
     title: h('div', { style: { textAlign: 'center' } }, ['Status']),
     key: 'status',
@@ -161,27 +182,6 @@
     statusColumn,
     props.activePage === STCodeList.ACTIVE ?  activeActionsColumns : deletedActionColumns,
   ];
-
-  const loading = ref<boolean>(false);
-  const loadingBtn = ref<boolean>(false);
-  const keyword = ref<string>('');
-  const pageSize = ref<number>(10);
-  const currentPage = ref<number>(1);
-  const totalPage = ref<number>(0);
-  const data = ref<IUser[]>([]);
-  const isOpenModal = ref<boolean>(false);
-  const isEdit = ref<boolean>(false);
-  const isView = ref<boolean>(false);
-  const formRef = ref<FormInstance>();
-  const userId = ref<string>('');
-  const formState = reactive<FormStateUser>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    password: '',
-    isAdmin: false
-  });
 
   //**********Reset all value and validator form*******
   const resetForm = () => {
