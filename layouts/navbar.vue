@@ -231,7 +231,7 @@ const toggleCollapsed = () => {
         theme="dark"
         :inline-collapsed="state.collapsed"
         :items="isAdmin === 'true' ? adminMenuItems : managerMenuItems"
-    ></a-menu>
+    />
     </a-layout-sider>
     <a-layout :style="{ marginLeft: sideWidth }">
       <a-layout-header style="background: #fff; padding: 0 15px;">
@@ -258,11 +258,11 @@ const toggleCollapsed = () => {
               >
                 <a-select-option value="ENG" label="USA">
                   <span role="img" aria-label="USA">🇺🇸</span>
-                  &nbsp;&nbsp;English
+                  &nbsp;&nbsp;{{ language === 'ENG' ? 'English' : 'Anglais' }}
                 </a-select-option>
                 <a-select-option value="FR" label="USA">
                   <span role="img" aria-label="USA">🇫🇷</span>
-                  &nbsp;&nbsp;Français
+                  &nbsp;&nbsp;{{ language === 'ENG' ? 'French' : 'Français' }}
                 </a-select-option>
               </a-select>
             </div>
