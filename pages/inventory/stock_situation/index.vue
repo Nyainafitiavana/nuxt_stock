@@ -8,14 +8,16 @@ definePageMeta({
   middleware: ['user-middleware', 'admin-middleware']
 });
 
+//This is a global state for language of the app
+const language = useLanguage();
 const activeKey = ref('1');
 </script>
 
 <template>
-  <Title>Stock situation</Title>
+  <Title>{{ translations[language].stockSituation }}</Title>
   <ATypographyTitle class="flex" style="font-size: 20px;">
     <AppstoreOutlined/>&nbsp;
-    <span>Stock situation</span>
+    <span>{{ translations[language].stockSituation }}</span>
   </ATypographyTitle>
   <a-tabs v-model:activeKey="activeKey" centered>
     <!--Outstanding tab-->
@@ -23,7 +25,7 @@ const activeKey = ref('1');
       <template #tab>
         <span>
           <HistoryOutlined />
-          Summarize
+          {{ translations[language].summarize }}
         </span>
       </template>
       <Suspense>
@@ -37,9 +39,9 @@ const activeKey = ref('1');
       <template #tab>
         <span>
           <CaretDownOutlined />
-          Input
+          {{ translations[language].input }}
           <CaretUpOutlined />
-          Output
+          {{ translations[language].output }}
         </span>
       </template>
       <Suspense>

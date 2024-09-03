@@ -73,6 +73,13 @@ export const translations = {
         addRowDetailsError: 'Impossible to add a new line if you have a line that does not yet have a product !',
         rejectModalTitle: 'Reject movement',
         observationError: 'Please input your observation !',
+        ValidationHistory: 'Validation History',
+        summarize: 'Summarize',
+        stockSituation: 'Stock situation',
+        output: 'Output',
+        input: 'Input',
+        stockInput: 'Stock input',
+        stockOutput: 'Stock output'
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -148,5 +155,12 @@ export const translations = {
         addRowDetailsError: "Impossible d'ajouter une nouvelle ligne si vous avez une ligne qui n'a pas encore de produit.",
         rejectModalTitle: 'Rejeter le mouvement',
         observationError: 'Faites part de vos observations !',
+        ValidationHistory: 'Historique des validations',
+        summarize: 'Résumer',
+        stockSituation: 'Situation des stocks',
+        output: 'Sorties',
+        input: 'Entrées',
+        stockInput: 'Entrée en stock',
+        stockOutput: 'Sortie en stock'
     }
 };

@@ -1022,20 +1022,17 @@
       </a-row>
     </a-form>
   </a-modal>
-  <!--History validation Modal-->
+  <!--Validation history Modal-->
   <a-modal
       v-model:open="isOpenModalHistoryValidation"
       v-if="isOpenModalHistoryValidation"
+      :title="translations[language].ValidationHistory"
       closable
       :footer="null"
       style="top: 20px"
       @ok=""
       width="1000px"
   >
-    <!-- Template title modal -->
-    <template #title>
-      <span>History validation</span>
-    </template>
     <!--Datatable details movement-->
     <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
       <a-col class="mt-8" span="24">

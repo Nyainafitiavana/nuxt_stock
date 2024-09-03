@@ -25,15 +25,18 @@
     activePage: 'SUMMARIZE' | 'STOCK_INPUT_OUTPUT';
   }
 
-  //**************Beginning of state management**************
   const props = defineProps<Props>();
+
+  //**************Beginning of state management**************
+  //This is a global state for language of the app
+  const language = useLanguage();
   const loading = ref<boolean>(false);
   const loadingCategoryFilterList = ref<boolean>(false);
   const loadingUnitFilterList = ref<boolean>(false);
   const dataProductWithRemainingStock = ref<IProductRemainingStock[]>([]);
-  const optionsCategory = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
+  const optionsCategory = ref<SelectProps['options']>([{ value: '', label: translations[language.value].all}]);
   const currentCategoryList = ref<string>('');
-  const optionsUnit = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
+  const optionsUnit = ref<SelectProps['options']>([{ value: '', label: translations[language.value].all}]);
   const currentUnitList = ref<string>('');
   const keyword = ref<string>('');
   const pageSize = ref<number>(10);
@@ -56,43 +59,29 @@
   };
   //***********End of select method of category product***************
   //**************Beginning of Datatable column**************
-  let columnsProductWithRemainingStock = [];
-
-  const remainingStockColumn = {
-    title: h('div', { style: { textAlign: 'center' } }, ['Remaining stock']),
-    key: 'remainingStock',
-    dataIndex: 'remaining_stock',
-    customRender: ({ record }: { record: IProductRemainingStock}) => [
-      h('div', {
-        style: { textAlign: 'center', color: 'white', fontWeight: '800' },
-        class: record.remaining_stock === 0 ? 'danger-background-color' : ( record.remaining_stock > 0 && record.remaining_stock <= stockThreshold.value ? 'warning-background-color' : 'primary-background-color')
-      }, [
-        h('span', [record.remaining_stock]),
-      ]),
-    ]
-  };
+  let columnsProductWithRemainingStock = computed(() => []);
 
   const initColumnDatatable = () => {
-    columnsProductWithRemainingStock = [
+    columnsProductWithRemainingStock = computed(() => [
       {
-        title: 'Product',
+        title: translations[language.value].product,
         key: 'product',
         dataIndex: 'product_name',
         width: 200,
       },
       {
-        title: 'Category',
+        title: translations[language.value].category,
         key: 'category',
         dataIndex: 'category_name',
       },
       {
-        title: 'Unit',
+        title: translations[language.value].unit,
         key: 'unit',
         dataIndex: 'unit_name',
         width: 80,
       },
       {
-        title: 'Stock input',
+        title: translations[language.value].stockInput,
         key: 'stockInput',
         dataIndex: 'stock_input',
         customRender: ({ record }: { record: IProductRemainingStock}) => [
@@ -103,7 +92,7 @@
         ]
       },
       {
-        title: 'Stock output',
+        title: translations[language.value].stockOutput,
         key: 'stockOutput',
         dataIndex: 'stock_output',
         customRender: ({ record }: { record: IProductRemainingStock}) => [
@@ -113,8 +102,25 @@
           ]),
         ]
       },
-      ...(props.activePage === 'SUMMARIZE' ? [remainingStockColumn] : []),
-    ];
+      ...(
+          props.activePage === 'SUMMARIZE' ?
+              [
+                {
+                  title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].remainingStock]),
+                  key: 'remainingStock',
+                  dataIndex: 'remaining_stock',
+                  customRender: ({ record }: { record: IProductRemainingStock}) => [
+                    h('div', {
+                      style: { textAlign: 'center', color: 'white', fontWeight: '800' },
+                      class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color',
+                    }, [
+                      h('span', [record.remaining_stock]),
+                    ]),
+                  ]
+                }
+              ]: []
+      ),
+    ]);
   }
   //**************End of Datatable column**************
   //******************Beginning of CRUD controller**************
@@ -252,6 +258,12 @@
   }
   //******************End filter of and paginator methods****
 
+  // Watch the language and update the 'all' label reactively
+  watchEffect(() => {
+    optionsCategory.value[0].label = translations[language.value].all;
+    optionsUnit.value[0].label = translations[language.value].all;
+  });
+
   onMounted(() => {
     getAllDataCategory();
     getAllDataUnit();
@@ -279,7 +291,7 @@
     </a-col>
     <!-- Sort by category -->
     <a-col class="mt-8" span="6">
-      <span>Category : </span>
+      <span>{{ translations[language].category }} : </span>
       <a-select
           class="w-44"
           v-model:value="currentCategoryList"
@@ -293,7 +305,7 @@
     </a-col>
     <!-- Sort by unit -->
     <a-col class="mt-8" span="6">
-      <span>Unit : </span>
+      <span>{{ translations[language].unit }} : </span>
       <a-select
           class="w-44"
           v-model:value="currentUnitList"
@@ -306,7 +318,7 @@
     </a-col>
     <!-- Search input -->
     <a-col class="mt-8 flex justify-end" span="6">
-      <a-input type="text" class="w-48 h-9" v-model:value="keyword" placeholder="Search"/>&nbsp;
+      <a-input type="text" class="w-48 h-9" v-model:value="keyword" :placeholder="translations[language].search"/>&nbsp;
       <a-button class="btn--primary" :icon="h(SearchOutlined)" @click="handleSearch"/>
     </a-col>
   </a-row>
@@ -349,15 +361,11 @@
   <a-row v-if="props.activePage === 'SUMMARIZE'" class="mt-8 flex justify-center" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col  span="6" class="flex">
       <div class="primary-background-color w-12 h-5"></div>
-      <h6 class="ml-4">Product available in stock</h6>
-    </a-col>
-    <a-col  span="6" class="flex">
-      <div class="warning-background-color w-12 h-5"></div>
-      <h6 class="ml-4">Product out of stock</h6>
+      <h6 class="ml-4">{{ translations[language].productAvailable }}</h6>
     </a-col>
     <a-col  span="6" class="flex">
       <div class="danger-background-color w-12 h-5"></div>
-      <h6 class="ml-4">Product unavailable stock</h6>
+      <h6 class="ml-4">{{ translations[language].productOutOfStock }}</h6>
     </a-col>
   </a-row>
 </template>

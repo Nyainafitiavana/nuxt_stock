@@ -96,7 +96,7 @@ const adminMenuItems = computed(() => [
       {
         key: '10',
         icon: () => h(VerticalAlignMiddleOutlined),
-        label: translations[language.value].stockSituation,
+        label: language.value === 'ENG' ? 'Stock situation' : 'Situation stock',
         title: translations[language.value].stockSituation,
         onClick: () => navigateTo(RouteList.STOCK_SITUATION),
       },
