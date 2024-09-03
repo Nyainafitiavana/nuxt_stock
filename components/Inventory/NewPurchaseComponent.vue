@@ -103,7 +103,7 @@
       customRender: ({ record }: { record: IProductRemainingStock}) => [
         h('div', {
           style: { textAlign: 'center', color: 'white', fontWeight: '800' },
-          class: record.remaining_stock === 0 ? 'danger-background-color' : ( record.remaining_stock > 0 && record.remaining_stock <= stockThreshold.value ? 'warning-background-color' : 'primary-background-color')
+          class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color'
         }, [
           h('span', [record.remaining_stock]),
         ]),
@@ -175,7 +175,7 @@
       customRender: ({ record }: { record: IDetails}) => [
         h('div', {
           style: { textAlign: 'center', color: 'white', fontWeight: '800' },
-          class: record.remaining_stock === 0 ? 'danger-background-color' : ( record.remaining_stock > 0 && record.remaining_stock <= stockThreshold.value ? 'warning-background-color' : 'primary-background-color')
+          class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color',
         }, [
           h('span', [record.remaining_stock]),
         ]),
@@ -664,12 +664,8 @@
       <h6 class="ml-4">Product available in stock</h6>
     </a-col>
     <a-col  span="6" class="flex">
-      <div class="warning-background-color w-12 h-5"></div>
-      <h6 class="ml-4">Product out of stock</h6>
-    </a-col>
-    <a-col  span="6" class="flex">
       <div class="danger-background-color w-12 h-5"></div>
-      <h6 class="ml-4">Product unavailable stock</h6>
+      <h6 class="ml-4">Product out of stock</h6>
     </a-col>
   </a-row>
   <!--Pannier Modal-->

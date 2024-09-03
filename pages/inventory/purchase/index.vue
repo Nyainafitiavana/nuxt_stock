@@ -1,21 +1,22 @@
 <script setup lang="ts">
-import SalesComponent from "~/components/Inventory/SalesComponent.vue";
-import PurchaseComponent from "~/components/Inventory/PurchaseComponent.vue";
+  import PurchaseComponent from "~/components/Inventory/PurchaseComponent.vue";
 
-definePageMeta({
-  layout: 'navbar',
-  title: 'Purchase',
-  middleware: ['user-middleware']
-});
+  definePageMeta({
+    layout: 'navbar',
+    title: 'Purchase',
+    middleware: ['user-middleware']
+  });
 
-const activeKey = ref('1');
+  //This is a global state for language of the app
+  const language = useLanguage();
+  const activeKey = ref('1');
 </script>
 
 <template>
-  <Title>Purchase</Title>
+  <Title>{{ translations[language].purchase }}</Title>
   <ATypographyTitle class="flex" style="font-size: 20px;">
     <AppstoreOutlined/>&nbsp;
-    <span>Purchase</span>
+    <span>{{ translations[language].purchase }}</span>
   </ATypographyTitle>
   <a-tabs v-model:activeKey="activeKey" centered>
     <!--Outstanding tab-->
@@ -23,7 +24,7 @@ const activeKey = ref('1');
       <template #tab>
         <span>
           <HistoryOutlined />
-          In progress
+          {{ translations[language].inProgress }}
         </span>
       </template>
       <Suspense>
@@ -37,7 +38,7 @@ const activeKey = ref('1');
       <template #tab>
         <span>
           <check-circle-filled />
-          Validated
+          {{ translations[language].validated }}
         </span>
       </template>
       <Suspense>
@@ -51,7 +52,7 @@ const activeKey = ref('1');
       <template #tab>
         <span>
           <StopOutlined/>
-          Rejected
+          {{ translations[language].rejected }}
         </span>
       </template>
       <Suspense>
