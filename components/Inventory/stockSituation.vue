@@ -7,7 +7,7 @@
   import type {SelectValue} from "ant-design-vue/es/select";
   import type {ICategory} from "~/composables/Category/Category.interface";
   import {getAllCategory} from "~/composables/Category/category.service";
-  import {STCodeList, type TStatus} from "~/composables/Status.interface";
+  import {STCodeList} from "~/composables/Status.interface";
   import type {IUnit} from "~/composables/Unit/Unit.interface";
   import {getAllUnit} from "~/composables/Unit/unit.service";
   import {h} from "vue";
