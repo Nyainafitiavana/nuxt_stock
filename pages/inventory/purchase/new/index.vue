@@ -6,13 +6,16 @@
     title: 'Purchase_new',
     middleware: ['user-middleware']
   });
+
+  //This is a global state for language of the app
+  const language = useLanguage();
 </script>
 
 <template>
-  <Title>New purchase</Title>
+  <Title>{{ translations[language].newPurchase }}</Title>
   <ATypographyTitle class="flex" style="font-size: 20px;">
     <AppstoreOutlined/>&nbsp;
-    <span>New purchase</span>
+    <span>{{ translations[language].newPurchase }}</span>
   </ATypographyTitle>
   <Suspense>
     <NewPurchaseComponent />

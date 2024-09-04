@@ -21,6 +21,7 @@ export const translations = {
         errorDesignation: 'Please enter the designation !',
         errorUnit: 'Unit is required !',
         errorCategory: 'Category is required !',
+        errorQuantity: 'All quantity must be greater than 0 !',
         priceErrorGreater: 'The price must be greater than 0 !',
         unitPriceError: 'Please input the unit price !',
         purchasePriceError: 'Please input the purchase price !',
@@ -30,6 +31,7 @@ export const translations = {
         success: 'Success',
         successDescription: 'Operation Successful !',
         error: 'Error',
+        warning: 'Attention',
         yes: 'Yes',
         no: 'No',
         active: 'Active',
@@ -79,7 +81,10 @@ export const translations = {
         output: 'Output',
         input: 'Input',
         stockInput: 'Stock input',
-        stockOutput: 'Stock output'
+        stockOutput: 'Stock output',
+        makePurchase: 'Making a purchase',
+        newPurchase: 'New purchase',
+        errorPurchase: "You can't make a purchase without details!",
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -103,6 +108,7 @@ export const translations = {
         errorDesignation: 'Veuillez entrer la désignation !',
         errorUnit: "L'unité est obligatoire !",
         errorCategory: 'La catégorie est obligatoire !',
+        errorQuantity: 'Toutes les quantités doivent être supérieures à 0 !',
         priceErrorGreater: 'Le prix doit être supérieur à 0 !',
         unitPriceError: 'Veuillez indiquer le prix unitaire !',
         purchasePriceError: "Veuillez indiquer le prix d'achat !",
@@ -112,6 +118,7 @@ export const translations = {
         success: 'Succès',
         successDescription: 'Opération réussie !',
         error: 'Erreur',
+        warning: 'Attention',
         yes: 'Oui',
         no: 'Non',
         active: 'Actif',
@@ -161,6 +168,9 @@ export const translations = {
         output: 'Sorties',
         input: 'Entrées',
         stockInput: 'Entrée en stock',
-        stockOutput: 'Sortie en stock'
+        stockOutput: 'Sortie en stock',
+        makePurchase: 'Effectuer un achat',
+        newPurchase: 'Nouvel achat',
+        errorPurchase: "Vous ne pouvez pas faire d'achat sans détails !"
     }
 };

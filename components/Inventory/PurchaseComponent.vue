@@ -875,7 +875,7 @@
     <!--Add btn-->
     <a-col class="mt-8" span="4">
       <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.IN_PROGRESS" class="btn--success ml-5">
-        {{ translations[language].add }}</a-button>
+        {{ translations[language].makePurchase }}</a-button>
     </a-col>
     <!--Filter by date-->
     <a-col class="mt-8 flex justify-end" span="12">
