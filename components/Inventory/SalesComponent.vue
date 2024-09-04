@@ -40,6 +40,9 @@
 
 
   const props = defineProps<Props>();
+  //**************Beginning of state management**************
+  //This is a global state for language of the app
+  const language = useLanguage();
   const dateFilter = ref<RangeValue>();
   const isAdmin = ref<string>('');
   const loading = ref<boolean>(false);
@@ -67,50 +70,8 @@
     observation: '',
   });
   const formRef = ref<FormInstance>();
-
-  const statusColumn = {
-    title: h('div', { style: { textAlign: 'center' } }, ['Status']),
-    key: 'status',
-    customRender: ({ record }: { record: IMovement}) => h('a-row', [
-      record.status.code === STCodeList.IN_PROGRESS ?
-          h('div',
-              {
-                style: { textAlign: 'center', color: 'white' },
-                class: 'info-background-color'
-              },
-              [record.status.designation]
-          )
-          :
-          (
-              record.status.code === STCodeList.COMPLETED ?
-              h('div',
-                  {
-                    style: { textAlign: 'center', color: 'white' },
-                    class: 'primary-background-color'
-                  },
-                  [record.status.designation]
-              ) :
-              (
-                  record.status.code === STCodeList.VALIDATED ?
-                      h('div',
-                          {
-                            style: { textAlign: 'center', color: 'white' },
-                            class: 'success-background-color'
-                          },
-                          [record.status.designation]
-                      ) :
-                      h('div',
-                          {
-                            style: { textAlign: 'center', color: 'white' },
-                            class: 'danger-background-color'
-                          },
-                          [record.status.designation]
-                      )
-              )
-
-          )
-    ])
-  }
+  //**************End of state management**************
+  //**************Beginning of Column datatable property***********
 
   const activeActionsColumns = {
     title: 'Actions',
@@ -188,11 +149,11 @@
     ])
   };
 
-  let columnsMovement = [];
+  let columnsMovement = computed(() => []);
 
-  const columnsDetailsMovement = [
+  const columnsDetailsMovement = computed(() => [
     {
-      title: 'Product',
+      title: translations[language.value].product,
       key: 'product',
       dataIndex: 'product_name',
       width: 200,
@@ -200,7 +161,7 @@
           h(ASelect, {
             disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
             style:'width: 100%',
-            'placeholder':'Select a product',
+            'placeholder': translations[language.value].selectProduct,
             'show-search': true,
             value: record.product_id,
             options: optionsProductDetails.value,
@@ -212,18 +173,18 @@
       ]
     },
     {
-      title: 'Category',
+      title: translations[language.value].category,
       key: 'category',
       dataIndex: 'category_name',
     },
     {
-      title: 'Unit',
+      title: translations[language.value].unit,
       key: 'unit',
       dataIndex: 'unit_name',
       width: 80,
     },
     {
-      title: 'Unit price',
+      title: translations[language.value].unitPrice,
       key: 'unitPrice',
       dataIndex: 'unit_price',
       customRender: ({ record }: { record: IDetails}) => {
@@ -237,7 +198,7 @@
       }
     },
     {
-      title: 'Wholesale price',
+      title: translations[language.value].wholesalePrice,
       key: 'wholesalePrice',
       dataIndex: 'wholesale_price',
       customRender: ({ record }: { record: IDetails}) => {
@@ -251,16 +212,16 @@
       }
     },
     {
-      title: 'Price type',
+      title: translations[language.value].priceType,
       key: 'priceType',
       dataIndex: 'is_unit_price',
-      width: 120,
+      width: 200,
       customRender: ({ record }: { record: IDetails }) => {
         return h(Switch, {
           disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
           checked: record.is_unit_price,
-          'checked-children': 'Unit',
-          'un-checked-children': 'Wholesale',
+          'checked-children': translations[language.value].unitaryPriceType,
+          'un-checked-children': translations[language.value].wholesalePriceType,
           onChange: () => {
             record.is_unit_price = !record.is_unit_price;
             //We need to reload the amount of details
@@ -270,20 +231,20 @@
       },
     },
     {
-      title: h('div', { style: { textAlign: 'center' } }, ['Remaining stock']),
+      title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].remainingStock]),
       key: 'remainingStock',
       dataIndex: 'remaining_stock',
       customRender: ({ record }: { record: IDetails}) => [
         h('div', {
           style: { textAlign: 'center', color: 'white', fontWeight: '800' },
-          class: record.remaining_stock === 0 ? 'danger-background-color' : ( record.remaining_stock > 0 && record.remaining_stock <= stockThreshold.value ? 'warning-background-color' : 'primary-background-color')
+          class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color'
         }, [
           h('span', [record.remaining_stock]),
         ]),
       ]
     },
     {
-      title: 'Quantity',
+      title: translations[language.value].quantity,
       key: 'quantity',
       dataIndex: 'quantity',
       width: 120,
@@ -309,7 +270,7 @@
       },
     },
     {
-      title: 'Amount',
+      title: translations[language.value].amount,
       key: 'amount',
       customRender: ({ record }: { record: IDetails}) => {
         const price = new Intl.NumberFormat('en-US', {
@@ -339,20 +300,20 @@
           ]
       )
     },
-  ];
+  ]);
 
-  const columnsHistoryValidation = [
+  const columnsHistoryValidation = computed(() => [
     {
       title: 'Date',
       key: 'createdAt',
       dataIndex: 'createdAt',
       customRender: ({ record }: { record: IHistoryValidation}) => {
-        const createdAt: string = formatDateString(record.createdAt);
+        const createdAt: string = formatDateString(record.createdAt, language.value, true);
         return h('div', {style: {textAlign: 'left'}}, [createdAt]);
       }
     },
     {
-      title: 'Validator',
+      title: translations[language.value].validator,
       key: 'validator',
       dataIndex: 'validator',
       customRender: ({ record }: { record: IHistoryValidation}) => [record.validator ? record.validator.firstName + ' ' + record.validator.lastName : '---'],
@@ -363,41 +324,126 @@
       dataIndex: 'observation',
       customRender: ({ record }: { record: IHistoryValidation}) => [record.observation ? record.observation : '---'],
     },
-    statusColumn,
-  ];
+    {
+      title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
+      key: 'status',
+      customRender: ({ record }: { record: IMovement}) => h('a-row', [
+        record.status.code === STCodeList.IN_PROGRESS ?
+            h('div',
+                {
+                  style: { textAlign: 'center', color: 'white' },
+                  class: 'info-background-color'
+                },
+                [translations[language.value].inProgress]
+            )
+            :
+            (
+                record.status.code === STCodeList.COMPLETED ?
+                    h('div',
+                        {
+                          style: { textAlign: 'center', color: 'white' },
+                          class: 'primary-background-color'
+                        },
+                        [translations[language.value].completed]
+                    ) :
+                    (
+                        record.status.code === STCodeList.VALIDATED ?
+                            h('div',
+                                {
+                                  style: { textAlign: 'center', color: 'white' },
+                                  class: 'success-background-color'
+                                },
+                                [translations[language.value].validated]
+                            ) :
+                            h('div',
+                                {
+                                  style: { textAlign: 'center', color: 'white' },
+                                  class: 'danger-background-color'
+                                },
+                                [translations[language.value].rejected]
+                            )
+                    )
+
+            )
+      ])
+    },
+  ]);
+  //**************End of Column datatable property***********
 
   //**********Init column of datatable*****************
   const initColumnDatableMovement = () => {
-    columnsMovement = [
+    columnsMovement = computed(() => [
       {
         title: 'Type',
         key: 'isSales',
         dataIndex: 'isSales',
-        customRender: ({ record }: { record: IMovement}) => [record.isSales ? 'Sales' : 'Purchase'],
+        customRender: ({ record }: { record: IMovement}) => [record.isSales ? 'Vente' : translations[language.value].purchase],
       },
       {
         title: 'Date',
         key: 'createdAt',
         dataIndex: 'createdAt',
         customRender: ({ record }: { record: IMovement}) => {
-          const createdAt: string = formatDateString(record.createdAt);
+          const createdAt: string = formatDateString(record.createdAt, language.value, true);
           return h('div', {style: {textAlign: 'left'}}, [createdAt]);
         }
       },
       {
-        title: 'Editor',
+        title: translations[language.value].editor,
         key: 'editor',
         dataIndex: 'editor',
         customRender: ({ record }: { record: IMovement}) => [record.editor.firstName + ' ' + record.editor.lastName],
       },
-      statusColumn,
+      {
+        title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
+        key: 'status',
+        customRender: ({ record }: { record: IMovement}) => h('a-row', [
+          record.status.code === STCodeList.IN_PROGRESS ?
+              h('div',
+                  {
+                    style: { textAlign: 'center', color: 'white' },
+                    class: 'info-background-color'
+                  },
+                  [translations[language.value].inProgress]
+              )
+              :
+              (
+                  record.status.code === STCodeList.COMPLETED ?
+                      h('div',
+                          {
+                            style: { textAlign: 'center', color: 'white' },
+                            class: 'primary-background-color'
+                          },
+                          [translations[language.value].completed]
+                      ) :
+                      (
+                          record.status.code === STCodeList.VALIDATED ?
+                              h('div',
+                                  {
+                                    style: { textAlign: 'center', color: 'white' },
+                                    class: 'success-background-color'
+                                  },
+                                  [translations[language.value].validated]
+                              ) :
+                              h('div',
+                                  {
+                                    style: { textAlign: 'center', color: 'white' },
+                                    class: 'danger-background-color'
+                                  },
+                                  [translations[language.value].rejected]
+                              )
+                      )
+
+              )
+        ])
+      },
       props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'true' ?
           activeActionsColumns :
           (
               (props.activePage === STCodeList.VALIDATED && isAdmin.value === 'true') ?
                   validatedActionColumns : rejectOrCompletedActionColumns
           ),
-    ];
+    ]);
   }
 
   //**********Reset all value and validator form*******
@@ -436,12 +482,12 @@
 
     if (findSelectProductInDetails) {
       notification.error({
-        message: 'Error',
-        description: 'Can not select a product already selected!',
+        message: translations[language.value].error,
+        description: translations[language.value].selectProductError,
         class: 'custom-error-notification'
       });
 
-      record.product_id = '';
+      record.product_id = null;
       record.product_name = '';
       record.quantity = 0;
       record.category_id = '';
@@ -478,18 +524,18 @@
 
   const handleAddNewItemDetails = () => {
     //find in detail if a row is not completed, so we can't create a new row
-    const findProduct = dataDetailsMovement.value.find(product => product.product_id === '');
+    const findProduct = dataDetailsMovement.value.find(product => product.product_id === null);
 
     if (findProduct) {
       // Show error notification
       notification.error({
-        message: 'Error',
-        description: 'Impossible to add a new line if you have a line that does not yet have a product.',
+        message: translations[language.value].error,
+        description: translations[language.value].addRowDetailsError,
         class: 'custom-error-notification'
       });
     } else {
       dataDetailsMovement.value.push({
-        product_id: '',
+        product_id: null,
         product_name: '',
         quantity: 0,
         category_id: '',
@@ -514,11 +560,11 @@
 
   const handleValidateMovement = (record: IMovement) => {
     Modal.confirm({
-      title: 'Confirmation Required',
+      title: translations[language.value].confirmationTitle,
       icon: createVNode(ExclamationCircleOutlined),
-      content: 'Are you sure you want to proceed? This action is irreversible.',
-      okText: 'Yes',
-      cancelText: 'No',
+      content: translations[language.value].confirmationDescription,
+      okText: translations[language.value].yes,
+      cancelText: translations[language.value].no,
       onOk: async () => {
         loading.value = true;
         await validateOrRejectMovement(record.uuid, true, null);
@@ -563,16 +609,16 @@
       const indexEmptyProduct = dataDetailsMovement.value.findIndex(item => item.product_id === '' || item.quantity === 0);
 
       if (indexEmptyProduct !== -1) {
-        errorMessageDetails.value = `You have not selected a product or the quantity is not greater than 0 in the ${indexEmptyProduct + 1} line`;
+        errorMessageDetails.value = translations[language.value].errorSaveDetailsSales;
         isShowErrorDetail.value = true;
       } else {
         isShowErrorDetail.value = false;
         Modal.confirm({
-          title: 'Confirmation Required',
+          title: translations[language.value].confirmationTitle,
           icon: createVNode(ExclamationCircleOutlined),
-          content: 'Are you sure you want to proceed? This action is irreversible.',
-          okText: 'Yes',
-          cancelText: 'No',
+          content: translations[language.value].confirmationDescription,
+          okText: translations[language.value].yes,
+          cancelText: translations[language.value].no,
           onOk: async () => {
             loadingBtn.value = true;
             await updateDetailsMovement();
@@ -582,8 +628,8 @@
     } else {
       // Show error notification
       notification.error({
-        message: 'Error',
-        description: "Can't update an movement without details!",
+        message: translations[language.value].error,
+        description: translations[language.value].errorSale,
         class: 'custom-error-notification'
       });
     }
@@ -591,11 +637,11 @@
 
   const onFinishReject = () => {
     Modal.confirm({
-      title: 'Confirmation Required',
+      title: translations[language.value].confirmationTitle,
       icon: createVNode(ExclamationCircleOutlined),
-      content: 'Are you sure you want to proceed? This action is irreversible.',
-      okText: 'Yes',
-      cancelText: 'No',
+      content: translations[language.value].confirmationDescription,
+      okText: translations[language.value].yes,
+      cancelText: translations[language.value].no,
       onOk: async () => {
         loadingBtn.value = true;
         await validateOrRejectMovement(movementId.value, false, formStateReject);
@@ -643,7 +689,7 @@
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -669,7 +715,7 @@
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -693,7 +739,7 @@
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -724,7 +770,7 @@
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -747,8 +793,8 @@
 
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
 
@@ -769,7 +815,7 @@
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -783,8 +829,8 @@
       await validateOrRejectMovementService(movementId, isValidate, observation);
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
 
@@ -802,7 +848,7 @@
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -869,15 +915,18 @@
         <a-select-option value="25">25</a-select-option>
         <a-select-option value="50">50</a-select-option>
       </a-select>
-      <span> entries per page</span>
+      <span> / page</span>
     </a-col>
     <!--Add new btn-->
     <a-col class="mt-8" span="4">
-      <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.IN_PROGRESS" class="btn--success ml-5">Add new</a-button>
+      <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.IN_PROGRESS" class="btn--success ml-5">{{ translations[language].makeSales }}</a-button>
     </a-col>
     <!--Filter by date-->
     <a-col class="mt-8 flex justify-end" span="12">
-      <a-range-picker v-model:value="dateFilter" />
+      <a-range-picker
+          v-model:value="dateFilter"
+          :placeholder="[translations[language].startDate, translations[language].endDate]"
+      />
       <a-button class="btn--primary ml-2" :icon="h(FilterOutlined)" @click="handleFilterByDate"/>
     </a-col>
   </a-row>
@@ -921,13 +970,13 @@
   >
     <!-- Template title modal -->
     <template #title>
-      <span>Movement details</span>
+      <span>{{ translations[language].salesDetails }}</span>
       <a-button
           class="btn--success ml-4"
           :icon="h(PlusOutlined)"
           @click="handleAddNewItemDetails"
           size="middle"
-          v-if="props.activePage === 'OSD' && isAdmin === 'true' || props.activePage === 'RJT' && isAdmin !== 'true'"
+          v-if="props.activePage === STCodeList.IN_PROGRESS && isAdmin === 'true' || props.activePage === STCodeList.REJECTED && isAdmin !== 'true'"
       >
       </a-button>
     </template>
@@ -953,32 +1002,28 @@
       </a-col>
       <!-- Legend -->
       <a-col class="mt-8 flex" span="16">
-        <a-col  span="8" class="flex">
+        <a-col  span="12" class="flex">
           <div class="primary-background-color w-12 h-4"></div>
-          <h6 class="ml-4">Product available in stock</h6>
+          <h6 class="ml-4">{{ translations[language].productAvailable }}</h6>
         </a-col>
-        <a-col  span="8" class="flex">
-          <div class="warning-background-color w-12 h-4"></div>
-          <h6 class="ml-4">Product out of stock</h6>
-        </a-col>
-        <a-col  span="8" class="flex">
+        <a-col  span="12" class="flex">
           <div class="danger-background-color w-12 h-4"></div>
-          <h6 class="ml-4">Product unavailable stock</h6>
+          <h6 class="ml-4">{{ translations[language].productOutOfStock }}</h6>
         </a-col>
       </a-col>
     </a-row>
     <!-- Action modal of details -->
     <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
       <a-col class="mt-8" span="24">
-        <a-button class="btn btn--default" size="middle" @click="handleCloseModalDetails">Cancel</a-button>
+        <a-button class="btn btn--default" size="middle" @click="handleCloseModalDetails">{{ translations[language].cancel }}</a-button>
         <a-button
             class="btn btn--primary ml-4"
             html-type="submit"
             size="middle"
             :loading="loadingBtn"
             @click="handleSaveChangeDetails"
-            v-if="props.activePage === 'OSD' && isAdmin === 'true' || props.activePage === 'RJT' && isAdmin !== 'true'"
-        >Save</a-button>
+            v-if="props.activePage === STCodeList.IN_PROGRESS && isAdmin === 'true' || props.activePage === STCodeList.REJECTED && isAdmin !== 'true'"
+        >{{ translations[language].save }}</a-button>
         <span class="danger-color ml-5" style="font-size: 18px;" v-if="isShowErrorDetail">{{ errorMessageDetails }}</span>
       </a-col>
     </a-row>
@@ -1030,11 +1075,8 @@
       style="top: 20px"
       @ok=""
       width="1000px"
+      :title="translations[language].ValidationHistory"
   >
-    <!-- Template title modal -->
-    <template #title>
-      <span>History validation</span>
-    </template>
     <!--Datatable details movement-->
     <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
       <a-col class="mt-8" span="24">

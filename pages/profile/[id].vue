@@ -134,39 +134,39 @@ import type {FormStateUser, IUser} from "~/composables/User/User.interface";
           <a-form-item
               name="email"
               type="email"
-              :rules="[{ required: true, type: 'email', message: 'The input is not a valid email format!' }]"
+              :rules="[{ required: true, type: 'email', message: translations[language].errorEmail }]"
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="3"><label for="basic_email"><span class="required_toil">*</span> Email:</label></a-col>
+              <a-col span="4"><label for="basic_email"><span class="required_toil">*</span> Email:</label></a-col>
               <a-col span="12">
                 <a-input v-model:value="formState.email" size="large" placeholder="E-mail"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
           <a-form-item
-              name="firstName"
+              name="lastName"
               type="text"
-              :rules="[{ required: true, message: 'Please input your First Name!' }]"
+              :rules="[{ required: true, message: translations[language].errorLastName }]"
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="3"><label for="basic_firstName"><span class="required_toil">*</span> {{translations[language].firstName}}:</label></a-col>
+              <a-col span="4"><label for="basic_lastName"><span class="required_toil">*</span> {{translations[language].lastName}}:</label></a-col>
               <a-col span="12">
-                <a-input v-model:value="formState.firstName" size="large" placeholder="First Name"></a-input>
+                <a-input v-model:value="formState.lastName" size="large" placeholder="Last Name"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
           <a-form-item
-              name="lastName"
+              name="firstName"
               type="text"
-              :rules="[{ required: true, message: 'Please input your Last Name!' }]"
+              :rules="[{ required: true, message: translations[language].errorFirstName }]"
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="3"><label for="basic_lastName"><span class="required_toil">*</span> {{translations[language].lastName}}:</label></a-col>
+              <a-col span="4"><label for="basic_firstName"><span class="required_toil">*</span> {{translations[language].firstName}}:</label></a-col>
               <a-col span="12">
-                <a-input v-model:value="formState.lastName" size="large" placeholder="Last Name"></a-input>
+                <a-input v-model:value="formState.firstName" size="large" placeholder="First Name"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -176,7 +176,7 @@ import type {FormStateUser, IUser} from "~/composables/User/User.interface";
               class="w-full mt-10"
           >
             <a-row>
-              <a-col span="3"><label for="basic_phone">{{translations[language].phoneNumber}}:</label></a-col>
+              <a-col span="4"><label for="basic_phone">{{translations[language].phoneNumber}}:</label></a-col>
               <a-col span="12">
                 <a-input v-model:value="formState.phone" size="large" placeholder="Phone number"></a-input>
               </a-col>

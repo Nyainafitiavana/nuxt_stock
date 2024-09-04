@@ -7,14 +7,16 @@
     middleware: ['user-middleware']
   });
 
+  //This is a global state for language of the app
+  const language = useLanguage();
   const activeKey = ref('1');
 </script>
 
 <template>
-  <Title>Sales</Title>
+  <Title>{{ translations[language].sales }}</Title>
   <ATypographyTitle class="flex" style="font-size: 20px;">
     <AppstoreOutlined/>&nbsp;
-    <span>Sales</span>
+    <span>{{ translations[language].sales }}</span>
   </ATypographyTitle>
   <a-tabs v-model:activeKey="activeKey" centered>
     <!--Outstanding tab-->
@@ -22,7 +24,7 @@
       <template #tab>
         <span>
           <HistoryOutlined />
-          In progress
+          {{ translations[language].inProgress }}
         </span>
       </template>
       <Suspense>
@@ -36,7 +38,7 @@
       <template #tab>
         <span>
           <check-circle-filled />
-          Validated
+          {{ translations[language].validated }}
         </span>
       </template>
       <Suspense>
@@ -50,7 +52,7 @@
       <template #tab>
         <span>
           <StopOutlined/>
-          Rejected
+          {{ translations[language].rejected }}
         </span>
       </template>
       <Suspense>
@@ -64,7 +66,7 @@
       <template #tab>
         <span>
           <check-circle-filled />
-          Completed
+          {{ translations[language].completed }}
         </span>
       </template>
       <Suspense>

@@ -27,6 +27,8 @@
   import {getAllUnit} from "~/composables/Unit/unit.service";
 
   //**************Beginning of state management**************
+  //This is a global state for language of the app
+  const language = useLanguage();
   const loading = ref<boolean>(false);
   const loadingDetailsMovement = ref<boolean>(false);
   const loadingBtn = ref<boolean>(false);
@@ -43,9 +45,9 @@
   const amountDetail = ref<string>('');
   const errorMessageDetails = ref<string>('');
   const isShowErrorDetail = ref<boolean>(false);
-  const optionsCategory = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
+  const optionsCategory = ref<SelectProps['options']>([{ value: '', label: translations[language.value].all }]);
   const currentCategoryList = ref<string>('');
-  const optionsUnit = ref<SelectProps['options']>([{ value: '', label: 'All'}]);
+  const optionsUnit = ref<SelectProps['options']>([{ value: '', label: translations[language.value].all }]);
   const currentUnitList = ref<string>('');
   const stockThreshold = ref<number>(70);
   //**************End of state management**************
@@ -65,26 +67,26 @@
   //***********End of select method of category product***************
 
   //**************Beginning of Datatable column**************
-  const columnsProductWithRemainingStock = [
+  const columnsProductWithRemainingStock = computed(() =>[
     {
-      title: 'Product',
+      title: translations[language.value].product,
       key: 'product',
       dataIndex: 'product_name',
       width: 200,
     },
     {
-      title: 'Category',
+      title: translations[language.value].category,
       key: 'category',
       dataIndex: 'category_name',
     },
     {
-      title: 'Unit',
+      title: translations[language.value].unit,
       key: 'unit',
       dataIndex: 'unit_name',
       width: 80,
     },
     {
-      title: 'Unit price',
+      title: translations[language.value].unitPrice,
       key: 'unitPrice',
       dataIndex: 'unit_price',
       customRender: ({ record }: { record: IProductRemainingStock}) => {
@@ -98,7 +100,7 @@
       }
     },
     {
-      title: 'Wholesale price',
+      title: translations[language.value].wholesalePrice,
       key: 'wholesalePrice',
       dataIndex: 'wholesale_price',
       customRender: ({ record }: { record: IProductRemainingStock}) => {
@@ -112,13 +114,13 @@
       }
     },
     {
-      title: h('div', { style: { textAlign: 'center' } }, ['Remaining stock']),
+      title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].remainingStock]),
       key: 'remainingStock',
       dataIndex: 'remaining_stock',
       customRender: ({ record }: { record: IProductRemainingStock}) => [
         h('div', {
           style: { textAlign: 'center', color: 'white', fontWeight: '800' },
-          class: record.remaining_stock === 0 ? 'danger-background-color' : ( record.remaining_stock > 0 && record.remaining_stock <= stockThreshold.value ? 'warning-background-color' : 'primary-background-color')
+          class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color',
         }, [
           h('span', [record.remaining_stock]),
         ]),
@@ -149,28 +151,28 @@
         }
       }
     },
-  ];
+  ]);
 
-  const columnsDetailsMovement = [
+  const columnsDetailsMovement = computed(() => [
     {
-      title: 'Product',
+      title: translations[language.value].product,
       key: 'product',
       dataIndex: 'product_name',
       width: 200,
     },
     {
-      title: 'Category',
+      title: translations[language.value].category,
       key: 'category',
       dataIndex: 'category_name',
     },
     {
-      title: 'Unit',
+      title: translations[language.value].unit,
       key: 'unit',
       dataIndex: 'unit_name',
       width: 80,
     },
     {
-      title: 'Unit price',
+      title: translations[language.value].unitPrice,
       key: 'unitPrice',
       dataIndex: 'unit_price',
       customRender: ({ record }: { record: IDetails}) => {
@@ -184,7 +186,7 @@
       }
     },
     {
-      title: 'Wholesale price',
+      title: translations[language.value].wholesalePrice,
       key: 'wholesalePrice',
       dataIndex: 'wholesale_price',
       customRender: ({ record }: { record: IDetails}) => {
@@ -198,15 +200,15 @@
       }
     },
     {
-      title: 'Price type',
+      title: translations[language.value].priceType,
       key: 'priceType',
       dataIndex: 'is_unit_price',
-      width: 120,
+      width: 200,
       customRender: ({ record }: { record: IDetails }) => {
         return h(Switch, {
           checked: record.is_unit_price,
-          'checked-children': 'Unit',
-          'un-checked-children': 'Wholesale',
+          'checked-children': translations[language.value].unitaryPriceType,
+          'un-checked-children': translations[language.value].wholesalePriceType,
           onChange: () => {
             record.is_unit_price = !record.is_unit_price;
             //We need to reload the amount of details
@@ -216,20 +218,20 @@
       },
     },
     {
-      title: h('div', { style: { textAlign: 'center' } }, ['Remaining stock']),
+      title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].remainingStock]),
       key: 'remainingStock',
       dataIndex: 'remaining_stock',
       customRender: ({ record }: { record: IDetails}) => [
         h('div', {
           style: { textAlign: 'center', color: 'white', fontWeight: '800' },
-          class: record.remaining_stock === 0 ? 'danger-background-color' : ( record.remaining_stock > 0 && record.remaining_stock <= stockThreshold.value ? 'warning-background-color' : 'primary-background-color')
+          class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color',
         }, [
           h('span', [record.remaining_stock]),
         ]),
       ]
     },
     {
-      title: 'Quantity',
+      title: translations[language.value].quantity,
       key: 'quantity',
       dataIndex: 'quantity',
       width: 120,
@@ -254,7 +256,7 @@
       },
     },
     {
-      title: 'Amount',
+      title: translations[language.value].amount,
       key: 'amount',
       customRender: ({ record }: { record: IDetails}) => {
         const price = new Intl.NumberFormat('en-US', {
@@ -283,7 +285,7 @@
           ]
       )
     },
-  ];
+  ]);
   //**************End of Datatable column**************
 
   //******************Beginning action pannier********************
@@ -377,11 +379,11 @@
 
   const handleCloseModalPannier = () => {
     Modal.confirm({
-      title: 'Confirmation Required',
+      title: translations[language.value].confirmationTitle,
       icon: createVNode(ExclamationCircleOutlined),
-      content: 'Are you want to save all changed temporarily?',
-      okText: 'Yes',
-      cancelText: 'No',
+      content: translations[language.value].confirmationDescription,
+      okText: translations[language.value].yes,
+      cancelText: translations[language.value].no,
       onOk: async () => {
         await saveChangePannierTemporarily();
         isOpenModalPannier.value = false;
@@ -417,15 +419,15 @@
       const indexEmptyQuantity = dataDetailsMovement.value.findIndex(item => item.quantity === 0);
 
       if (indexEmptyQuantity !== -1) {
-        errorMessageDetails.value = `The quantity is not greater than 0 in the ${indexEmptyQuantity + 1} line`;
+        errorMessageDetails.value = translations[language.value].errorQuantity;
         isShowErrorDetail.value = true;
       } else {
         Modal.confirm({
-          title: 'Confirmation Required',
+          title: translations[language.value].confirmationTitle,
           icon: createVNode(ExclamationCircleOutlined),
-          content: 'Are you sure you want to proceed? This action is irreversible.',
-          okText: 'Yes',
-          cancelText: 'No',
+          content: translations[language.value].confirmationDescription,
+          okText: translations[language.value].yes,
+          cancelText: translations[language.value].no,
           onOk: async () => {
             await createNewMovement(dataDetailsMovement.value);
           }
@@ -435,8 +437,8 @@
     } else {
       // Show error notification
       notification.warning({
-        message: 'Warning',
-        description: "Can't create an movement without details!",
+        message: translations[language.value].warning,
+        description: translations[language.value].errorSale,
         class: 'custom-warning-notification'
       });
     }
@@ -471,7 +473,7 @@
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -506,7 +508,7 @@
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -541,7 +543,7 @@
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -568,8 +570,8 @@
       );
       // Show success notification
       notification.success({
-        message: 'Success',
-        description: 'Operation Successful!',
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
 
@@ -590,7 +592,7 @@
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -616,6 +618,12 @@
     getAllDataProductWithRemainingStock();
   }
   //******************End filter of and paginator methods****
+
+  // Watch the language and update the 'all' label reactively
+  watchEffect(() => {
+    optionsCategory.value[0].label = translations[language.value].all;
+    optionsUnit.value[0].label = translations[language.value].all;
+  });
 
   onMounted(() => {
     updateCountPannier();
@@ -644,7 +652,7 @@
     </a-col>
     <!-- Sort by category -->
     <a-col class="mt-8" span="6">
-      <span>Category : </span>
+      <span>{{ translations[language].category }} : </span>
       <a-select
           class="w-44"
           v-model:value="currentCategoryList"
@@ -658,7 +666,7 @@
     </a-col>
     <!-- Sort by unit -->
     <a-col class="mt-8" span="6">
-      <span>Unit : </span>
+      <span>{{ translations[language].unit }} : </span>
       <a-select
           class="w-44"
           v-model:value="currentUnitList"
@@ -671,7 +679,7 @@
     </a-col>
     <!-- Search input -->
     <a-col class="mt-8 flex justify-end" span="6">
-      <a-input type="text" class="w-48 h-9" v-model:value="keyword" placeholder="Search"/>&nbsp;
+      <a-input type="text" class="w-48 h-9" v-model:value="keyword" :placeholder="translations[language].search"/>&nbsp;
       <a-button class="btn--primary" :icon="h(SearchOutlined)" @click="handleSearch"/>
     </a-col>
     <!-- Pannier -->
@@ -711,17 +719,13 @@
   </a-row>
   <!-- Legend -->
   <a-row class="mt-8 flex justify-center" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-    <a-col  span="6" class="flex">
+    <a-col  span="12" class="flex justify-center">
       <div class="primary-background-color w-12 h-5"></div>
-      <h6 class="ml-4">Product available in stock</h6>
+      <h6 class="ml-4">{{ translations[language].productAvailable }}</h6>
     </a-col>
-    <a-col  span="6" class="flex">
-      <div class="warning-background-color w-12 h-5"></div>
-      <h6 class="ml-4">Product out of stock</h6>
-    </a-col>
-    <a-col  span="6" class="flex">
+    <a-col  span="12" class="flex justify-center">
       <div class="danger-background-color w-12 h-5"></div>
-      <h6 class="ml-4">Product unavailable stock</h6>
+      <h6 class="ml-4">{{ translations[language].productOutOfStock }}</h6>
     </a-col>
   </a-row>
   <!--Pannier Modal-->
@@ -757,31 +761,27 @@
       </a-col>
       <!-- Legend -->
       <a-col class="mt-8 flex" span="16">
-        <a-col  span="8" class="flex">
+        <a-col  span="12" class="flex">
           <div class="primary-background-color w-12 h-4"></div>
-          <h6 class="ml-4">Product available in stock</h6>
+          <h6 class="ml-4">{{ translations[language].productAvailable }}</h6>
         </a-col>
-        <a-col  span="8" class="flex">
-          <div class="warning-background-color w-12 h-4"></div>
-          <h6 class="ml-4">Product out of stock</h6>
-        </a-col>
-        <a-col  span="8" class="flex">
+        <a-col  span="12" class="flex">
           <div class="danger-background-color w-12 h-4"></div>
-          <h6 class="ml-4">Product unavailable stock</h6>
+          <h6 class="ml-4">{{ translations[language].productOutOfStock }}</h6>
         </a-col>
       </a-col>
     </a-row>
     <!-- Action modal of details -->
     <a-row class="mt-8" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
       <a-col class="mt-8" span="24">
-        <a-button class="btn btn--default" size="middle" @click="handleCloseModalPannier">Cancel</a-button>
+        <a-button class="btn btn--default" size="middle" @click="handleCloseModalPannier">{{ translations[language].cancel }}</a-button>
         <a-button
             class="btn btn--primary ml-4"
             html-type="submit"
             size="middle"
             :loading="loadingBtn"
             @click="handleSaveMovement"
-        >Save</a-button>
+        >{{ translations[language].save }}</a-button>
         <span class="danger-color ml-5" style="font-size: 18px;" v-if="isShowErrorDetail">{{ errorMessageDetails }}</span>
       </a-col>
     </a-row>

@@ -926,7 +926,7 @@
   >
     <!-- Template title modal -->
     <template #title>
-      <span>{{ translations[language].movementDetails }}</span>
+      <span>{{ translations[language].purchaseDetails }}</span>
       <a-button
           class="btn--success ml-4"
           :icon="h(PlusOutlined)"

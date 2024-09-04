@@ -88,14 +88,14 @@
 
   const columns = computed(() =>[
     {
-      title: translations[language.value].firstName,
-      dataIndex: 'firstName',
-      key: 'firstName',
-    },
-    {
       title: translations[language.value].lastName,
       dataIndex: 'lastName',
       key: 'lastName',
+    },
+    {
+      title: translations[language.value].firstName,
+      dataIndex: 'firstName',
+      key: 'firstName',
     },
     {
       title: 'Email',
@@ -514,6 +514,7 @@
       :title="translations[language].user"
       style="top: 20px"
       @ok=""
+      width="600px"
   >
     <a-row class="w-full">
       <a-col class="w-full">
@@ -539,19 +540,6 @@
             </a-row>
           </a-form-item>
           <a-form-item
-              name="firstName"
-              type="text"
-              :rules="[{ required: true, message: translations[language].firstName }]"
-              class="w-full mt-10"
-          >
-            <a-row>
-              <a-col span="5"><label for="basic_firstName"><span class="required_toil">*</span> {{translations[language].firstName}}:</label></a-col>
-              <a-col span="19">
-                <a-input v-model:value="formState.firstName" size="large" :placeholder="translations[language].firstName" :disabled="isView"></a-input>
-              </a-col>
-            </a-row>
-          </a-form-item>
-          <a-form-item
               name="lastName"
               type="text"
               :rules="[{ required: true, message: translations[language].errorLastName }]"
@@ -561,6 +549,19 @@
               <a-col span="5"><label for="basic_lastName"><span class="required_toil">*</span> {{translations[language].lastName}}:</label></a-col>
               <a-col span="19">
                 <a-input v-model:value="formState.lastName" size="large" :placeholder="translations[language].lastName" :disabled="isView"></a-input>
+              </a-col>
+            </a-row>
+          </a-form-item>
+          <a-form-item
+              name="firstName"
+              type="text"
+              :rules="[{ required: true, message: translations[language].errorFirstName }]"
+              class="w-full mt-10"
+          >
+            <a-row>
+              <a-col span="5"><label for="basic_firstName"><span class="required_toil">*</span> {{translations[language].firstName}}:</label></a-col>
+              <a-col span="19">
+                <a-input v-model:value="formState.firstName" size="large" :placeholder="translations[language].firstName" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
