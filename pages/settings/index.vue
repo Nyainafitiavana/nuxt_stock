@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import type {FormStateUser, IUser} from "~/composables/User/User.interface";
-  import {getOneUser, insertOrUpdateUser} from "~/composables/User/user.service";
   import {handleInAuthorizedError} from "~/composables/CustomError";
   import {createVNode, ref} from "vue";
   import {ExclamationCircleOutlined} from "#components";
   import {translations} from "~/composables/translations";
-import type {SettingsInterface} from "~/composables/settings/settings.interface";
-import type {SelectProps} from "ant-design-vue/lib";
+  import type {ISettings} from "~/composables/settings/settings.interface";
+  import type {SelectProps} from "ant-design-vue/lib";
+  import {getSettingsService, updateSettingsService} from "~/composables/settings/settings.service";
 
   definePageMeta({
     layout: 'navbar',
@@ -18,10 +17,9 @@ import type {SelectProps} from "ant-design-vue/lib";
   const language = useLanguage();
   const isLoading = ref<boolean>(true);
   const optionsCurrency = ref<SelectProps['options']>(language.value === 'ENG' ? currencyOptionEn : currencyOptionsFr);
+  const idSettings = ref<string>('');
 
-  const route = useRoute();
-
-  const formState = reactive<SettingsInterface>({
+  const formState = reactive<ISettings>({
     currencyType: 'USD',
     companyName: '',
     companyEmail: '',
@@ -38,18 +36,18 @@ import type {SelectProps} from "ant-design-vue/lib";
     optionsCurrency.value = language.value === 'ENG' ? currencyOptionEn : currencyOptionsFr;
   });
 
-  onMounted(async () => {
-    isLoading.value = false;
-  });
-
-  const getDataForm = async (id: string) => {
+  const getSettings = async () => {
     try {
-      const user: IUser = await getOneUser(id);
+      const settings: ISettings = await getSettingsService();
+      idSettings.value = settings.uuid;
       //set all value of formState when we have a data
-      formState.email = user.email;
-      formState.firstName = user.firstName;
-      formState.lastName = user.lastName;
-      formState.phone = user.phone;
+      formState.companyName = settings.companyName;
+      formState.currencyType = settings.currencyType;
+      formState.companyEmail = settings.companyEmail;
+      formState.companyAddress = settings.companyAddress;
+      formState.companyPhoneNumber = settings.companyPhoneNumber;
+
+      isLoading.value = false;
 
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
@@ -63,7 +61,7 @@ import type {SelectProps} from "ant-design-vue/lib";
 
       // Show error notification
       notification.error({
-        message: 'Error',
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -78,25 +76,17 @@ import type {SelectProps} from "ant-design-vue/lib";
       okText: translations[language.value].yes,
       cancelText: translations[language.value].no,
       onOk: async () => {
-        await updateProfile();
+        await updateSettings();
       }
     });
   };
 
-  const updateProfile = async () => {
-    const values: FormStateUser = formState;
-    const dataForm: IUser = {
-      email: values.email,
-      firstName: values.firstName,
-      lastName: values.lastName,
-      phone: values.phone,
-    };
+  const updateSettings = async () => {
 
     try {
       //run loading spin
       isLoading.value = true;
-      const userId: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
-      await insertOrUpdateUser(dataForm, userId, 'PATCH');
+      await updateSettingsService(formState, idSettings.value);
       // Show success notification
       notification.success({
         message: translations[language.value].success,
@@ -123,6 +113,10 @@ import type {SelectProps} from "ant-design-vue/lib";
       });
     }
   }
+
+  onMounted(async () => {
+    await getSettings();
+  });
 </script>
 
 <template>
@@ -132,7 +126,7 @@ import type {SelectProps} from "ant-design-vue/lib";
       <SettingOutlined  />&nbsp;
       <span>{{translations[language].settings}}</span>
     </ATypographyTitle>
-    <Loading :is-loading="isLoading" :size="'large'"/>
+    <Loading :is-loading="isLoading" :size="'middle'"/>
     <a-row v-if="!isLoading">
       <a-col class="w-full">
         <a-form
@@ -146,12 +140,12 @@ import type {SelectProps} from "ant-design-vue/lib";
               name="companyName"
               type="text"
               class="w-full mt-10"
-              :rules="[{ required: true, type: 'text', message: translations[language].errorCompanyName }]"
+              :rules="[{ required: true, message: translations[language].errorCompanyName }]"
           >
             <a-row>
               <a-col span="4"><label for="basic_companyName"><span class="required_toil">*</span> {{ translations[language].companyName }}:</label></a-col>
               <a-col span="12">
-                <a-input v-model:value="formState.companyName" size="large" :placeholder="translations[language].companyName"></a-input>
+                <a-input v-model:value="formState.companyName" size="middle" :placeholder="translations[language].companyName"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -182,20 +176,7 @@ import type {SelectProps} from "ant-design-vue/lib";
             <a-row>
               <a-col span="4"><label for="basic_companyEmail"><span class="required_toil">*</span> Email:</label></a-col>
               <a-col span="12">
-                <a-input v-model:value="formState.companyName" size="large" placeholder="Email"></a-input>
-              </a-col>
-            </a-row>
-          </a-form-item>
-          <a-form-item
-              name="companyPhoneNumber"
-              type="text"
-              class="w-full mt-10"
-              :rules="[{ required: true, type: 'text', message: translations[language].errorCompanyPhoneNumber }]"
-          >
-            <a-row>
-              <a-col span="4"><label for="basic_companyPhoneNumber"><span class="required_toil">*</span> {{ translations[language].companyPhoneNumber }}:</label></a-col>
-              <a-col span="12">
-                <a-input v-model:value="formState.companyPhoneNumber" size="large" :placeholder="translations[language].companyPhoneNumber"></a-input>
+                <a-input v-model:value="formState.companyEmail" size="middle" placeholder="Email"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -203,12 +184,12 @@ import type {SelectProps} from "ant-design-vue/lib";
               name="companyAddress"
               type="text"
               class="w-full mt-10"
-              :rules="[{ required: true, type: 'text', message: translations[language].errorCompanyAddress }]"
+              :rules="[{ required: true, message: translations[language].errorCompanyAddress }]"
           >
             <a-row>
               <a-col span="4"><label for="basic_companyAddress"><span class="required_toil">*</span> {{ translations[language].companyAddress }}:</label></a-col>
               <a-col span="12">
-                <a-input v-model:value="formState.companyAddress" size="large" :placeholder="translations[language].companyAddress"></a-input>
+                <a-input v-model:value="formState.companyAddress" size="middle" :placeholder="translations[language].companyAddress"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -216,18 +197,18 @@ import type {SelectProps} from "ant-design-vue/lib";
               name="companyPhoneNumber"
               type="text"
               class="w-full mt-10"
-              :rules="[{ required: true, type: 'text', message: translations[language].errorCompanyPhoneNumber }]"
+              :rules="[{ required: true, message: translations[language].errorCompanyPhoneNumber }]"
           >
             <a-row>
               <a-col span="4"><label for="basic_companyPhoneNumber"><span class="required_toil">*</span> {{ translations[language].companyPhoneNumber }}:</label></a-col>
               <a-col span="12">
-                <a-input v-model:value="formState.companyPhoneNumber" size="large" :placeholder="translations[language].companyPhoneNumber"></a-input>
+                <a-input v-model:value="formState.companyPhoneNumber" size="middle" :placeholder="translations[language].companyPhoneNumber"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
           <a-row class="mt-10">
             <a-form-item class="w-full">
-              <a-button class="btn btn--primary w-full" html-type="submit" size="large">{{translations[language].updateProfile}}</a-button>
+              <a-button class="btn btn--primary w-full" html-type="submit" size="middle">{{translations[language].updateSettings}}</a-button>
             </a-form-item>
           </a-row>
         </a-form>

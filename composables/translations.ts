@@ -71,7 +71,6 @@ export const translations = {
         amount: 'Amount',
         productAvailable: 'Product available in stock',
         productOutOfStock: 'Product out of stock',
-        newPurchase: 'New purchase',
         startDate: 'Start date',
         endDate: 'End date',
         selectProductError: 'Can not select a product already selected !',
@@ -80,7 +79,6 @@ export const translations = {
         observationError: 'Please input your observation !',
         ValidationHistory: 'Validation History',
         summarize: 'Summarize',
-        stockSituation: 'Stock situation',
         output: 'Output',
         input: 'Input',
         stockInput: 'Stock input',
@@ -106,6 +104,7 @@ export const translations = {
         errorCompanyName: 'Company name is required !',
         errorCompanyAddress: 'Company address is required !',
         errorCompanyPhoneNumber: 'Company phone number is required !',
+        updateSettings: 'Update Settings'
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -117,7 +116,6 @@ export const translations = {
         inventory: 'Inventaire',
         purchase: 'Achat',
         sales: 'Ventes',
-        stockSituation: 'stock',
         firstName: 'Prènoms',
         lastName: 'Nom',
         password: 'Mot de passe',
@@ -194,7 +192,6 @@ export const translations = {
         stockInput: 'Entrée en stock',
         stockOutput: 'Sortie en stock',
         makePurchase: 'Effectuer un achat',
-        newPurchase: 'Nouvel achat',
         errorPurchase: "Vous ne pouvez pas faire d'achat sans détails !",
         makeSales: 'Effectuer une vente',
         newSales: 'Nouvelle vente',
@@ -214,5 +211,6 @@ export const translations = {
         errorCompanyName: 'Company name is required !',
         errorCompanyAddress: 'Company address is required !',
         errorCompanyPhoneNumber: 'Company phone number is required !',
+        updateSettings: 'Mettre à jour les paramètres'
     }
 };

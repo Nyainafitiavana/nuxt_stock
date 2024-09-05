@@ -28,6 +28,9 @@ import type {RuleObject} from "ant-design-vue/es/form";
 import {formatDateString} from "~/composables/helper";
 import type {IUnit} from "~/composables/Unit/Unit.interface";
 import {getAllUnit} from "~/composables/Unit/unit.service";
+import type {ICurrency, ISettings} from "~/composables/settings/settings.interface";
+import {getCurrencyService, getSettingsService} from "~/composables/settings/settings.service";
+import {translations} from "~/composables/translations";
 
 
 interface Props {
@@ -87,6 +90,7 @@ interface Props {
   const currentCategoryInModal = ref<string>(null);
   const optionsUnitInModal = ref<SelectProps['options']>([]);
   const currentUnitInModal = ref<string>(null);
+  const currencyType = ref<string>('');
   //**************End of state management**************
 
   //**************Beginning of Column datatable property***********
@@ -95,6 +99,7 @@ interface Props {
     title: 'Actions',
     key: 'actions',
     width: 200,
+    fixed: 'right',
     customRender: ({ record }: { record: IProduct }) => h('div', [
       h('a-button', {
         class: 'btn--info-outline btn-tab',
@@ -126,6 +131,7 @@ interface Props {
     title: 'Actions',
     key: 'actions',
     width: 200,
+    fixed: 'right',
     customRender: ({ record }: { record: IProduct }) => h('div', [
       h('a-button', {
         class: 'btn--info-outline btn-tab',
@@ -147,23 +153,28 @@ interface Props {
       title: translations[language.value].designation,
       dataIndex: 'designation',
       key: 'designation',
+      width: 170,
+      fixed: 'left',
     },
     {
       title: translations[language.value].unit,
       dataIndex: ['unit', 'designation'],
       key: 'unit',
+      width: 100,
       customRender: ({ text }: { text: string }) => text ? text : '---'
     },
     {
       title: translations[language.value].category,
       dataIndex: ['category', 'designation'],
       key: 'category',
+      width: 100,
       customRender: ({ text }: { text: string }) => text ? text : '---'
     },
     {
       title: translations[language.value].unitPrice,
       key: 'unitPrice',
       dataIndex: ['productSalesPrice', 'unitPrice'],
+      width: 170,
       customRender: ({ record }: { record: IProduct}) => {
         let value = '0.00';
 
@@ -179,13 +190,14 @@ interface Props {
           })
         }
 
-        return h('div', { style: { textAlign: 'right' } }, [value]);
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
       }
     },
     {
       title: translations[language.value].wholesalePrice,
       key: 'wholesalePrice',
       dataIndex: ['productSalesPrice', 'wholesale'],
+      width: 170,
       customRender: ({ record }: { record: IProduct}) => {
         let value = '0.00';
 
@@ -201,13 +213,14 @@ interface Props {
           })
         }
 
-        return h('div', { style: { textAlign: 'right' } }, [value]);
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
       }
     },
     {
       title: translations[language.value].purchasePrice,
       key: 'purchasePrice',
       dataIndex: ['productSalesPrice', 'purchasePrice'],
+      width: 170,
       customRender: ({ record }: { record: IProduct}) => {
         let value = '0.00';
 
@@ -223,13 +236,14 @@ interface Props {
           })
         }
 
-        return h('div', { style: { textAlign: 'right' } }, [value]);
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
       }
     },
     {
       title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
       key: 'status',
       dataIndex: 'status',
+      width: 100,
       customRender: ({ record }: { record: ICategory}) => h('div', [
         record.status.code === STCodeList.ACTIVE ?
             h('div',
@@ -276,7 +290,7 @@ interface Props {
           }).format(record.unitPrice);
         }
 
-        return h('div', {style: {textAlign: 'right'}}, [value]);
+        return h('div', {style: {textAlign: 'right'}}, [`${value} ${currencyType.value}`]);
       }
     },
     {
@@ -294,7 +308,7 @@ interface Props {
           }).format(record.wholesale);
         }
 
-        return h('div', {style: {textAlign: 'right'}}, [value]);
+        return h('div', {style: {textAlign: 'right'}}, [`${value} ${currencyType.value}`]);
       }
     },
     {
@@ -312,7 +326,7 @@ interface Props {
           }).format(record.purchasePrice);
         }
 
-        return h('div', {style: {textAlign: 'right'}}, [value]);
+        return h('div', {style: {textAlign: 'right'}}, [`${value} ${currencyType.value}`]);
       }
     },
     {
@@ -320,7 +334,7 @@ interface Props {
       key: 'createdAt',
       dataIndex: 'createdAt',
       customRender: ({ record }: { record: IProductSalesPrice}) => {
-        const createdAd: string = formatDateString(record.createdAt);
+        const createdAd: string = formatDateString(record.createdAt, language.value, false);
         return h('div', {style: {textAlign: 'right'}}, [createdAd]);
       }
     },
@@ -825,6 +839,31 @@ interface Props {
       });
     }
   }
+
+  const getCurrencyType = async () => {
+  try {
+    const dataCurrencyType: ICurrency = await getCurrencyService();
+
+    currencyType.value = dataCurrencyType.currencyType;
+
+  } catch (error) {
+    //Verification code status if equal 401 then we redirect to log in
+    if (error instanceof CustomError) {
+      if (error.status === 401) {
+        //call the global handle action if in authorized
+        handleInAuthorizedError(error);
+        return;
+      }
+    }
+
+    // Show error notification
+    notification.error({
+      message: translations[language.value].error,
+      description: (error as Error).message,
+      class: 'custom-error-notification'
+    });
+  }
+}
   //******************End of CRUD controller********************
 
   //******************Beginning of filter and paginator methods****
@@ -855,6 +894,7 @@ interface Props {
   });
 
   onMounted(() => {
+    getCurrencyType();
     getAllDataProduct();
     getAllDataCategory();
     getAllDataUnit();
@@ -925,7 +965,7 @@ interface Props {
             :columns="columns"
             :data-source="dataProduct"
             :pagination="false"
-            :scroll="{ x: 1000, y: 1000 }"
+            :scroll="{ x: 1200, y: 1000 }"
             bordered
         />
       </a-spin>
@@ -1099,7 +1139,7 @@ interface Props {
                   <a-col span="24"><label for="basic_unitPrice"><span class="required_toil">*</span> {{ translations[language].unitPrice }}:</label></a-col>
                   <a-col span="24">
                     <a-input-number v-model:value="formStateSalesPrice.unitPrice" :min="0">
-                      <template #addonAfter><SettingOutlined /></template>
+                      <template #addonAfter>{{ currencyType }}</template>
                     </a-input-number>
                   </a-col>
                 </a-row>
@@ -1115,7 +1155,7 @@ interface Props {
                   <a-col span="24"><label for="basic_wholesale"><span class="required_toil"></span> {{ translations[language].wholesalePrice }}:</label></a-col>
                   <a-col span="24">
                     <a-input-number v-model:value="formStateSalesPrice.wholesale" :min="0">
-                      <template #addonAfter><SettingOutlined /></template>
+                      <template #addonAfter>{{ currencyType }}</template>
                     </a-input-number>
                   </a-col>
                 </a-row>
@@ -1135,7 +1175,7 @@ interface Props {
                   <a-col span="24"><label for="basic_purchasePrice"><span class="required_toil">*</span> {{ translations[language].purchasePrice }}:</label></a-col>
                   <a-col span="24">
                     <a-input-number v-model:value="formStateSalesPrice.purchasePrice" :min="0">
-                      <template #addonAfter><SettingOutlined /></template>
+                      <template #addonAfter>{{ currencyType }}</template>
                     </a-input-number>
                   </a-col>
                 </a-row>

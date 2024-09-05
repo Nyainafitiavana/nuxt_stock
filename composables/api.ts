@@ -6,6 +6,8 @@ export const API = {
     "PRODUCT" : "/api/product",
     "PRODUCT_SALES_PRICE" : "/api/sales-price",
     "MOVEMENT" : "/api/movement",
+    "SETTINGS" : "/api/settings",
+    "CURRENCY_TYPE" : "/api/settings/currency/type",
 }
 
 export const getAccessToken = (): string | null => {
