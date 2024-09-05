@@ -5,7 +5,7 @@ import { RouteList } from '~/composables/Route';
 import {
   AppstoreAddOutlined,
   AppstoreOutlined,
-  BarChartOutlined,
+  BarChartOutlined, SettingOutlined,
   ShopOutlined, ShoppingCartOutlined,
   TeamOutlined, ToTopOutlined,
   UserOutlined, VerticalAlignBottomOutlined, VerticalAlignMiddleOutlined
@@ -102,6 +102,13 @@ const adminMenuItems = computed(() => [
       },
     ],
   },
+  {
+    key: '11',
+    icon: () => h(SettingOutlined),
+    label: translations[language.value].settings,
+    title: translations[language.value].settings,
+    onClick: () => navigateTo(RouteList.SETTINGS),
+  },
 ]);
 
 const managerMenuItems = computed(() => [
@@ -173,11 +180,14 @@ const updateSelectedKeys = () => {
     case RouteList.INVENTORY_SALES:
       state.selectedKeys = ['9'];
       break;
-      case RouteList.INVENTORY_SALES_NEW:
+    case RouteList.INVENTORY_SALES_NEW:
       state.selectedKeys = ['9'];
       break;
-      case RouteList.STOCK_SITUATION:
+    case RouteList.STOCK_SITUATION:
       state.selectedKeys = ['10'];
+      break;
+    case RouteList.SETTINGS:
+      state.selectedKeys = ['11'];
       break;
     default:
       state.selectedKeys = ['2'];

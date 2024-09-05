@@ -16,4 +16,5 @@ export interface FormStateUser {
     phone: string;
     isAdmin?: boolean;
     password?: string;
+    confirmPassword?: string;
 }

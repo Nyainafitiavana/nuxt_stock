@@ -44,6 +44,7 @@
     email: '',
     phone: '',
     password: '',
+    confirmPassword: '',
     isAdmin: false
   });
 
@@ -201,6 +202,14 @@
     resetForm();
     isOpenModal.value = false;
   }
+
+  const validateConfirmPassword = (rule, value) => {
+    if (value !== formState.password) {
+      return Promise.reject(translations[language.value].errorPasswordDontMatch);
+    } else {
+      return Promise.resolve();
+    }
+  }
   //************End of modal actions*********************
 
   //************Add user button action*********
@@ -210,6 +219,8 @@
     formState.lastName = '';
     formState.email = '';
     formState.phone = '';
+    formState.password = '';
+    formState.confirmPassword = '';
     formState.isAdmin = false;
     handleShowModal(false, false);
   }
@@ -284,6 +295,7 @@
   //******************Beginning of CRUD controller**************
   const insertUser = async () => {
     const dataForm: FormStateUser = formState;
+    delete dataForm.confirmPassword;
 
     try {
       //the params userId is null here because we are in the insert method
@@ -514,7 +526,7 @@
       :title="translations[language].user"
       style="top: 20px"
       @ok=""
-      width="600px"
+      width="1000px"
   >
     <a-row class="w-full">
       <a-col class="w-full">
@@ -535,7 +547,7 @@
             <a-row>
               <a-col span="5"><label for="basic_email"><span class="required_toil">*</span> Email:</label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.email" size="large" :placeholder="translations[language].email" :disabled="isView"></a-input>
+                <a-input v-model:value="formState.email" size="middle" placeholder="Email" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -548,7 +560,7 @@
             <a-row>
               <a-col span="5"><label for="basic_lastName"><span class="required_toil">*</span> {{translations[language].lastName}}:</label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.lastName" size="large" :placeholder="translations[language].lastName" :disabled="isView"></a-input>
+                <a-input v-model:value="formState.lastName" size="middle" :placeholder="translations[language].lastName" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -561,7 +573,7 @@
             <a-row>
               <a-col span="5"><label for="basic_firstName"><span class="required_toil">*</span> {{translations[language].firstName}}:</label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.firstName" size="large" :placeholder="translations[language].firstName" :disabled="isView"></a-input>
+                <a-input v-model:value="formState.firstName" size="middle" :placeholder="translations[language].firstName" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -573,7 +585,7 @@
             <a-row>
               <a-col span="5"><label for="basic_phone">{{translations[language].phoneNumber}}: </label></a-col>
               <a-col span="19">
-                <a-input v-model:value="formState.phone" size="large" :placeholder="translations[language].phoneNumber" :disabled="isView"></a-input>
+                <a-input v-model:value="formState.phone" size="middle" :placeholder="translations[language].phoneNumber" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>
@@ -596,7 +608,7 @@
           <a-form-item
               name="password"
               type="text"
-              v-if="isEdit === false && isView === false"
+              v-if="!isEdit && !isView"
               :rules="[{ required: true, message: translations[language].errorPassword }]"
               class="w-full mt-10 mb-10"
           >
@@ -604,6 +616,23 @@
               <a-col span="5"><label for="basic_password"><span class="required_toil">*</span> {{translations[language].password}}: </label></a-col>
               <a-col span="19">
                 <a-input-password v-model:value="formState.password" size="middle" :placeholder="translations[language].password"/>
+              </a-col>
+            </a-row>
+          </a-form-item>
+          <a-form-item
+              name="confirmPassword"
+              type="text"
+              v-if="!isEdit && !isView"
+              :rules="[
+                  { required: true, message: translations[language].errorConfirmPassword },
+                  { validator: validateConfirmPassword }
+              ]"
+              class="w-full mt-10 mb-10"
+          >
+            <a-row>
+              <a-col span="5"><label for="basic_confirmPassword"><span class="required_toil">*</span> {{translations[language].confirmPassword}}: </label></a-col>
+              <a-col span="19">
+                <a-input-password v-model:value="formState.confirmPassword" size="middle" :placeholder="translations[language].confirmPasswordPlaceholder"/>
               </a-col>
             </a-row>
           </a-form-item>

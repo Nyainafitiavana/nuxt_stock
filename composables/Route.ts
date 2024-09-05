@@ -12,4 +12,5 @@ export const RouteList = {
     'CATEGORY': '/category',
     'UNIT': '/unit',
     'PRODUCT': '/product',
+    'SETTINGS': '/settings',
 };
