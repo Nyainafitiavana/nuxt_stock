@@ -24,6 +24,9 @@
   import {STCodeList} from "~/composables/Status.interface";
   import type {IUnit} from "~/composables/Unit/Unit.interface";
   import {getAllUnit} from "~/composables/Unit/unit.service";
+  import type {ICurrency} from "~/composables/settings/settings.interface";
+  import {getCurrencyService} from "~/composables/settings/settings.service";
+  import {translations} from "~/composables/translations";
 
   //**************Beginning of state management**************
   //This is a global state for language of the app
@@ -49,6 +52,7 @@
   const optionsUnit = ref<SelectProps['options']>([{ value: '', label: translations[language.value].all }]);
   const currentUnitList = ref<string>('');
   const stockThreshold = ref<number>(70);
+  const currencyType = ref<string>('');
   //**************End of state management**************
 
   //***********Beginning of select method of category product***************
@@ -95,7 +99,7 @@
           maximumFractionDigits: 2,
         }).format(record.purchase_price ? record.purchase_price : 0);
 
-        return h('div', { style: { textAlign: 'right' } }, [value]);
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
       }
     },
     {
@@ -167,7 +171,7 @@
           maximumFractionDigits: 2,
         }).format(record.purchase_price ? record.purchase_price : 0);
 
-        return h('div', { style: { textAlign: 'right' } }, [value]);
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
       }
     },
     {
@@ -321,6 +325,7 @@
     errorMessageDetails.value = '';
     isShowErrorDetail.value = false;
     await updatePannierList();
+    await getAmountDetails();
 
     isOpenModalPannier.value = true;
   }
@@ -358,7 +363,7 @@
 
     //set value of amountDetailState
     if (formatNumber) {
-      amountDetail.value = formatNumber;
+      amountDetail.value = `${formatNumber} ${currencyType.value}`;
     }
   }
 
@@ -548,6 +553,31 @@
       loadingBtn.value = false;
     }
   }
+
+  const getCurrencyType = async () => {
+    try {
+      const dataCurrencyType: ICurrency = await getCurrencyService();
+
+      currencyType.value = dataCurrencyType.currencyType;
+
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: translations[language.value].error,
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+    }
+  }
   //******************End of CRUD controller**************
 
   //******************Beginning of filter and paginator methods****
@@ -575,9 +605,10 @@
 
   onMounted(() => {
     updateCountPannier();
+    getCurrencyType();
+    getAllDataProductWithRemainingStock();
     getAllDataCategory();
     getAllDataUnit();
-    getAllDataProductWithRemainingStock();
   })
 </script>
 

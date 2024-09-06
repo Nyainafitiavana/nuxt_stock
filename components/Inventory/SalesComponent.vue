@@ -32,6 +32,9 @@
   import type {IProductRemainingStock} from "~/composables/Product/Product.interface";
   import {getAllProductWithRemainingStockService} from "~/composables/Product/product.service";
   import type {RangeValue} from "~/composables/dayJs.type";
+  import type {ICurrency} from "~/composables/settings/settings.interface";
+  import {getCurrencyService} from "~/composables/settings/settings.service";
+  import {translations} from "~/composables/translations";
 
 
   interface Props {
@@ -66,6 +69,7 @@
   const isShowErrorDetail = ref<boolean>(false);
   const errorMessageDetails = ref<string>('');
   const stockThreshold = ref<number>(70);
+  const currencyType = ref<string>('');
   const formStateReject: UnwrapRef<IFormReject> = reactive({
     observation: '',
   });
@@ -157,6 +161,7 @@
       key: 'product',
       dataIndex: 'product_name',
       width: 200,
+      fixed: 'left',
       customRender: ({ record }: { record: IDetails}) => [
           h(ASelect, {
             disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
@@ -176,17 +181,19 @@
       title: translations[language.value].category,
       key: 'category',
       dataIndex: 'category_name',
+      width: 100,
     },
     {
       title: translations[language.value].unit,
       key: 'unit',
       dataIndex: 'unit_name',
-      width: 80,
+      width: 100,
     },
     {
       title: translations[language.value].unitPrice,
       key: 'unitPrice',
       dataIndex: 'unit_price',
+      width: 170,
       customRender: ({ record }: { record: IDetails}) => {
         const value = new Intl.NumberFormat('en-US', {
           style: 'decimal',
@@ -194,13 +201,14 @@
           maximumFractionDigits: 2,
         }).format(record.unit_price ? record.unit_price : 0);
 
-        return h('div', { style: { textAlign: 'right' } }, [value]);
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
       }
     },
     {
       title: translations[language.value].wholesalePrice,
       key: 'wholesalePrice',
       dataIndex: 'wholesale_price',
+      width: 170,
       customRender: ({ record }: { record: IDetails}) => {
         const value = new Intl.NumberFormat('en-US', {
           style: 'decimal',
@@ -208,14 +216,14 @@
           maximumFractionDigits: 2,
         }).format(record.wholesale_price ? record.wholesale_price : 0);
 
-        return h('div', { style: { textAlign: 'right' } }, [value]);
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
       }
     },
     {
       title: translations[language.value].priceType,
       key: 'priceType',
       dataIndex: 'is_unit_price',
-      width: 200,
+      width: 180,
       customRender: ({ record }: { record: IDetails }) => {
         return h(Switch, {
           disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
@@ -234,6 +242,7 @@
       title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].remainingStock]),
       key: 'remainingStock',
       dataIndex: 'remaining_stock',
+      width: 100,
       customRender: ({ record }: { record: IDetails}) => [
         h('div', {
           style: { textAlign: 'center', color: 'white', fontWeight: '800' },
@@ -272,6 +281,7 @@
     {
       title: translations[language.value].amount,
       key: 'amount',
+      width: 170,
       customRender: ({ record }: { record: IDetails}) => {
         const price = new Intl.NumberFormat('en-US', {
           style: 'decimal',
@@ -279,13 +289,14 @@
           maximumFractionDigits: 2,
         }).format(record.is_unit_price ? (record.unit_price * record.quantity) : (record.wholesale_price * record.quantity));
 
-        return h('div', { style: { textAlign: 'right' } }, [price]);
+        return h('div', { style: { textAlign: 'right' } }, [`${price} ${currencyType.value}`]);
       }
     },
     {
       title: 'Actions',
       key: 'actions',
       width: 100,
+      fixed: 'right',
       customRender: ({ record }: { record: IDetails }) => h('row',
           {
             class: 'flex justify-center',
@@ -871,7 +882,32 @@
 
     //set value of amountDetailState
     if (formatNumber) {
-      amountDetail.value = formatNumber;
+      amountDetail.value = `${formatNumber} ${currencyType.value}`;
+    }
+  }
+
+  const getCurrencyType = async () => {
+    try {
+      const dataCurrencyType: ICurrency = await getCurrencyService();
+
+      currencyType.value = dataCurrencyType.currencyType;
+
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: translations[language.value].error,
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
     }
   }
   //******************End of CRUD controller********************
@@ -895,6 +931,7 @@
 
   onMounted(() => {
     isAdmin.value = localStorage.getItem('is_admin');
+    getCurrencyType();
     initColumnDatableMovement();
     getAllDataMovement();
   })

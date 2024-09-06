@@ -32,6 +32,9 @@
   import type {IProductRemainingStock} from "~/composables/Product/Product.interface";
   import {getAllProductWithRemainingStockService} from "~/composables/Product/product.service";
   import type {RangeValue} from "~/composables/dayJs.type";
+  import type {ICurrency} from "~/composables/settings/settings.interface";
+  import {getCurrencyService} from "~/composables/settings/settings.service";
+  import {translations} from "~/composables/translations";
 
 
   interface Props {
@@ -67,6 +70,7 @@
   const isShowErrorDetail = ref<boolean>(false);
   const errorMessageDetails = ref<string>('');
   const stockThreshold = ref<number>(70);
+  const currencyType = ref<string>('');
   const formStateReject: UnwrapRef<IFormReject> = reactive({
     observation: '',
   });
@@ -189,7 +193,7 @@
           maximumFractionDigits: 2,
         }).format(record.purchase_price ? record.purchase_price : 0);
 
-        return h('div', { style: { textAlign: 'right' } }, [value]);
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
       }
     },
     {
@@ -228,13 +232,13 @@
       title: translations[language.value].amount,
       key: 'amount',
       customRender: ({ record }: { record: IDetails}) => {
-        const price = new Intl.NumberFormat('en-US', {
+        const value = new Intl.NumberFormat('en-US', {
           style: 'decimal',
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         }).format(record.purchase_price ? (record.purchase_price * record.quantity) : 0);
 
-        return h('div', { style: { textAlign: 'right' } }, [price]);
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
       }
     },
     {
@@ -826,7 +830,32 @@
 
     //set value of amountDetailState
     if (formatNumber) {
-      amountDetail.value = formatNumber;
+      amountDetail.value = `${formatNumber} ${currencyType.value}`;
+    }
+  }
+
+  const getCurrencyType = async () => {
+    try {
+      const dataCurrencyType: ICurrency = await getCurrencyService();
+
+      currencyType.value = dataCurrencyType.currencyType;
+
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: translations[language.value].error,
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
     }
   }
   //******************End of CRUD controller********************
@@ -851,6 +880,7 @@
   onMounted(() => {
     isAdmin.value = localStorage.getItem('is_admin');
     initColumnDatableMovement();
+    getCurrencyType();
     getAllDataMovement();
   })
 </script>
