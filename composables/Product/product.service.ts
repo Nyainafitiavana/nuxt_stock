@@ -1,5 +1,5 @@
 import {CustomError} from "~/composables/CustomError";
-import type {Paginate} from "~/composables/apiResponse.interface";
+import type {ExecuteResponse, Paginate} from "~/composables/apiResponse.interface";
 import type {TStatus} from "~/composables/Status.interface";
 import {getAccessToken} from "~/composables/api";
 import type {FormProduct, IProduct, IProductRemainingStock} from "~/composables/Product/Product.interface";
@@ -62,7 +62,42 @@ export const getAllDataProductSalesPriceService = async (
     }
 };
 
-export const insertOrUpdateProduct = async (data: FormProduct, id: string | null, method: string): Promise<IProduct> => {
+export const updateProductSalesPriceService = async (
+    productSalesPrice: IProductSalesPrice,
+): Promise<ExecuteResponse> => {
+    try {
+        const data: {
+            unitPrice: number,
+            wholesale: number,
+            purchasePrice: number
+        } = {
+            unitPrice: productSalesPrice.unitPrice,
+            wholesale: productSalesPrice.wholesale,
+            purchasePrice: productSalesPrice.purchasePrice,
+        };
+        const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
+        const accessToken: string | null = getAccessToken();
+        const response: any = await fetch(`${BASE_URL_API}${API.PRODUCT_SALES_PRICE}/${productSalesPrice.uuid}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new CustomError(errorData.message, response.status);
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const insertOrUpdateProduct = async (data: FormProduct, id: string | null, method: string): Promise<ExecuteResponse> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const path: string = id ? `${BASE_URL_API}${API.PRODUCT}/${id}` : `${BASE_URL_API}${API.PRODUCT}`;
@@ -88,7 +123,7 @@ export const insertOrUpdateProduct = async (data: FormProduct, id: string | null
     }
 };
 
-export const insertNewProductSalePrice = async (data: FormProductSalesPrice): Promise<IProductSalesPrice> => {
+export const insertNewProductSalePrice = async (data: FormProductSalesPrice): Promise<ExecuteResponse> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const path: string = `${BASE_URL_API}${API.PRODUCT_SALES_PRICE}`;
@@ -114,7 +149,7 @@ export const insertNewProductSalePrice = async (data: FormProductSalesPrice): Pr
     }
 };
 
-export const deleteProductService = async (id: string | null): Promise<IProduct> => {
+export const deleteProductService = async (id: string | null): Promise<ExecuteResponse> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const path: string = `${BASE_URL_API}${API.PRODUCT}/${id}`;

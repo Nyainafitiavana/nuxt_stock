@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import {createVNode, h} from 'vue';
 import {
+  AButton,
+  AInputNumber,
   DeleteOutlined,
   DollarCircleOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
   FormOutlined,
-  PlusOutlined,
+  PlusOutlined, SaveOutlined,
   SearchOutlined,
 } from "#components";
 import type {SelectValue} from "ant-design-vue/es/select";
@@ -21,7 +23,7 @@ import type {FormProductSalesPrice, IProductSalesPrice} from "~/composables/Prod
 import {
   deleteProductService, getAllDataProductSalesPriceService,
   getAllDataProductService, insertNewProductSalePrice,
-  insertOrUpdateProduct
+  insertOrUpdateProduct, updateProductSalesPriceService
 } from "~/composables/Product/product.service";
 import type {SelectProps} from "ant-design-vue/lib";
 import type {RuleObject} from "ant-design-vue/es/form";
@@ -279,55 +281,55 @@ interface Props {
       title: translations[language.value].unitPrice,
       key: 'unitPrice',
       dataIndex: 'unitPrice',
-      customRender: ({ record }: { record: IProductSalesPrice}) => {
-        let value = '0';
-
-        if (record.unitPrice) {
-          value = new Intl.NumberFormat('en-US', {
-            style: 'decimal',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format(record.unitPrice);
-        }
-
-        return h('div', {style: {textAlign: 'right'}}, [`${value} ${currencyType.value}`]);
-      }
+      width: 200,
+      customRender: ({ record }: { record: IProductSalesPrice}) => [
+          h(
+              AInputNumber,
+              {
+                  min: 0,
+                  value: record.unitPrice,
+                  style: { width: '110px'},
+                  disabled: record.status.code === STCodeList.OLD,
+              },
+          ),
+          h('span', { class: 'ml-3' }, [currencyType.value]),
+      ]
     },
     {
       title: translations[language.value].wholesalePrice,
       key: 'wholesale',
       dataIndex: 'wholesale',
-      customRender: ({ record }: { record: IProductSalesPrice}) => {
-        let value = '0';
-
-        if (record.wholesale) {
-          value = new Intl.NumberFormat('en-US', {
-            style: 'decimal',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format(record.wholesale);
-        }
-
-        return h('div', {style: {textAlign: 'right'}}, [`${value} ${currencyType.value}`]);
-      }
+      width: 200,
+      customRender: ({ record }: { record: IProductSalesPrice}) => [
+        h(
+            AInputNumber,
+            {
+              min: 0,
+              value: record.wholesale,
+              style: { width: '110px'},
+              disabled: record.status.code === STCodeList.OLD,
+            },
+        ),
+        h('span', { class: 'ml-3' }, [currencyType.value]),
+      ],
     },
     {
       title: translations[language.value].purchasePrice,
       key: 'purchasePrice',
       dataIndex: 'purchasePrice',
-      customRender: ({ record }: { record: IProductSalesPrice}) => {
-        let value = '0';
-
-        if (record.purchasePrice) {
-          value = new Intl.NumberFormat('en-US', {
-            style: 'decimal',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format(record.purchasePrice);
-        }
-
-        return h('div', {style: {textAlign: 'right'}}, [`${value} ${currencyType.value}`]);
-      }
+      width: 200,
+      customRender: ({ record }: { record: IProductSalesPrice}) => [
+        h(
+            AInputNumber,
+            {
+              min: 0,
+              value: record.purchasePrice,
+              style: { width: '110px'},
+              disabled: record.status.code === STCodeList.OLD,
+            },
+        ),
+        h('span', { class: 'ml-3' }, [currencyType.value]),
+      ],
     },
     {
       title: 'Date',
@@ -368,6 +370,21 @@ interface Props {
             ),
       ])
     },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 80,
+      fixed: 'right',
+      customRender: ({ record }: { record: IProductSalesPrice }) => h('div', [
+        h(AButton, {
+          disabled: record.status.code === STCodeList.OLD,
+          class: 'btn--primary-outline',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleUpdateProductSalesPrice(record)
+        }, [h(SaveOutlined)]),
+      ])
+    }
   ]);
   //**************End of Column datatable property***********
 
@@ -519,7 +536,7 @@ interface Props {
   };
   //************End of actions datatable button method**********
 
-  //*******Global method on submit user form********************
+  //*******Global method on submit product form********************
   const onSubmitForm = async () => {
     Modal.confirm({
       title: translations[language.value].confirmationTitle,
@@ -553,6 +570,19 @@ interface Props {
       }
     });
   };
+
+const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPrice) => {
+  Modal.confirm({
+    title: translations[language.value].confirmationTitle,
+    icon: createVNode(ExclamationCircleOutlined),
+    content: translations[language.value].confirmationDescription,
+    okText: translations[language.value].yes,
+    cancelText: translations[language.value].no,
+    onOk: async () => {
+      await updateProductSalesPrice(productSalesPrice);
+    }
+  });
+};
 
   //******************Beginning of CRUD controller**************
   const insertProduct = async () => {
@@ -767,8 +797,35 @@ interface Props {
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
+      loadingSalesPrice.value = true;
     }
   }
+
+  const updateProductSalesPrice = async (productSalesPrice: IProductSalesPrice) => {
+  try {
+    loadingSalesPrice.value = true;
+
+    await updateProductSalesPriceService(productSalesPrice);
+    await getAllDataProductSalesPrice();
+  } catch (error) {
+    //Verification code status if equal 401 then we redirect to log in
+    if (error instanceof CustomError) {
+      if (error.status === 401) {
+        //call the global handle action if in authorized
+        handleInAuthorizedError(error);
+        return;
+      }
+    }
+
+    // Show error notification
+    notification.error({
+      message: 'Error',
+      description: (error as Error).message,
+      class: 'custom-error-notification'
+    });
+    loadingSalesPrice.value = false;
+  }
+}
 
   const getAllDataCategory = async () => {
     try {
@@ -1206,6 +1263,7 @@ interface Props {
               :columns="columnsSalesPrice"
               :data-source="dataProductSalesPrice"
               :pagination="false"
+              :scroll="{ x: 900, y: 1000 }"
               bordered
           />
         </a-spin>
