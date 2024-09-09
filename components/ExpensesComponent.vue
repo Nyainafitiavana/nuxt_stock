@@ -126,7 +126,7 @@ import type {RuleObject} from "ant-design-vue/es/form";
       dataIndex: 'description',
       width: 200,
       customRender: ({ record }: { record: IExpenses}) => h('div', [
-          record.expensesType && record.expensesType.designation !== '' ? record.expensesType.designation : '---'
+        record.description && record.description !== '' ? record.description : '---'
       ]),
     },
     {
