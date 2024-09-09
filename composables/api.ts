@@ -8,6 +8,8 @@ export const API = {
     "MOVEMENT" : "/api/movement",
     "SETTINGS" : "/api/settings",
     "CURRENCY_TYPE" : "/api/settings/currency/type",
+    "EXPENSE_TYPE" : "/api/expense-type",
+    "EXPENSES" : "/api/expenses",
 }
 
 export const getAccessToken = (): string | null => {

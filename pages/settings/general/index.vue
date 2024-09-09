@@ -121,10 +121,10 @@
 
 <template>
   <div>
-    <Title>{{translations[language].settings}}</Title>
+    <Title>{{translations[language].settings_generale}}</Title>
     <ATypographyTitle class="flex" style="font-size: 20px;">
-      <SettingOutlined  />&nbsp;
-      <span>{{translations[language].settings}}</span>
+      <ToolOutlined  />&nbsp;
+      <span>{{translations[language].settings_generale}}</span>
     </ATypographyTitle>
     <Loading :is-loading="isLoading" :size="'middle'"/>
     <a-row v-if="!isLoading">

@@ -96,6 +96,8 @@ export const translations = {
         purchaseDetails: 'Purchase details',
         errorSaveDetailsSales: 'You have not selected a product or quantity fields are not greater than 0',
         settings: 'Settings',
+        settings_generale: 'General parameters',
+        generale: 'General',
         companyName: 'Company name',
         companyEmail: 'Company email',
         companyAddress: 'Company address',
@@ -104,7 +106,8 @@ export const translations = {
         errorCompanyName: 'Company name is required !',
         errorCompanyAddress: 'Company address is required !',
         errorCompanyPhoneNumber: 'Company phone number is required !',
-        updateSettings: 'Update Settings'
+        updateSettings: 'Update Settings',
+        expensesType: 'Expenses type'
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -203,6 +206,8 @@ export const translations = {
         purchaseDetails: "Détails de l'achat",
         errorSaveDetailsSales: "Vous n'avez pas sélectionné de produit ou les champs de quantité ne sont pas supérieurs à 0",
         settings: 'Paramètres',
+        settings_generale: 'Paramètres généraux',
+        generale: 'Général',
         companyName: 'Raison sociale',
         companyEmail: "Email de l'entreprise",
         companyAddress: "Adresse de l'entreprise",
@@ -211,6 +216,7 @@ export const translations = {
         errorCompanyName: 'Company name is required !',
         errorCompanyAddress: 'Company address is required !',
         errorCompanyPhoneNumber: 'Company phone number is required !',
-        updateSettings: 'Mettre à jour les paramètres'
+        updateSettings: 'Mettre à jour les paramètres',
+        expensesType: 'Type de dépenses'
     }
 };

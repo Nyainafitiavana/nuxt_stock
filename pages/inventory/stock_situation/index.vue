@@ -16,7 +16,7 @@ const activeKey = ref('1');
 <template>
   <Title>{{ translations[language].stockSituation }}</Title>
   <ATypographyTitle class="flex" style="font-size: 20px;">
-    <AppstoreOutlined/>&nbsp;
+    <StockOutlined/>&nbsp;
     <span>{{ translations[language].stockSituation }}</span>
   </ATypographyTitle>
   <a-tabs v-model:activeKey="activeKey" centered>

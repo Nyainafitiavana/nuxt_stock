@@ -5,9 +5,9 @@ import { RouteList } from '~/composables/Route';
 import {
   AppstoreAddOutlined,
   AppstoreOutlined,
-  BarChartOutlined, SettingOutlined,
-  ShopOutlined, ShoppingCartOutlined,
-  TeamOutlined, ToTopOutlined,
+  BarChartOutlined, FileSearchOutlined, SettingOutlined,
+  ShopOutlined, ShoppingCartOutlined, StockOutlined,
+  TeamOutlined, ToolOutlined, ToTopOutlined,
   UserOutlined, VerticalAlignBottomOutlined, VerticalAlignMiddleOutlined
 } from "#components";
 import {useLanguage} from "~/composables/states";
@@ -17,8 +17,8 @@ import {translations} from "~/composables/translations";
 const state = reactive({
   collapsed: false,
   selectedKeys: ['1'],
-  openKeys: ['inventory'],
-  preOpenKeys: ['inventory'],
+  openKeys: ['inventory', 'settings'],
+  preOpenKeys: ['inventory', 'settings'],
 });
 
 // Admin and User ID refs
@@ -39,63 +39,28 @@ const adminMenuItems = computed(() => [
     onClick: () => navigateTo(RouteList.DASHBOARD),
   },
   {
-    key: '2',
-    icon: () => h(UserOutlined),
-    label: translations[language.value].profile,
-    title: translations[language.value].profile,
-    onClick: () => navigateTo(RouteList.PROFILE + '/' + userId.value),
-  },
-  {
-    key: '3',
-    icon: () => h(TeamOutlined),
-    label: translations[language.value].user,
-    title: translations[language.value].user,
-    onClick: () => navigateTo(RouteList.USER),
-  },
-  {
-    key: '4',
-    icon: () => h(AppstoreOutlined),
-    label: translations[language.value].category,
-    title: translations[language.value].category,
-    onClick: () => navigateTo(RouteList.CATEGORY),
-  },
-  {
-    key: '5',
-    icon: () => h(AppstoreAddOutlined),
-    label: translations[language.value].unit,
-    title: translations[language.value].unit,
-    onClick: () => navigateTo(RouteList.UNIT),
-  },
-  {
-    key: '6',
-    icon: () => h(ShopOutlined),
-    label: translations[language.value].product,
-    title: translations[language.value].product,
-    onClick: () => navigateTo(RouteList.PRODUCT),
-  },
-  {
     key: 'inventory',
     icon: () => h(ShoppingCartOutlined),
     label: translations[language.value].inventory,
     title: translations[language.value].inventory,
     children: [
       {
-        key: '8',
+        key: '2',
         icon: () => h(VerticalAlignBottomOutlined),
         label: translations[language.value].purchase,
         title: translations[language.value].purchase,
         onClick: () => navigateTo(RouteList.INVENTORY_PURCHASE),
       },
       {
-        key: '9',
+        key: '3',
         icon: () => h(ToTopOutlined),
         label: translations[language.value].sales,
         title: translations[language.value].sales,
         onClick: () => navigateTo(RouteList.INVENTORY_SALES),
       },
       {
-        key: '10',
-        icon: () => h(VerticalAlignMiddleOutlined),
+        key: '4',
+        icon: () => h(StockOutlined),
         label: language.value === 'ENG' ? 'Stock situation' : 'Situation stocks',
         title: translations[language.value].stockSituation,
         onClick: () => navigateTo(RouteList.STOCK_SITUATION),
@@ -103,21 +68,79 @@ const adminMenuItems = computed(() => [
     ],
   },
   {
-    key: '11',
+    key: 'settings',
     icon: () => h(SettingOutlined),
     label: translations[language.value].settings,
     title: translations[language.value].settings,
-    onClick: () => navigateTo(RouteList.SETTINGS),
+    children: [
+      {
+        key: '5',
+        icon: () => h(ToolOutlined),
+        label: translations[language.value].generale,
+        title: translations[language.value].generale,
+        onClick: () => navigateTo(RouteList.GENERALE),
+      },
+      {
+        key: '6',
+        icon: () => h(UserOutlined),
+        label: translations[language.value].profile,
+        title: translations[language.value].profile,
+        onClick: () => navigateTo(RouteList.PROFILE + '/' + userId.value),
+      },
+      {
+        key: '7',
+        icon: () => h(TeamOutlined),
+        label: translations[language.value].user,
+        title: translations[language.value].user,
+        onClick: () => navigateTo(RouteList.USER),
+      },
+      {
+        key: '8',
+        icon: () => h(AppstoreOutlined),
+        label: translations[language.value].category,
+        title: translations[language.value].category,
+        onClick: () => navigateTo(RouteList.CATEGORY),
+      },
+      {
+        key: '9',
+        icon: () => h(AppstoreAddOutlined),
+        label: translations[language.value].unit,
+        title: translations[language.value].unit,
+        onClick: () => navigateTo(RouteList.UNIT),
+      },
+      {
+        key: '10',
+        icon: () => h(ShopOutlined),
+        label: translations[language.value].product,
+        title: translations[language.value].product,
+        onClick: () => navigateTo(RouteList.PRODUCT),
+      },
+      {
+        key: '11',
+        icon: () => h(FileSearchOutlined),
+        label: translations[language.value].expensesType,
+        title: translations[language.value].expensesType,
+        onClick: () => navigateTo(RouteList.EXPENSE_TYPE),
+      },
+    ],
   },
 ]);
 
 const managerMenuItems = computed(() => [
   {
-    key: '2',
-    icon: () => h(UserOutlined),
-    label: translations[language.value].profile,
-    title: translations[language.value].profile,
-    onClick: () => navigateTo(RouteList.PROFILE + '/' + userId.value),
+    key: 'settings',
+    icon: () => h(SettingOutlined),
+    label: translations[language.value].generale,
+    title: translations[language.value].generale,
+    children: [
+      {
+        key: '6',
+        icon: () => h(UserOutlined),
+        label: translations[language.value].profile,
+        title: translations[language.value].profile,
+        onClick: () => navigateTo(RouteList.PROFILE + '/' + userId.value),
+      },
+    ],
   },
   {
     key: 'inventory',
@@ -126,14 +149,14 @@ const managerMenuItems = computed(() => [
     title: translations[language.value].inventory,
     children: [
       {
-        key: '8',
+        key: '2',
         icon: () => h(VerticalAlignBottomOutlined),
         label: translations[language.value].purchase,
         title: translations[language.value].purchase,
         onClick: () => navigateTo(RouteList.INVENTORY_PURCHASE),
       },
       {
-        key: '9',
+        key: '3',
         icon: () => h(ToTopOutlined),
         label: translations[language.value].sales,
         title: translations[language.value].sales,
@@ -156,41 +179,44 @@ const updateSelectedKeys = () => {
     case RouteList.DASHBOARD:
       state.selectedKeys = ['1'];
       break;
-    case RouteList.PROFILE:
+    case RouteList.INVENTORY_PURCHASE:
       state.selectedKeys = ['2'];
       break;
-    case RouteList.USER:
-      state.selectedKeys = ['3'];
-      break;
-    case RouteList.CATEGORY:
-      state.selectedKeys = ['4'];
-      break;
-    case RouteList.UNIT:
-      state.selectedKeys = ['5'];
-      break;
-    case RouteList.PRODUCT:
-      state.selectedKeys = ['6'];
-      break;
-    case RouteList.INVENTORY_PURCHASE:
-      state.selectedKeys = ['8'];
-      break;
     case RouteList.INVENTORY_PURCHASE_NEW:
-      state.selectedKeys = ['8'];
+      state.selectedKeys = ['2'];
       break;
     case RouteList.INVENTORY_SALES:
-      state.selectedKeys = ['9'];
+      state.selectedKeys = ['3'];
       break;
     case RouteList.INVENTORY_SALES_NEW:
-      state.selectedKeys = ['9'];
+      state.selectedKeys = ['3'];
       break;
     case RouteList.STOCK_SITUATION:
+      state.selectedKeys = ['4'];
+      break;
+    case RouteList.GENERALE:
+      state.selectedKeys = ['5'];
+      break;
+    case RouteList.PROFILE:
+      state.selectedKeys = ['6'];
+      break;
+    case RouteList.USER:
+      state.selectedKeys = ['7'];
+      break;
+    case RouteList.CATEGORY:
+      state.selectedKeys = ['8'];
+      break;
+    case RouteList.UNIT:
+      state.selectedKeys = ['9'];
+      break;
+    case RouteList.PRODUCT:
       state.selectedKeys = ['10'];
       break;
-    case RouteList.SETTINGS:
+    case RouteList.EXPENSE_TYPE:
       state.selectedKeys = ['11'];
       break;
     default:
-      state.selectedKeys = ['2'];
+      state.selectedKeys = ['6'];
       break;
   }
 };
