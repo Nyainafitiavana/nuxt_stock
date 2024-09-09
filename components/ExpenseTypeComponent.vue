@@ -421,7 +421,7 @@ import {
       v-model:open="isOpenModal"
       closable
       :footer="null"
-      :title="translations[language].category"
+      :title="translations[language].expensesType"
       style="top: 20px"
       @ok=""
   >
