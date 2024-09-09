@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+  import ExpenseTypeComponent from "~/components/settings/ExpenseTypeComponent.vue";
+
   definePageMeta({
     layout: 'navbar',
     title: 'Expenses Type',

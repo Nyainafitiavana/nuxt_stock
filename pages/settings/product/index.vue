@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import ProductComponent from "~/components/settings/ProductComponent.vue";
+
   definePageMeta({
     layout: 'navbar',
     title: 'Product',

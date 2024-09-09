@@ -13,13 +13,16 @@ import {handleInAuthorizedError} from "~/composables/CustomError";
 import type {Paginate} from "~/composables/apiResponse.interface";
 import type {FormInstance} from "ant-design-vue";
 import {STCodeList, type TStatus} from "~/composables/Status.interface";
-import type {FormCategory, ICategory} from "~/composables/Category/Category.interface";
-import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/composables/Category/category.service";
+import type {FormUnit, IUnit} from "~/composables/settings/Unit/Unit.interface";
+import {deleteUnitService, getAllUnit, insertOrUpdateUnit} from "~/composables/settings/Unit/unit.service";
 
 
-  interface Props {
-      activePage: TStatus;
-    }
+interface Props {
+    activePage: TStatus;
+  }
+
+
+  const props = defineProps<Props>();
 
   //This is a global state for language of the app
   const language = useLanguage();
@@ -29,21 +32,19 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
   const pageSize = ref<number>(10);
   const currentPage = ref<number>(1);
   const totalPage = ref<number>(0);
-  const data = ref<ICategory[]>([]);
+  const data = ref<IUnit[]>([]);
   const isOpenModal = ref<boolean>(false);
   const isEdit = ref<boolean>(false);
   const isView = ref<boolean>(false);
   const formRef = ref<FormInstance>();
-  const categoryId = ref<string>('');
-  const formState = reactive<FormCategory>({designation: ''});
-
-  const props = defineProps<Props>();
+  const unitId = ref<string>('');
+  const formState = reactive<FormUnit>({designation: ''});
 
   const activeActionsColumns = {
     title: 'Actions',
     key: 'actions',
     width: 200,
-    customRender: ({ record }: { record: ICategory }) => h('div', [
+    customRender: ({ record }: { record: IUnit }) => h('div', [
       h('a-button', {
         class: 'btn--info-outline btn-tab',
         size: 'large',
@@ -68,7 +69,7 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
     title: 'Actions',
     key: 'actions',
     width: 200,
-    customRender: ({ record }: { record: ICategory }) => h('div', [
+    customRender: ({ record }: { record: IUnit }) => h('div', [
       h('a-button', {
         class: 'btn--info-outline btn-tab',
         size: 'large',
@@ -78,7 +79,7 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
     ])
   };
 
-  const columns = computed(() => [
+  const columns = computed(() =>[
     {
       title: translations[language.value].designation,
       dataIndex: 'designation',
@@ -87,7 +88,7 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
     {
       title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
       key: 'status',
-      customRender: ({ record }: { record: ICategory}) => h('div', [
+      customRender: ({ record }: { record: IUnit}) => h('div', [
         record.status.code === STCodeList.ACTIVE ?
             h('div',
                 {
@@ -129,7 +130,7 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
   //************End of modal actions*********************
 
   //************Add user button action*********
-  const handleAddCategory = () => {
+  const handleAdd = () => {
     resetForm();
     formState.designation = '';
     handleShowModal(false, false);
@@ -137,27 +138,27 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
 
 
   //************Beginning of actions datatable button method**********
-  const handleView = (record: ICategory) => {
+  const handleView = (record: IUnit) => {
     resetForm();
     formState.designation = record.designation;
 
     handleShowModal(false, true);
   };
 
-  const handleEdit = (record: ICategory) => {
+  const handleEdit = (record: IUnit) => {
     resetForm();
     formState.designation = record.designation;
 
     if (record.uuid != null) {
-      categoryId.value = record.uuid;
+      unitId.value = record.uuid;
     }
 
     handleShowModal(true, false);
   };
 
-  const handleDelete = (record: ICategory) => {
+  const handleDelete = (record: IUnit) => {
     if (record.uuid != null) {
-      categoryId.value = record.uuid;
+      unitId.value = record.uuid;
     }
 
     Modal.confirm({
@@ -168,7 +169,7 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
       cancelText: translations[language.value].no,
       onOk: async () => {
         loadingBtn.value = true;
-        await deleteCategory();
+        await deleteUnit();
       }
     });
   };
@@ -186,21 +187,21 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
         loadingBtn.value = true;
 
         if (isEdit.value) {
-          await updateCategory();
+          await updateUnit();
         } else {
-          await insertCategory();
+          await insertUnit();
         }
       }
     });
   };
 
   //******************Beginning of CRUD controller**************
-  const insertCategory = async () => {
-    const dataForm: FormCategory = formState;
+  const insertUnit = async () => {
+    const dataForm: FormUnit = formState;
 
     try {
       //the params userId is null here because we are in the insert method
-      await insertOrUpdateCategory(dataForm, null, 'POST');
+      await insertOrUpdateUnit(dataForm, null, 'POST');
       //turn off of loading button and close modal
       loadingBtn.value = false;
       isOpenModal.value = false;
@@ -213,7 +214,7 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
       });
 
       //reload data
-      await getAllDataCategory();
+      await getAllDataUnit();
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
@@ -233,14 +234,14 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
     }
   }
 
-  const updateCategory = async () => {
-    const dataForm: FormCategory = {
+  const updateUnit = async () => {
+    const dataForm: FormUnit = {
       designation: formState.designation,
     };
 
     try {
       //Call operation API in service
-      await insertOrUpdateCategory(dataForm, categoryId.value, 'PATCH');
+      await insertOrUpdateUnit(dataForm, unitId.value, 'PATCH');
       //turn off of loading button and close modal
       loadingBtn.value = false;
       isOpenModal.value = false;
@@ -252,7 +253,7 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
       });
 
       //reload data
-      await getAllDataCategory();
+      await getAllDataUnit();
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
@@ -272,11 +273,11 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
     }
   }
 
-  const deleteCategory = async () => {
+  const deleteUnit = async () => {
 
     try {
       //Call operation API in service
-      await deleteCategoryService(categoryId.value);
+      await deleteUnitService(unitId.value);
       //turn off of loading button and close modal
       loadingBtn.value = false;
       isOpenModal.value = false;
@@ -288,7 +289,7 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
       });
 
       //reload data
-      await getAllDataCategory();
+      await getAllDataUnit();
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
@@ -308,10 +309,10 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
     }
   }
 
-  const getAllDataCategory = async () => {
+  const getAllDataUnit = async () => {
     try {
       loading.value = true;
-      const response: Paginate<ICategory[]> = await getAllCategory(
+      const response: Paginate<IUnit[]> = await getAllUnit(
           keyword.value,
           pageSize.value,
           currentPage.value,
@@ -331,7 +332,7 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
 
       // Show error notification
       notification.error({
-        message: translations[language.value].error,
+        message: 'Error',
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -341,24 +342,24 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
 
   //******************Beginning of filter and paginator methods****
   const handleClickPaginator = () => {
-    getAllDataCategory();
+    getAllDataUnit();
   };
 
   const handleChangePageSize = (value: SelectValue) => {
     pageSize.value = Number(value);
     currentPage.value = 1;
-    getAllDataCategory();
+    getAllDataUnit();
   };
 
   const handleSearch = () => {
     currentPage.value = 1;
-    getAllDataCategory();
+    getAllDataUnit();
   }
   //******************End filter of and paginator methods****
 
 
   onMounted(() => {
-    getAllDataCategory();
+    getAllDataUnit();
   })
 </script>
 
@@ -379,7 +380,7 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
       <span> / page</span>
     </a-col>
     <a-col class="mt-8" span="7">
-      <a-button :icon="h(PlusOutlined)" @click="handleAddCategory" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">{{translations[language].add}}</a-button>
+      <a-button :icon="h(PlusOutlined)" @click="handleAdd" v-if="props.activePage === STCodeList.ACTIVE" class="btn--success ml-5">{{translations[language].add}}</a-button>
     </a-col>
     <a-col class="mt-8 flex justify-end" span="12">
       <a-input type="text" class="w-56 h-9" v-model:value="keyword" />&nbsp;
@@ -414,12 +415,11 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
           :showSizeChanger="false" />
     </a-col>
   </a-row>
-  <!--Category modal-->
   <a-modal
       v-model:open="isOpenModal"
       closable
       :footer="null"
-      :title="translations[language].category"
+      :title="translations[language].unit"
       style="top: 20px"
       @ok=""
   >

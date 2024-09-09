@@ -1,7 +1,7 @@
 import type {ExecuteResponse} from "~/composables/apiResponse.interface";
 import {getAccessToken} from "~/composables/api";
 import {CustomError} from "~/composables/CustomError";
-import type {ICurrency, ISettings} from "~/composables/settings/settings.interface";
+import type {ICurrency, ISettings} from "~/composables/settings/general/settings.interface";
 
 export const getSettingsService = async (): Promise<ISettings> => {
     try {

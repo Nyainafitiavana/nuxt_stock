@@ -1,4 +1,4 @@
-import type {IUser} from "~/composables/User/User.interface";
+import type {IUser} from "~/composables/settings/User/User.interface";
 import {EnvApiConfig} from "~/composables/Env.config";
 import type {AuthInterface} from "~/composables/Auth/auth.interface";
 

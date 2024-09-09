@@ -29,11 +29,11 @@
   } from "~/composables/Inventory/movement.service";
   import {formatDateString} from "~/composables/helper";
   import type {SelectProps} from "ant-design-vue/lib";
-  import type {IProductRemainingStock} from "~/composables/Product/Product.interface";
-  import {getAllProductWithRemainingStockService} from "~/composables/Product/product.service";
+  import type {IProductRemainingStock} from "~/composables/settings/Product/Product.interface";
+  import {getAllProductWithRemainingStockService} from "~/composables/settings/Product/product.service";
   import type {RangeValue} from "~/composables/dayJs.type";
-  import type {ICurrency} from "~/composables/settings/settings.interface";
-  import {getCurrencyService} from "~/composables/settings/settings.service";
+  import type {ICurrency} from "~/composables/settings/general/settings.interface";
+  import {getCurrencyService} from "~/composables/settings/general/settings.service";
   import {translations} from "~/composables/translations";
 
 

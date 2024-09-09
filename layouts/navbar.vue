@@ -8,7 +8,7 @@ import {
   BarChartOutlined, FileSearchOutlined, SettingOutlined,
   ShopOutlined, ShoppingCartOutlined, StockOutlined,
   TeamOutlined, ToolOutlined, ToTopOutlined,
-  UserOutlined, VerticalAlignBottomOutlined, VerticalAlignMiddleOutlined
+  UserOutlined, VerticalAlignBottomOutlined, VerticalAlignMiddleOutlined, WalletOutlined
 } from "#components";
 import {useLanguage} from "~/composables/states";
 import {translations} from "~/composables/translations";
@@ -17,7 +17,7 @@ import {translations} from "~/composables/translations";
 const state = reactive({
   collapsed: false,
   selectedKeys: ['1'],
-  openKeys: ['inventory', 'settings'],
+  openKeys: ['inventory'],
   preOpenKeys: ['inventory', 'settings'],
 });
 
@@ -66,6 +66,13 @@ const adminMenuItems = computed(() => [
         onClick: () => navigateTo(RouteList.STOCK_SITUATION),
       },
     ],
+  },
+  {
+    key: '12',
+    icon: () => h(WalletOutlined),
+    label: translations[language.value].expenses,
+    title: translations[language.value].expenses,
+    onClick: () => navigateTo(RouteList.EXPENSES),
   },
   {
     key: 'settings',
@@ -214,6 +221,9 @@ const updateSelectedKeys = () => {
       break;
     case RouteList.EXPENSE_TYPE:
       state.selectedKeys = ['11'];
+      break;
+    case RouteList.EXPENSES:
+      state.selectedKeys = ['12'];
       break;
     default:
       state.selectedKeys = ['6'];

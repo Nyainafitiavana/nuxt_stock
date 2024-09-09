@@ -107,7 +107,13 @@ export const translations = {
         errorCompanyAddress: 'Company address is required !',
         errorCompanyPhoneNumber: 'Company phone number is required !',
         updateSettings: 'Update Settings',
-        expensesType: 'Expenses type'
+        expensesType: 'Expenses type',
+        expenses: 'Expenses',
+        selectExpensesType: 'Select expense type',
+        expensesTypeError: 'Expenses type is required !',
+        otherDescriptions: 'Other descriptions',
+        amountGreaterError: 'The amount must be greater than 0 !',
+        amountError: 'The amount is required'
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -217,6 +223,12 @@ export const translations = {
         errorCompanyAddress: 'Company address is required !',
         errorCompanyPhoneNumber: 'Company phone number is required !',
         updateSettings: 'Mettre à jour les paramètres',
-        expensesType: 'Type de dépenses'
+        expensesType: 'Type de dépenses',
+        expenses: 'Dépenses',
+        selectExpensesType: 'Sélectionner le type de dépenses',
+        expensesTypeError: 'Le type de dépenses est requis !',
+        otherDescriptions: 'Autres descriptions',
+        amountGreaterError: 'Le montant doit être supérieur à 0 !',
+        amountError: 'Le montant est exigé'
     }
 };

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+  import UnitComponent from "~/components/settings/UnitComponent.vue";
+
   definePageMeta({
     layout: 'navbar',
     title: 'Unit',

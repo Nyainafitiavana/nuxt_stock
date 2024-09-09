@@ -16,22 +16,22 @@ import {handleInAuthorizedError} from "~/composables/CustomError";
 import type {Paginate} from "~/composables/apiResponse.interface";
 import type {FormInstance} from "ant-design-vue";
 import {STCodeList, type TStatus} from "~/composables/Status.interface";
-import type {ICategory} from "~/composables/Category/Category.interface";
-import {getAllCategory} from "~/composables/Category/category.service";
-import type {FormProduct, IProduct} from "~/composables/Product/Product.interface";
-import type {FormProductSalesPrice, IProductSalesPrice} from "~/composables/Product/ProductSalesPrice.interface";
+import type {ICategory} from "~/composables/settings/Category/Category.interface";
+import {getAllCategory} from "~/composables/settings/Category/category.service";
+import type {FormProduct, IProduct} from "~/composables/settings/Product/Product.interface";
+import type {FormProductSalesPrice, IProductSalesPrice} from "~/composables/settings/Product/ProductSalesPrice.interface";
 import {
   deleteProductService, getAllDataProductSalesPriceService,
   getAllDataProductService, insertNewProductSalePrice,
   insertOrUpdateProduct, updateProductSalesPriceService
-} from "~/composables/Product/product.service";
+} from "~/composables/settings/Product/product.service";
 import type {SelectProps} from "ant-design-vue/lib";
 import type {RuleObject} from "ant-design-vue/es/form";
 import {formatDateString} from "~/composables/helper";
-import type {IUnit} from "~/composables/Unit/Unit.interface";
-import {getAllUnit} from "~/composables/Unit/unit.service";
-import type {ICurrency, ISettings} from "~/composables/settings/settings.interface";
-import {getCurrencyService, getSettingsService} from "~/composables/settings/settings.service";
+import type {IUnit} from "~/composables/settings/Unit/Unit.interface";
+import {getAllUnit} from "~/composables/settings/Unit/unit.service";
+import type {ICurrency, ISettings} from "~/composables/settings/general/settings.interface";
+import {getCurrencyService, getSettingsService} from "~/composables/settings/general/settings.service";
 import {translations} from "~/composables/translations";
 
 
@@ -898,29 +898,29 @@ const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPri
   }
 
   const getCurrencyType = async () => {
-  try {
-    const dataCurrencyType: ICurrency = await getCurrencyService();
+    try {
+      const dataCurrencyType: ICurrency = await getCurrencyService();
 
-    currencyType.value = dataCurrencyType.currencyType;
+      currencyType.value = dataCurrencyType.currencyType;
 
-  } catch (error) {
-    //Verification code status if equal 401 then we redirect to log in
-    if (error instanceof CustomError) {
-      if (error.status === 401) {
-        //call the global handle action if in authorized
-        handleInAuthorizedError(error);
-        return;
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
       }
-    }
 
-    // Show error notification
-    notification.error({
-      message: translations[language.value].error,
-      description: (error as Error).message,
-      class: 'custom-error-notification'
-    });
+      // Show error notification
+      notification.error({
+        message: translations[language.value].error,
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+    }
   }
-}
   //******************End of CRUD controller********************
 
   //******************Beginning of filter and paginator methods****
@@ -1185,7 +1185,6 @@ const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPri
             <a-col span="7">
               <a-form-item
                   name="unitPrice"
-                  type="text"
                   :rules="[
                       { required: true, message: translations[language].unitPriceError },
                       { validator: validatePrice, trigger: 'change' }
@@ -1205,7 +1204,6 @@ const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPri
             <a-col span="7">
               <a-form-item
                   name="wholesale"
-                  type="text"
                   class="w-full mt-10"
               >
                 <a-row>

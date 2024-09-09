@@ -1,15 +1,15 @@
 <script setup lang="ts">
-  import type {IProductRemainingStock} from "~/composables/Product/Product.interface";
+  import type {IProductRemainingStock} from "~/composables/settings/Product/Product.interface";
   import type {SelectProps} from "ant-design-vue/lib";
   import type {Paginate} from "~/composables/apiResponse.interface";
-  import {getAllProductWithRemainingStockService} from "~/composables/Product/product.service";
+  import {getAllProductWithRemainingStockService} from "~/composables/settings/Product/product.service";
   import {handleInAuthorizedError} from "~/composables/CustomError";
   import type {SelectValue} from "ant-design-vue/es/select";
-  import type {ICategory} from "~/composables/Category/Category.interface";
-  import {getAllCategory} from "~/composables/Category/category.service";
+  import type {ICategory} from "~/composables/settings/Category/Category.interface";
+  import {getAllCategory} from "~/composables/settings/Category/category.service";
   import {STCodeList} from "~/composables/Status.interface";
-  import type {IUnit} from "~/composables/Unit/Unit.interface";
-  import {getAllUnit} from "~/composables/Unit/unit.service";
+  import type {IUnit} from "~/composables/settings/Unit/Unit.interface";
+  import {getAllUnit} from "~/composables/settings/Unit/unit.service";
   import {h} from "vue";
   import {
     AButton,

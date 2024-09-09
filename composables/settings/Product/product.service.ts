@@ -2,8 +2,8 @@ import {CustomError} from "~/composables/CustomError";
 import type {ExecuteResponse, Paginate} from "~/composables/apiResponse.interface";
 import type {TStatus} from "~/composables/Status.interface";
 import {getAccessToken} from "~/composables/api";
-import type {FormProduct, IProduct, IProductRemainingStock} from "~/composables/Product/Product.interface";
-import type {FormProductSalesPrice, IProductSalesPrice} from "~/composables/Product/ProductSalesPrice.interface";
+import type {FormProduct, IProduct, IProductRemainingStock} from "~/composables/settings/Product/Product.interface";
+import type {FormProductSalesPrice, IProductSalesPrice} from "~/composables/settings/Product/ProductSalesPrice.interface";
 
 export const getAllDataProductService = async (
     keyword: string,

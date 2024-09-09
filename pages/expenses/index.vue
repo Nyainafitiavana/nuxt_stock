@@ -1,23 +1,22 @@
 <script setup lang="ts">
+import ExpensesComponent from "~/components/ExpensesComponent.vue";
 
-  import CategoryComponent from "~/components/settings/CategoryComponent.vue";
+definePageMeta({
+  layout: 'navbar',
+  title: 'Expenses',
+  middleware: ['user-middleware', 'admin-middleware']
+});
 
-  definePageMeta({
-    layout: 'navbar',
-    title: 'Category',
-    middleware: ['user-middleware', 'admin-middleware']
-  });
-
-  //This is a global state for language of the app
-  const language = useLanguage();
-  const activeKey = ref('1');
+//This is a global state for language of the app
+const language = useLanguage();
+const activeKey = ref('1');
 </script>
 
 <template>
-  <Title>{{translations[language].category}}</Title>
+  <Title>{{translations[language].expenses}}</Title>
   <ATypographyTitle class="flex" style="font-size: 20px;">
-    <AppstoreOutlined/>&nbsp;
-    <span>{{translations[language].category}}</span>
+    <WalletOutlined/>&nbsp;
+    <span>{{translations[language].expenses}}</span>
   </ATypographyTitle>
   <a-tabs v-model:activeKey="activeKey" centered>
     <a-tab-pane key="1" @click="() => activeKey = '1'">
@@ -29,7 +28,7 @@
       </template>
       <Suspense>
         <template #default>
-          <CategoryComponent v-if="activeKey === '1'"  :active-page="'ACT'"/>
+          <ExpensesComponent v-if="activeKey === '1'"  :active-page="'ACT'"/>
         </template>
       </Suspense>
     </a-tab-pane>
@@ -42,7 +41,7 @@
       </template>
       <Suspense>
         <template #default>
-          <CategoryComponent v-if="activeKey === '2'" :active-page="'DLT'"/>
+          <ExpensesComponent v-if="activeKey === '2'" :active-page="'DLT'"/>
         </template>
       </Suspense>
     </a-tab-pane>

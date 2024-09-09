@@ -2,7 +2,7 @@ import {CustomError} from "~/composables/CustomError";
 import type {Paginate} from "~/composables/apiResponse.interface";
 import type {TStatus} from "~/composables/Status.interface";
 import {getAccessToken} from "~/composables/api";
-import type {FormUnit, IUnit} from "~/composables/Unit/Unit.interface";
+import type {FormUnit, IUnit} from "~/composables/settings/Unit/Unit.interface";
 
 export const getAllUnit = async (keyword: string, pageSize: number | string, currentPage: number | string, status: TStatus): Promise<Paginate<IUnit[]>> => {
     try {

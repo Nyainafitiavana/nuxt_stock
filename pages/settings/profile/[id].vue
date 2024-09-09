@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type {FormStateUser, IUser} from "~/composables/User/User.interface";
-  import {getOneUser, insertOrUpdateUser} from "~/composables/User/user.service";
+import type {FormStateUser, IUser} from "~/composables/settings/User/User.interface";
+  import {getOneUser, insertOrUpdateUser} from "~/composables/settings/User/user.service";
   import {handleInAuthorizedError} from "~/composables/CustomError";
   import {createVNode, ref} from "vue";
   import {ExclamationCircleOutlined} from "#components";

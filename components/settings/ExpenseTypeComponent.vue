@@ -13,12 +13,12 @@ import {handleInAuthorizedError} from "~/composables/CustomError";
 import type {Paginate} from "~/composables/apiResponse.interface";
 import type {FormInstance} from "ant-design-vue";
 import {STCodeList, type TStatus} from "~/composables/Status.interface";
-import type {FormExpenseType, IExpenseType} from "~/composables/ExpenseType/ExpenseType.interface";
+import type {FormExpenseType, IExpenseType} from "~/composables/settings/ExpenseType/ExpenseType.interface";
 import {
   deleteExpenseTypeService,
   getAllExpenseTypeService,
   insertOrUpdateExpenseType
-} from "~/composables/ExpenseType/expenseType.service";
+} from "~/composables/settings/ExpenseType/expenseType.service";
 
 
   interface Props {

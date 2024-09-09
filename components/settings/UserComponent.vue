@@ -8,10 +8,10 @@
     PlusOutlined,
     SearchOutlined, TeamOutlined, UserOutlined
   } from "#components";
-  import type {FormStateUser, IUser} from "~/composables/User/User.interface";
+  import type {FormStateUser, IUser} from "~/composables/settings/User/User.interface";
   import type {SelectValue} from "ant-design-vue/es/select";
   import {handleInAuthorizedError} from "~/composables/CustomError";
-  import {deleteUserService, getAllUser, insertOrUpdateUser} from "~/composables/User/user.service";
+  import {deleteUserService, getAllUser, insertOrUpdateUser} from "~/composables/settings/User/user.service";
   import type {Paginate} from "~/composables/apiResponse.interface";
   import type {FormInstance} from "ant-design-vue";
   import {STCodeList, type TStatus} from "~/composables/Status.interface";

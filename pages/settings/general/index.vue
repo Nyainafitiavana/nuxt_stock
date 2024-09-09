@@ -3,9 +3,9 @@
   import {createVNode, ref} from "vue";
   import {ExclamationCircleOutlined} from "#components";
   import {translations} from "~/composables/translations";
-  import type {ISettings} from "~/composables/settings/settings.interface";
+  import type {ISettings} from "~/composables/settings/general/settings.interface";
   import type {SelectProps} from "ant-design-vue/lib";
-  import {getSettingsService, updateSettingsService} from "~/composables/settings/settings.service";
+  import {getSettingsService, updateSettingsService} from "~/composables/settings/general/settings.service";
 
   definePageMeta({
     layout: 'navbar',

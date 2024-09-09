@@ -1,15 +1,14 @@
 import {CustomError} from "~/composables/CustomError";
-import type {ExecuteResponse, Paginate} from "~/composables/apiResponse.interface";
+import type {Paginate} from "~/composables/apiResponse.interface";
 import type {TStatus} from "~/composables/Status.interface";
-import type {FormCategory, ICategory} from "~/composables/Category/Category.interface";
+import type {FormCategory, ICategory} from "~/composables/settings/Category/Category.interface";
 import {getAccessToken} from "~/composables/api";
-import type {FormExpenseType, IExpenseType} from "~/composables/ExpenseType/ExpenseType.interface";
 
-export const getAllExpenseTypeService = async (keyword: string, pageSize: number | string, currentPage: number | string, status: TStatus): Promise<Paginate<IExpenseType[]>> => {
+export const getAllCategory = async (keyword: string, pageSize: number | string, currentPage: number | string, status: TStatus): Promise<Paginate<ICategory[]>> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessToken: string | null = getAccessToken();
-        const response: any = await fetch(`${BASE_URL_API}${API.EXPENSE_TYPE}?limit=${pageSize}&page=${currentPage}&value=${keyword}&status=${status}`, {
+        const response: any = await fetch(`${BASE_URL_API}${API.CATEGORY}?limit=${pageSize}&page=${currentPage}&value=${keyword}&status=${status}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -28,11 +27,11 @@ export const getAllExpenseTypeService = async (keyword: string, pageSize: number
     }
 };
 
-export const getOneExpenseType = async (id: string): Promise<IExpenseType> => {
+export const getOneCategory = async (id: string): Promise<ICategory> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
         const accessToken: string | null = getAccessToken();
-        const response: any = await fetch(`${BASE_URL_API}${API.EXPENSE_TYPE}/${id}`, {
+        const response: any = await fetch(`${BASE_URL_API}${API.CATEGORY}/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -51,17 +50,17 @@ export const getOneExpenseType = async (id: string): Promise<IExpenseType> => {
     }
 };
 
-export const insertOrUpdateExpenseType = async (data: FormExpenseType, id: string | null, method: string): Promise<ExecuteResponse> => {
+export const insertOrUpdateCategory = async (data: FormCategory, id: string | null, method: string): Promise<ICategory> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const path: string = id ? `${BASE_URL_API}${API.EXPENSE_TYPE}/${id}` : `${BASE_URL_API}${API.EXPENSE_TYPE}`;
-        const accessTokenExpenseType: string | null = getAccessToken();
+        const path: string = id ? `${BASE_URL_API}${API.CATEGORY}/${id}` : `${BASE_URL_API}${API.CATEGORY}`;
+        const accessTokenCategory: string | null = getAccessToken();
 
         const response: any = await fetch(path, {
             method: method,
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessTokenExpenseType}`
+                'Authorization': `Bearer ${accessTokenCategory}`
             },
             body: JSON.stringify(data),
         });
@@ -77,10 +76,10 @@ export const insertOrUpdateExpenseType = async (data: FormExpenseType, id: strin
     }
 };
 
-export const deleteExpenseTypeService = async (id: string | null): Promise<ExecuteResponse> => {
+export const deleteCategoryService = async (id: string | null): Promise<ICategory> => {
     try {
         const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const path: string = `${BASE_URL_API}${API.EXPENSE_TYPE}/${id}`;
+        const path: string = `${BASE_URL_API}${API.CATEGORY}/${id}`;
         const accessToken: string | null = getAccessToken();
 
         const response: any = await fetch(path, {

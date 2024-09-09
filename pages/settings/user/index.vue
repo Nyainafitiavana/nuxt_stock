@@ -3,6 +3,7 @@
     TeamOutlined,
   } from "#components";
   import {translations} from "~/composables/translations";
+  import UserComponent from "~/components/settings/UserComponent.vue";
 
   definePageMeta({
     layout: 'navbar',
