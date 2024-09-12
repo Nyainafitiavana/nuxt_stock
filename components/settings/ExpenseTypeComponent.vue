@@ -171,7 +171,7 @@ import {
       okText: translations[language.value].yes,
       cancelText: translations[language.value].no,
       onOk: async () => {
-        loadingBtn.valueExpenseType
+        loadingBtn.value
         await deleteExpenseType();
       }
     });

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import SalesComponent from "~/components/Inventory/SalesComponent.vue";
 import StockSituation from "~/components/Inventory/stockSituation.vue";
 
 definePageMeta({

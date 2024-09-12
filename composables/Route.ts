@@ -15,4 +15,5 @@ export const RouteList = {
     'PRODUCT': '/settings/product',
     'EXPENSE_TYPE': '/settings/expenses_type',
     'EXPENSES': '/expenses',
+    'CASH_SUMMARY': '/cash_summary',
 };

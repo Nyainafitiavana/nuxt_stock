@@ -1,7 +1,5 @@
 import type {IStatus} from "~/composables/Status.interface";
 import type {IUser} from "~/composables/settings/User/User.interface";
-import type {IProduct} from "~/composables/settings/Product/Product.interface";
-import type {IProductSalesPrice} from "~/composables/settings/Product/ProductSalesPrice.interface";
 
 export interface IMovement {
     uuid: string;

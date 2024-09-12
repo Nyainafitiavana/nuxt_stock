@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import {handleInAuthorizedError} from "~/composables/CustomError";
   import {createVNode, ref} from "vue";
-  import {ExclamationCircleOutlined} from "#components";
+  import {AInputNumber, ExclamationCircleOutlined} from "#components";
   import {translations} from "~/composables/translations";
   import type {ISettings} from "~/composables/settings/general/settings.interface";
   import type {SelectProps} from "ant-design-vue/lib";
@@ -25,6 +25,7 @@
     companyEmail: '',
     companyAddress: '',
     companyPhoneNumber: '',
+    initialCash: 0,
   });
 
   const filterOption = (input: string, option: any) => {
@@ -46,6 +47,7 @@
       formState.companyEmail = settings.companyEmail;
       formState.companyAddress = settings.companyAddress;
       formState.companyPhoneNumber = settings.companyPhoneNumber;
+      formState.initialCash = settings.initialCash;
 
       isLoading.value = false;
 
@@ -164,6 +166,19 @@
                     :options="optionsCurrency"
                     :filter-option="filterOption"
                 />
+              </a-col>
+            </a-row>
+          </a-form-item>
+          <a-form-item
+              name="initialCash"
+              class="w-full mt-10"
+          >
+            <a-row>
+              <a-col span="4"><label for="basic_initialCash">{{ translations[language].initialCash }}:</label></a-col>
+              <a-col span="12">
+                <a-input-number v-model:value="formState.initialCash" :min="0">
+                  <template #addonAfter>{{ formState.currencyType }}</template>
+                </a-input-number>
               </a-col>
             </a-row>
           </a-form-item>

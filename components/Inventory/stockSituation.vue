@@ -59,10 +59,10 @@
   };
   //***********End of select method of category product***************
   //**************Beginning of Datatable column**************
-  let columnsProductWithRemainingStock = computed(() => []);
+  let columnsProductWithRemainingStock = computed<any>(() => []);
 
   const initColumnDatatable = () => {
-    columnsProductWithRemainingStock = computed(() => [
+    columnsProductWithRemainingStock = computed<any>(() => [
       {
         title: translations[language.value].product,
         key: 'product',
@@ -136,7 +136,7 @@
         endDateStr = endDate.format('YYYY-MM-DD');
       }
 
-      const response: Paginate<dataProductWithRemainingStock[]> = await getAllProductWithRemainingStockService(
+      const response: Paginate<IProductRemainingStock[]> = await getAllProductWithRemainingStockService(
           keyword.value,
           pageSize.value,
           currentPage.value,
@@ -260,8 +260,13 @@
 
   // Watch the language and update the 'all' label reactively
   watchEffect(() => {
-    optionsCategory.value[0].label = translations[language.value].all;
-    optionsUnit.value[0].label = translations[language.value].all;
+    if (optionsCategory.value) {
+      optionsCategory.value[0].label = translations[language.value].all;
+    }
+
+    if (optionsUnit.value) {
+      optionsUnit.value[0].label = translations[language.value].all;
+    }
   });
 
   onMounted(() => {
@@ -299,7 +304,6 @@
           :options="optionsCategory"
           :filter-option="filterOption"
           @change="handleChangeFilterCategoryInList"
-          :disabled="isView"
           :loading="loadingCategoryFilterList"
       ></a-select>
     </a-col>

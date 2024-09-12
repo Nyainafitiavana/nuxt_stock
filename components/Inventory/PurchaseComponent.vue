@@ -6,14 +6,13 @@
     CheckOutlined,
     DeleteOutlined, ExclamationCircleOutlined, FilterOutlined, HistoryOutlined,
     InfoOutlined,
-    PlusOutlined, PrinterOutlined,
-    SearchOutlined,
+    PlusOutlined,
     StopOutlined,
   } from "#components";
   import type {SelectValue} from "ant-design-vue/es/select";
   import {handleInAuthorizedError} from "~/composables/CustomError";
   import type {Paginate} from "~/composables/apiResponse.interface";
-  import {type FormInstance, Switch} from "ant-design-vue";
+  import {type FormInstance} from "ant-design-vue";
   import {STCodeList, type TStatus} from "~/composables/Status.interface";
   import type {
     IDetails,
@@ -53,7 +52,6 @@
   const loadingDetailsMovement = ref<boolean>(false);
   const loadingHistoryValidation = ref<boolean>(false);
   const loadingBtn = ref<boolean>(false);
-  const keyword = ref<string>('');
   const pageSizeMovement = ref<number>(10);
   const currentPageMovement = ref<number>(1);
   const totalPageMovement = ref<number>(0);
@@ -165,7 +163,7 @@
           value: record.product_id,
           options: optionsProductDetails.value,
           'filter-option': filterOption,
-          onSelect: (value) => {
+          onSelect: (value: any) => {
             changeItemDetails(value, record);
           }
         })
@@ -220,7 +218,7 @@
           value: record.quantity,
           class: 'ant-input-status-error',
           min: 0,
-          onChange: (value: number) => {
+          onChange: (value: any) => {
               record.quantity = value ? value : 0;
             //We need to reload the amount of details
             getAmountDetails();
@@ -330,7 +328,7 @@
 
   //**********Init column of datatable*****************
   const initColumnDatableMovement = () => {
-    columnsMovement = computed(() => [
+    columnsMovement = computed<any>(() => [
       {
         title: 'Type',
         key: 'isSales',
@@ -494,7 +492,7 @@
       });
     } else {
       dataDetailsMovement.value.push({
-        product_id: null,
+        product_id: '',
         product_name: '',
         quantity: 0,
         category_id: '',
@@ -562,7 +560,7 @@
   }
 
   const handleSaveChangeDetails = () => {
-    //Verify if we have an details with the movement
+    //Verify if we have a details with the movement
     if (dataDetailsMovement.value.length > 0) {
       //Check if an item of the details contains empty product_id
       const indexEmptyProduct = dataDetailsMovement.value.findIndex(item => item.product_id === '' || item.quantity === 0);
@@ -605,7 +603,7 @@
         loadingBtn.value = true;
         await validateOrRejectMovement(movementId.value, false, formStateReject);
         loadingBtn.value = false;
-        await handleCloseModalReject();
+        handleCloseModalReject();
       }
     });
   }
@@ -708,7 +706,15 @@
 
   const getAllProductWithRemainingStock = async () => {
     try {
-      const response = await getAllProductWithRemainingStockService();
+      const response: Paginate<IProductRemainingStock[]> = await getAllProductWithRemainingStockService(
+          '',
+          null,
+          null,
+          '',
+          '',
+          '',
+          ''
+      );
       //Keep all data
       dataProductWithRemainingStock.value = response.data;
       //Format data to the options of select product
@@ -878,7 +884,10 @@
 
 
   onMounted(() => {
-    isAdmin.value = localStorage.getItem('is_admin');
+    if (isAdmin.value) {
+      isAdmin.value = localStorage.getItem('is_admin');
+    }
+
     initColumnDatableMovement();
     getCurrencyType();
     getAllDataMovement();

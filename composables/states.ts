@@ -1,1 +1,1 @@
-export const useLanguage = () => useState<string>("lang", () => 'ENG' );
+export const useLanguage = () => useState<'ENG' | 'FR'>("lang", () => 'ENG' );

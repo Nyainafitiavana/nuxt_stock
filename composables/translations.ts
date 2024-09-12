@@ -1,4 +1,14 @@
-export const translations = {
+interface Translations {
+    ENG: {
+        [key: string]: string;
+    };
+    FR: {
+        [key: string]: string;
+    };
+    // Add other languages as needed
+}
+
+export const translations: Translations = {
     ENG: {
         dashboard: 'Dashboard',
         profile: 'Profile',
@@ -113,7 +123,12 @@ export const translations = {
         expensesTypeError: 'Expenses type is required !',
         otherDescriptions: 'Other descriptions',
         amountGreaterError: 'The amount must be greater than 0 !',
-        amountError: 'The amount is required'
+        amountError: 'The amount is required',
+        initialCash: 'Initial cash',
+        cashSummary: 'Cash summary',
+        amountInput: 'Amount input',
+        amountOutput: 'Amount output',
+        realCash: 'Real cash',
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -229,6 +244,11 @@ export const translations = {
         expensesTypeError: 'Le type de dépenses est requis !',
         otherDescriptions: 'Autres descriptions',
         amountGreaterError: 'Le montant doit être supérieur à 0 !',
-        amountError: 'Le montant est exigé'
+        amountError: 'Le montant est exigé',
+        initialCash: 'Caisse initiale',
+        cashSummary: 'Résumer du caisse',
+        amountInput: 'Amount input',
+        amountOutput: 'Amount output',
+        realCash: 'Real cash',
     }
 };

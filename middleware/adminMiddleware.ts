@@ -1,4 +1,4 @@
-import { defineNuxtRouteMiddleware, navigateTo } from 'nuxt/app';
+import { defineNuxtRouteMiddleware } from 'nuxt/app';
 
 export default defineNuxtRouteMiddleware(() => {
     if (typeof window !== 'undefined') {

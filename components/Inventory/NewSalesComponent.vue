@@ -71,7 +71,7 @@
   //***********End of select method of category product***************
 
   //**************Beginning of Datatable column**************
-  const columnsProductWithRemainingStock = computed(() =>[
+  const columnsProductWithRemainingStock = computed<any>(() =>[
     {
       title: translations[language.value].product,
       key: 'product',
@@ -159,7 +159,7 @@
     },
   ]);
 
-  const columnsDetailsMovement = computed(() => [
+  const columnsDetailsMovement = computed<any>(() => [
     {
       title: translations[language.value].product,
       key: 'product',
@@ -252,7 +252,7 @@
           class: 'ant-input-status-error',
           min: 0,
           max: record.remaining_stock,
-          onChange: (value: number) => {
+          onChange: (value: any) => {
             //Guard of max quantity
             if (record.quantity > record.remaining_stock) {
               record.quantity = 0;
@@ -319,34 +319,34 @@
       remaining_stock: record.remaining_stock,
     };
 
-    const pannierStorage = await localStorage.getItem('pannierSales');
+    const pannierStorage = localStorage.getItem('pannierSales');
 
     if (pannierStorage) {
       let pannierList: IDetails[] = JSON.parse(pannierStorage);
       pannierList.push(newDataPannier);
 
-      await localStorage.setItem('pannierSales', JSON.stringify(pannierList));
+      localStorage.setItem('pannierSales', JSON.stringify(pannierList));
       await updateCountPannier();
       await getAllDataProductWithRemainingStock();
     } else {
-      await localStorage.setItem('pannierSales', JSON.stringify([newDataPannier]));
+      localStorage.setItem('pannierSales', JSON.stringify([newDataPannier]));
       await updateCountPannier();
       await getAllDataProductWithRemainingStock();
     }
   }
 
   const handleRemoveItemPannier = async (record: IProductRemainingStock) => {
-    const pannierStorage = await localStorage.getItem('pannierSales');
-    const pannierList: IDetails[] = JSON.parse(pannierStorage);
+    const pannierStorage = localStorage.getItem('pannierSales');
+    const pannierList: IDetails[] = pannierStorage ? JSON.parse(pannierStorage) : [];
 
     const updatedPannier: IDetails[] = pannierList.filter(item => item.product_id !== record.product_id);
-    await localStorage.setItem('pannierSales', JSON.stringify(updatedPannier));
+    localStorage.setItem('pannierSales', JSON.stringify(updatedPannier));
     await updateCountPannier();
     await getAllDataProductWithRemainingStock();
   }
 
   const updateCountPannier = async () => {
-    const pannierStorage = await localStorage.getItem('pannierSales');
+    const pannierStorage = localStorage.getItem('pannierSales');
 
     if (pannierStorage) {
       const pannierList: IDetails[] = JSON.parse(pannierStorage);
@@ -360,7 +360,7 @@
   }
 
   const updatePannierList = async () => {
-    const pannierStorage = await localStorage.getItem('pannierSales');
+    const pannierStorage = localStorage.getItem('pannierSales');
 
     if (pannierStorage) {
       dataDetailsMovement.value = JSON.parse(pannierStorage);
@@ -462,7 +462,7 @@
   const getAllDataProductWithRemainingStock = async () => {
     try {
       loading.value = true;
-      const response: Paginate<dataProductWithRemainingStock[]> = await getAllProductWithRemainingStockService(
+      const response: Paginate<IProductRemainingStock[]> = await getAllProductWithRemainingStockService(
           keyword.value,
           pageSize.value,
           currentPage.value,
@@ -590,7 +590,7 @@
 
       loadingBtn.value = false;
       isOpenModalPannier.value = false;
-      await localStorage.setItem('pannierSales', '[]');
+      localStorage.setItem('pannierSales', '[]');
 
       await navigateTo(RouteList.INVENTORY_SALES);
     } catch (error) {
@@ -659,8 +659,13 @@
 
   // Watch the language and update the 'all' label reactively
   watchEffect(() => {
-    optionsCategory.value[0].label = translations[language.value].all;
-    optionsUnit.value[0].label = translations[language.value].all;
+    if (optionsCategory.value) {
+      optionsCategory.value[0].label = translations[language.value].all;
+    }
+
+    if (optionsUnit.value) {
+      optionsUnit.value[0].label = translations[language.value].all;
+    }
   });
 
   onMounted(() => {
@@ -699,7 +704,6 @@
           :options="optionsCategory"
           :filter-option="filterOption"
           @change="handleChangeFilterCategoryInList"
-          :disabled="isView"
           :loading="loadingCategoryFilterList"
       ></a-select>
     </a-col>

@@ -7,24 +7,18 @@ import {
   EyeOutlined, FilterOutlined,
   FormOutlined,
   PlusOutlined,
-  SearchOutlined,
 } from "#components";
 import type {SelectValue} from "ant-design-vue/es/select";
 import {handleInAuthorizedError} from "~/composables/CustomError";
 import type {Paginate} from "~/composables/apiResponse.interface";
 import type {FormInstance} from "ant-design-vue";
 import {STCodeList, type TStatus} from "~/composables/Status.interface";
-import type {FormExpenseType, IExpenseType} from "~/composables/settings/ExpenseType/ExpenseType.interface";
+import type {IExpenseType} from "~/composables/settings/ExpenseType/ExpenseType.interface";
 import {
-  deleteExpenseTypeService,
   getAllExpenseTypeService,
-  insertOrUpdateExpenseType
 } from "~/composables/settings/ExpenseType/expenseType.service";
 import type {FormExpenses, IExpenses} from "~/composables/Expenses/Expenses.interface";
 import {translations} from "~/composables/translations";
-import type {IProduct} from "~/composables/settings/Product/Product.interface";
-import type {IProductSalesPrice} from "~/composables/settings/Product/ProductSalesPrice.interface";
-import type {IHistoryValidation} from "~/composables/Inventory/Movement.interface";
 import {formatDateString} from "~/composables/helper";
 import {
   deleteExpensesService,
@@ -35,7 +29,6 @@ import type {SelectProps} from "ant-design-vue/lib";
 import type {ICurrency} from "~/composables/settings/general/settings.interface";
 import {getCurrencyService} from "~/composables/settings/general/settings.service";
 import type {RangeValue} from "~/composables/dayJs.type";
-import type {ICategory} from "~/composables/settings/Category/Category.interface";
 import type {RuleObject} from "ant-design-vue/es/form";
 
 
@@ -65,7 +58,7 @@ import type {RuleObject} from "ant-design-vue/es/form";
   const dateFilter = ref<RangeValue>();
   const formState = reactive<FormExpenses>(
       {
-        idExpenseType: null,
+        idExpenseType: '',
         description:'',
         amount: 0,
       }
@@ -114,69 +107,71 @@ import type {RuleObject} from "ant-design-vue/es/form";
     ])
   };
 
-  const columns = computed(() => [
-    {
-      title: 'Type',
-      key: 'type',
-      dataIndex: ['expenseType', 'designation'],
-    },
-    {
-      title: 'Description',
-      key: 'description',
-      dataIndex: 'description',
-      width: 200,
-      customRender: ({ record }: { record: IExpenses}) => h('div', [
-        record.description && record.description !== '' ? record.description : '---'
-      ]),
-    },
-    {
-      title: translations[language.value].unitPrice,
-      key: 'amount',
-      dataIndex: 'amount',
-      width: 170,
-      customRender: ({ record }: { record: IExpenses}) => {
-        const value = new Intl.NumberFormat('en-US', {
-          style: 'decimal',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(record.amount);
+  const columns = computed(() => {
+    return [
+      {
+        title: 'Type',
+        key: 'type',
+        dataIndex: ['expenseType', 'designation'],
+      },
+      {
+        title: 'Description',
+        key: 'description',
+        dataIndex: 'description',
+        width: 200,
+        customRender: ({record}: { record: IExpenses }) => h('div', [
+          record.description && record.description !== '' ? record.description : '---'
+        ]),
+      },
+      {
+        title: translations[language.value].unitPrice,
+        key: 'amount',
+        dataIndex: 'amount',
+        width: 170,
+        customRender: ({record}: { record: IExpenses }) => {
+          const value = new Intl.NumberFormat('en-US', {
+            style: 'decimal',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }).format(record.amount);
 
-        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
-      }
-    },
-    {
-      title: 'Date',
-      key: 'createdAt',
-      dataIndex: 'createdAt',
-      width: 170,
-      customRender: ({ record }: { record: IExpenses}) => {
-        const createdAt: string = formatDateString(record.createdAt, language.value, true);
-        return h('div', {style: {textAlign: 'left'}}, [createdAt]);
-      }
-    },
-    {
-      title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
-      key: 'status',
-      customRender: ({ record }: { record: IExpenseType}) => h('div', [
-        record.status.code === STCodeList.ACTIVE ?
-            h('div',
-                {
-                  style: { textAlign: 'center', color: 'white' },
-                  class: 'primary-background-color'
-                },
-                [translations[language.value].active]
-            )
-            : h('div',
-                {
-                  style: { textAlign: 'center', color: 'white' },
-                  class: 'danger-background-color'
-                },
-                [translations[language.value].deleted]
-            ),
-      ])
-    },
-    props.activePage === STCodeList.ACTIVE ?  activeActionsColumns : deletedActionColumns,
-  ]);
+          return h('div', {style: {textAlign: 'right'}}, [`${value} ${currencyType.value}`]);
+        }
+      },
+      {
+        title: 'Date',
+        key: 'createdAt',
+        dataIndex: 'createdAt',
+        width: 170,
+        customRender: ({record}: { record: IExpenses }) => {
+          const createdAt: string = formatDateString(record.createdAt, language.value, true);
+          return h('div', {style: {textAlign: 'left'}}, [createdAt]);
+        }
+      },
+      {
+        title: h('div', {style: {textAlign: 'center'}}, [translations[language.value].status]),
+        key: 'status',
+        customRender: ({record}: { record: IExpenseType }) => h('div', [
+          record.status.code === STCodeList.ACTIVE ?
+              h('div',
+                  {
+                    style: {textAlign: 'center', color: 'white'},
+                    class: 'primary-background-color'
+                  },
+                  [translations[language.value].active]
+              )
+              : h('div',
+                  {
+                    style: {textAlign: 'center', color: 'white'},
+                    class: 'danger-background-color'
+                  },
+                  [translations[language.value].deleted]
+              ),
+        ])
+      },
+      props.activePage === STCodeList.ACTIVE ? activeActionsColumns : deletedActionColumns,
+    ];
+  });
 
   //***********Beginning of select method of category product***************
   const filterOption = (input: string, option: any) => {
@@ -219,7 +214,7 @@ import type {RuleObject} from "ant-design-vue/es/form";
   //************Add user button action*********
   const handleAddExpenseType = () => {
     resetForm();
-    formState.idExpenseType = null;
+    formState.idExpenseType = '';
     formState.description = '';
     formState.amount = 0;
     handleShowModal(false, false);
@@ -229,7 +224,7 @@ import type {RuleObject} from "ant-design-vue/es/form";
   //************Beginning of actions datatable button method**********
   const handleView = (record: IExpenses) => {
     resetForm();
-    formState.idExpenseType = record.expenseType.uuid;
+    formState.idExpenseType = record.expensesType.uuid;
     formState.description = record.description;
     formState.amount = record.amount;
 
@@ -238,7 +233,7 @@ import type {RuleObject} from "ant-design-vue/es/form";
 
   const handleEdit = (record: IExpenses) => {
     resetForm();
-    formState.idExpenseType = record.expenseType.uuid;
+    formState.idExpenseType = record.expensesType.uuid;
     formState.description = record.description;
     formState.amount = record.amount;
     expensesId.value = record.uuid;
@@ -327,7 +322,7 @@ import type {RuleObject} from "ant-design-vue/es/form";
 
     try {
       //Call operation API in service
-      await insertOrUpdateExpenses(dataForm, expenseTypeId.value, 'PATCH');
+      await insertOrUpdateExpenses(dataForm, expensesId.value, 'PATCH');
       //turn off of loading button and close modal
       loadingBtn.value = false;
       isOpenModal.value = false;
@@ -339,7 +334,7 @@ import type {RuleObject} from "ant-design-vue/es/form";
       });
 
       //reload data
-      await getAllDataExpenseType();
+      await getAllDataExpenses();
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
@@ -363,13 +358,13 @@ import type {RuleObject} from "ant-design-vue/es/form";
 
     try {
       //Call operation API in service
-      await deleteExpensesService(expenseTypeId.value);
+      await deleteExpensesService(expensesId.value);
       //turn off of loading button and close modal
       loadingBtn.value = false;
       isOpenModal.value = false;
       // Show success notification
       notification.success({
-        message: translations[language.value].success,
+        message: translations['ENG'].success,
         description: translations[language.value].successDescription,
         class: 'custom-success-notification'
       });
@@ -407,7 +402,7 @@ import type {RuleObject} from "ant-design-vue/es/form";
         endDateStr = endDate.format('YYYY-MM-DD');
       }
 
-      const response: Paginate<IExpenseType[]> = await getAllExpensesService(
+      const response: Paginate<IExpenses[]> = await getAllExpensesService(
           pageSize.value,
           currentPage.value,
           currentExpensesTypeList.value,
@@ -471,8 +466,13 @@ import type {RuleObject} from "ant-design-vue/es/form";
           props.activePage);
 
       response.data.map((item: IExpenseType) => {
-        optionsExpensesType.value.push({ value: item.uuid, label: item.designation });
-        optionsExpensesTypeInModal.value.push({ value: item.uuid, label: item.designation });
+        if (optionsExpensesType.value) {
+          optionsExpensesType.value.push({ value: item.uuid, label: item.designation });
+        }
+
+        if (optionsExpensesTypeInModal.value) {
+          optionsExpensesTypeInModal.value.push({ value: item.uuid, label: item.designation });
+        }
       });
 
       await nextTick(); // Ensure the DOM updates before proceeding

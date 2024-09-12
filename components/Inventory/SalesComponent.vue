@@ -7,7 +7,6 @@
     DeleteOutlined, ExclamationCircleOutlined, FilterOutlined, HistoryOutlined,
     InfoOutlined,
     PlusOutlined, PrinterOutlined,
-    SearchOutlined,
     StopOutlined,
   } from "#components";
   import type {SelectValue} from "ant-design-vue/es/select";
@@ -52,7 +51,6 @@
   const loadingDetailsMovement = ref<boolean>(false);
   const loadingHistoryValidation = ref<boolean>(false);
   const loadingBtn = ref<boolean>(false);
-  const keyword = ref<string>('');
   const pageSizeMovement = ref<number>(10);
   const currentPageMovement = ref<number>(1);
   const totalPageMovement = ref<number>(0);
@@ -153,9 +151,9 @@
     ])
   };
 
-  let columnsMovement = computed(() => []);
+  let columnsMovement = computed<any>(() => []);
 
-  const columnsDetailsMovement = computed(() => [
+  const columnsDetailsMovement = computed<any>(() => [
     {
       title: translations[language.value].product,
       key: 'product',
@@ -171,7 +169,7 @@
             value: record.product_id,
             options: optionsProductDetails.value,
             'filter-option': filterOption,
-            onSelect: (value) => {
+            onSelect: (value: any) => {
               changeItemDetails(value, record);
             }
           })
@@ -264,7 +262,7 @@
           class: 'ant-input-status-error',
           min: 0,
           max: record.remaining_stock,
-          onChange: (value: number) => {
+          onChange: (value: any) => {
             //Guard of max quantity
             if (record.quantity > record.remaining_stock) {
               record.quantity = 0;
@@ -313,7 +311,7 @@
     },
   ]);
 
-  const columnsHistoryValidation = computed(() => [
+  const columnsHistoryValidation = computed<any>(() => [
     {
       title: 'Date',
       key: 'createdAt',
@@ -383,7 +381,7 @@
 
   //**********Init column of datatable*****************
   const initColumnDatableMovement = () => {
-    columnsMovement = computed(() => [
+    columnsMovement = computed<any>(() => [
       {
         title: 'Type',
         key: 'isSales',
@@ -498,7 +496,7 @@
         class: 'custom-error-notification'
       });
 
-      record.product_id = null;
+      record.product_id = '';
       record.product_name = '';
       record.quantity = 0;
       record.category_id = '';
@@ -535,7 +533,7 @@
 
   const handleAddNewItemDetails = () => {
     //find in detail if a row is not completed, so we can't create a new row
-    const findProduct = dataDetailsMovement.value.find(product => product.product_id === null);
+    const findProduct = dataDetailsMovement.value.find(product => !product.product_id);
 
     if (findProduct) {
       // Show error notification
@@ -546,7 +544,7 @@
       });
     } else {
       dataDetailsMovement.value.push({
-        product_id: null,
+        product_id: '',
         product_name: '',
         quantity: 0,
         category_id: '',
@@ -614,7 +612,7 @@
   }
 
   const handleSaveChangeDetails = () => {
-    //Verify if we have an details with the movement
+    //Verify if we have a details with the movement
     if (dataDetailsMovement.value.length > 0) {
       //Check if an item of the details contains empty product_id
       const indexEmptyProduct = dataDetailsMovement.value.findIndex(item => item.product_id === '' || item.quantity === 0);
@@ -657,7 +655,7 @@
         loadingBtn.value = true;
         await validateOrRejectMovement(movementId.value, false, formStateReject);
         loadingBtn.value = false;
-        await handleCloseModalReject();
+        handleCloseModalReject();
       }
     });
   }
@@ -760,7 +758,15 @@
 
   const getAllProductWithRemainingStock = async () => {
     try {
-      const response = await getAllProductWithRemainingStockService();
+      const response: Paginate<IProductRemainingStock[]> = await getAllProductWithRemainingStockService(
+          '',
+          null,
+          null,
+          '',
+          '',
+          '',
+          ''
+      );
       //Keep all data
       dataProductWithRemainingStock.value = response.data;
       //Format data to the options of select product
@@ -930,7 +936,10 @@
 
 
   onMounted(() => {
-    isAdmin.value = localStorage.getItem('is_admin');
+    if (isAdmin.value) {
+      isAdmin.value = localStorage.getItem('is_admin') ? localStorage.getItem('is_admin') as string : 'false';
+    }
+
     getCurrencyType();
     initColumnDatableMovement();
     getAllDataMovement();

@@ -5,6 +5,7 @@ export interface ISettings {
     companyEmail: string;
     companyAddress: string;
     companyPhoneNumber: string;
+    initialCash: number;
 }
 
 export interface ICurrency {

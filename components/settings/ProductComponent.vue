@@ -30,8 +30,8 @@ import type {RuleObject} from "ant-design-vue/es/form";
 import {formatDateString} from "~/composables/helper";
 import type {IUnit} from "~/composables/settings/Unit/Unit.interface";
 import {getAllUnit} from "~/composables/settings/Unit/unit.service";
-import type {ICurrency, ISettings} from "~/composables/settings/general/settings.interface";
-import {getCurrencyService, getSettingsService} from "~/composables/settings/general/settings.service";
+import type {ICurrency} from "~/composables/settings/general/settings.interface";
+import {getCurrencyService} from "~/composables/settings/general/settings.service";
 import {translations} from "~/composables/translations";
 
 
@@ -89,9 +89,9 @@ interface Props {
   const optionsUnit = ref<SelectProps['options']>([{ value: '', label: translations[language.value].all}]);
   const currentUnitList = ref<string>('');
   const optionsCategoryInModal = ref<SelectProps['options']>([]);
-  const currentCategoryInModal = ref<string>(null);
+  const currentCategoryInModal = ref<string>('');
   const optionsUnitInModal = ref<SelectProps['options']>([]);
-  const currentUnitInModal = ref<string>(null);
+  const currentUnitInModal = ref<string>('');
   const currencyType = ref<string>('');
   //**************End of state management**************
 
@@ -150,7 +150,7 @@ interface Props {
     ])
   };
 
-  const columns = computed(() => [
+  const columns = computed<any>(() => [
     {
       title: translations[language.value].designation,
       dataIndex: 'designation',
@@ -276,7 +276,7 @@ interface Props {
   ]);
 
   //Columns for product sales price datatable
-  const columnsSalesPrice = computed(() => [
+  const columnsSalesPrice = computed<any>(() => [
     {
       title: translations[language.value].unitPrice,
       key: 'unitPrice',
@@ -466,8 +466,8 @@ interface Props {
     formState.description = '';
     formState.idCategory = '';
     formState.idUnit = '';
-    currentUnitInModal.value = null;
-    currentCategoryInModal.value = null;
+    currentUnitInModal.value = '';
+    currentCategoryInModal.value = '';
     handleShowModal(false, false);
   }
 
@@ -694,7 +694,7 @@ const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPri
 
       // Show error notification
       notification.error({
-        message: translations[language].error,
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -730,7 +730,7 @@ const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPri
 
       // Show error notification
       notification.error({
-        message: translations[language].error,
+        message: translations[language.value].error,
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
@@ -836,8 +836,13 @@ const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPri
           '',
           STCodeList.ACTIVE);
       response.data.map((item: ICategory) => {
-          optionsCategory.value.push({ value: item.uuid, label: item.designation });
-          optionsCategoryInModal.value.push({ value: item.uuid, label: item.designation });
+          if (optionsCategory.value) {
+            optionsCategory.value.push({ value: item.uuid, label: item.designation });
+          }
+
+          if (optionsCategoryInModal.value) {
+            optionsCategoryInModal.value.push({ value: item.uuid, label: item.designation });
+          }
       });
 
       await nextTick(); // Ensure the DOM updates before proceeding
@@ -872,6 +877,8 @@ const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPri
       response.data.map((item: IUnit) => {
         if (optionsUnit.value) {
           optionsUnit.value.push({ value: item.uuid, label: item.designation });
+        }
+        if (optionsUnitInModal.value) {
           optionsUnitInModal.value.push({ value: item.uuid, label: item.designation });
         }
       });
@@ -946,8 +953,13 @@ const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPri
 
   // Watch the language and update the 'all' label reactively
   watchEffect(() => {
-    optionsCategory.value[0].label = translations[language.value].all;
-    optionsUnit.value[0].label = translations[language.value].all;
+    if (optionsCategory.value) {
+      optionsCategory.value[0].label = translations[language.value].all;
+    }
+
+    if (optionsUnit.value) {
+      optionsUnit.value[0].label = translations[language.value].all;
+    }
   });
 
   onMounted(() => {
@@ -1092,7 +1104,7 @@ const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPri
                     :disabled="isView"
                     :loading="loadingUnitFilterList"
                     :placeholder="translations[language].selectUnit"
-                    @change="(value) => formState.idUnit = value"
+                    @change="(value) => formState.idUnit = value as string"
                 ></a-select>
               </a-col>
             </a-row>
@@ -1115,7 +1127,7 @@ const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPri
                     :disabled="isView"
                     :loading="loadingCategoryFilterList"
                     :placeholder="translations[language].selectCategory"
-                    @change="(value) => formState.idCategory = value"
+                    @change="(value) => formState.idCategory = value as string"
                 ></a-select>
               </a-col>
             </a-row>

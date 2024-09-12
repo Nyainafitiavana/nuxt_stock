@@ -5,13 +5,12 @@ import { RouteList } from '~/composables/Route';
 import {
   AppstoreAddOutlined,
   AppstoreOutlined,
-  BarChartOutlined, FileSearchOutlined, SettingOutlined,
+  BarChartOutlined, FileSearchOutlined, MoneyCollectOutlined, SettingOutlined,
   ShopOutlined, ShoppingCartOutlined, StockOutlined,
   TeamOutlined, ToolOutlined, ToTopOutlined,
-  UserOutlined, VerticalAlignBottomOutlined, VerticalAlignMiddleOutlined, WalletOutlined
+  UserOutlined, VerticalAlignBottomOutlined, WalletOutlined
 } from "#components";
 import {useLanguage} from "~/composables/states";
-import {translations} from "~/composables/translations";
 
 // State
 const state = reactive({
@@ -73,6 +72,13 @@ const adminMenuItems = computed(() => [
     label: translations[language.value].expenses,
     title: translations[language.value].expenses,
     onClick: () => navigateTo(RouteList.EXPENSES),
+  },
+  {
+    key: '13',
+    icon: () => h(MoneyCollectOutlined),
+    label: translations[language.value].cashSummary,
+    title: translations[language.value].cashSummary,
+    onClick: () => navigateTo(RouteList.CASH_SUMMARY),
   },
   {
     key: 'settings',
@@ -224,6 +230,9 @@ const updateSelectedKeys = () => {
       break;
     case RouteList.EXPENSES:
       state.selectedKeys = ['12'];
+      break;
+    case RouteList.CASH_SUMMARY:
+      state.selectedKeys = ['13'];
       break;
     default:
       state.selectedKeys = ['6'];

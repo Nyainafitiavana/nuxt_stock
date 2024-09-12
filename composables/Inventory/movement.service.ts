@@ -10,6 +10,8 @@ import type {
     IMovement
 } from "~/composables/Inventory/Movement.interface";
 
+const BASE_URL_API: string = EnvApiConfig.host + ':' + EnvApiConfig.port;
+
 export const getAllMovementService = async (
     isSales: boolean,
     pageSize: number | string,
@@ -18,108 +20,83 @@ export const getAllMovementService = async (
     startDate: string,
     endDate: string,
 ): Promise<Paginate<IMovement[]>> => {
-    try {
-        const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const accessToken: string | null = getAccessToken();
-        let response: Response;
-        [response] = await Promise.all(
-            [
-                fetch(
-                `${BASE_URL_API}${API.MOVEMENT}?limit=${pageSize}&page=${currentPage}&isSales=${isSales}&status=${status}&startDate=${startDate}&endDate=${endDate}`,
-                {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${accessToken}`
-                        },
-                    }
-                )
-            ]
-        );
+    let response: Response;
+    [response] = await Promise.all(
+        [
+            fetch(
+            `${BASE_URL_API}${API.MOVEMENT}?limit=${pageSize}&page=${currentPage}&isSales=${isSales}&status=${status}&startDate=${startDate}&endDate=${endDate}`,
+            {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAccessToken()}`
+                    },
+                }
+            )
+        ]
+    );
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new CustomError(errorData.message, response.status);
-        }
-
-        return await response.json();
-    } catch (error) {
-        throw error;
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new CustomError(errorData.message, response.status);
     }
+
+    return await response.json();
 };
 
 export const getAllDetailsMovementService = async (idMovement: string): Promise<IDetails[]> => {
-    try {
-        const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const accessToken: string | null = getAccessToken();
-        const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}/${idMovement}/details`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-        });
+    const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}/${idMovement}/details`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAccessToken()}`
+        },
+    });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new CustomError(errorData.message, response.status);
-        }
-
-        return await response.json();
-    } catch (error) {
-        throw error;
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new CustomError(errorData.message, response.status);
     }
+
+    return await response.json();
 };
 
 export const getAllHistoryValidationMovementService = async (idMovement: string): Promise<IHistoryValidation[]> => {
-    try {
-        const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const accessToken: string | null = getAccessToken();
-        const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}/${idMovement}/history/validation`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-        });
+    const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}/${idMovement}/history/validation`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAccessToken()}`
+        },
+    });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new CustomError(errorData.message, response.status);
-        }
-
-        return await response.json();
-    } catch (error) {
-        throw error;
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new CustomError(errorData.message, response.status);
     }
+
+    return await response.json();
 };
 
 export const updateDetailMovementService = async (
     idMovement: string,
     details: IFormDetails[],
 ): Promise<ExecuteResponse> => {
-    try {
-        const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const accessTokenCategory: string | null = getAccessToken();
+    const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}/${idMovement}/update_details`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAccessToken()}`
+        },
+        body: JSON.stringify({ details: details }),
+    });
 
-        const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}/${idMovement}/update_details`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessTokenCategory}`
-            },
-            body: JSON.stringify({ details: details }),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new CustomError(errorData.message, response.status);
-        }
-
-        return await response.json();
-    } catch (error) {
-        throw error;
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new CustomError(errorData.message, response.status);
     }
+
+    return await response.json();
 };
 
 export const validateOrRejectMovementService = async (
@@ -127,59 +104,47 @@ export const validateOrRejectMovementService = async (
     isValidate: boolean,
     observation: IFormReject | null,
 ): Promise<ExecuteResponse> => {
-    try {
-        const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const accessTokenCategory: string | null = getAccessToken();
-        const path = `${BASE_URL_API}${API.MOVEMENT}/${idMovement}/${isValidate ? 'validate' : 'reject'}`;
+    const path = `${BASE_URL_API}${API.MOVEMENT}/${idMovement}/${isValidate ? 'validate' : 'reject'}`;
 
-        const response: any = await fetch(path, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessTokenCategory}`
-            },
-            body: observation ? JSON.stringify(observation) : '',
-        });
+    const response: any = await fetch(path, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAccessToken()}`
+        },
+        body: observation ? JSON.stringify(observation) : '',
+    });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new CustomError(errorData.message, response.status);
-        }
-
-        return await response.json();
-    } catch (error) {
-        throw error;
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new CustomError(errorData.message, response.status);
     }
+
+    return await response.json();
 };
 
 export const createNewMovementService = async (
     isSales: boolean,
     details: IFormDetails[]
 ): Promise<IMovement> => {
-    try {
-        const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
-        const accessTokenCategory: string | null = getAccessToken();
-        const data: IBodyMovement = {
-            isSales: isSales,
-            details: details,
-        }
-
-        const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessTokenCategory}`
-            },
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new CustomError(errorData.message, response.status);
-        }
-
-        return await response.json();
-    } catch (error) {
-        throw error;
+    const data: IBodyMovement = {
+        isSales: isSales,
+        details: details,
     }
+
+    const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAccessToken()}`
+        },
+        body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new CustomError(errorData.message, response.status);
+    }
+
+    return await response.json();
 };
