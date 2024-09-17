@@ -10,7 +10,8 @@ export const API = {
     "CURRENCY_TYPE" : "/api/settings/currency/type",
     "EXPENSE_TYPE" : "/api/expense-type",
     "EXPENSES" : "/api/expenses",
-    "CASH_SUMMARY" : "/api/cash-register",
+    "CASH_SUMMARY_GLOBAL" : "/api/cash-register/global",
+    "CASH_DETAIL" : "/api/cash-register",
 }
 
 export const getAccessToken = (): string | null => {

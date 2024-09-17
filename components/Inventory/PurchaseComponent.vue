@@ -884,9 +884,7 @@
 
 
   onMounted(() => {
-    if (isAdmin.value) {
-      isAdmin.value = localStorage.getItem('is_admin');
-    }
+    isAdmin.value = localStorage.getItem('is_admin') ? localStorage.getItem('is_admin') as string : '';
 
     initColumnDatableMovement();
     getCurrencyType();

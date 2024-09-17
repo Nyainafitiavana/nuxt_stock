@@ -290,6 +290,7 @@ interface Props {
                   value: record.unitPrice,
                   style: { width: '110px'},
                   disabled: record.status.code === STCodeList.OLD,
+                  onChange: (value: any) => { record.unitPrice = value }
               },
           ),
           h('span', { class: 'ml-3' }, [currencyType.value]),
@@ -308,6 +309,7 @@ interface Props {
               value: record.wholesale,
               style: { width: '110px'},
               disabled: record.status.code === STCodeList.OLD,
+              onChange: (value: any) => { record.wholesale = value }
             },
         ),
         h('span', { class: 'ml-3' }, [currencyType.value]),
@@ -326,6 +328,7 @@ interface Props {
               value: record.purchasePrice,
               style: { width: '110px'},
               disabled: record.status.code === STCodeList.OLD,
+              onChange: (value: any) => { record.purchasePrice = value }
             },
         ),
         h('span', { class: 'ml-3' }, [currencyType.value]),

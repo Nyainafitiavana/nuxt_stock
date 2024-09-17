@@ -1,13 +1,21 @@
-export interface ICashSummary {
+export interface ICashGlobalSummary {
+    initial_cash: number;
+    presentSalesAmount: number;
+    presentPurchaseAmount: number;
+    presentExpensesAmount: number;
+    totalAmountSales: number;
+    totalAmountPurchase: number;
+    amountExpenses: number;
     amount_output: number;
     amount_input: number;
-    initial_cash: number;
     real_cash: number;
 }
 
-export interface IFormCashSummary {
-    amount_output: string;
-    amount_input: string;
-    initial_cash: string;
-    real_cash: string;
+export interface ICashDetail {
+    "x_series": string,
+    "total_purchase_price": number,
+    "total_sales": number,
+    "total_expenses": number,
+    "benefits": number,
+    "loss": number
 }

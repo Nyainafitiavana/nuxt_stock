@@ -198,7 +198,7 @@
           class: 'ant-input-status-error',
           disabled: record.purchase_price === 0,
           min: 0,
-          onChange: (value: number) => {
+          onChange: (value: any) => {
             //Guard of max quantity
               record.quantity = value ? value : 0;
             //We need to reload the amount of details
@@ -258,34 +258,34 @@
       remaining_stock: record.remaining_stock,
     };
 
-    const pannierStorage = await localStorage.getItem('pannierPurchase');
+    const pannierStorage = localStorage.getItem('pannierPurchase');
 
     if (pannierStorage) {
       let pannierList: IDetails[] = JSON.parse(pannierStorage);
       pannierList.push(newDataPannier);
 
-      await localStorage.setItem('pannierPurchase', JSON.stringify(pannierList));
+      localStorage.setItem('pannierPurchase', JSON.stringify(pannierList));
       await updateCountPannier();
       await getAllDataProductWithRemainingStock();
     } else {
-      await localStorage.setItem('pannierPurchase', JSON.stringify([newDataPannier]));
+      localStorage.setItem('pannierPurchase', JSON.stringify([newDataPannier]));
       await updateCountPannier();
       await getAllDataProductWithRemainingStock();
     }
   }
 
   const handleRemoveItemPannier = async (record: IProductRemainingStock) => {
-    const pannierStorage = await localStorage.getItem('pannierPurchase');
-    const pannierList: IDetails[] = JSON.parse(pannierStorage);
+    const pannierStorage = localStorage.getItem('pannierPurchase');
+    const pannierList: IDetails[] = pannierStorage ? JSON.parse(pannierStorage) : [];
 
     const updatedPannier: IDetails[] = pannierList.filter(item => item.product_id !== record.product_id);
-    await localStorage.setItem('pannierPurchase', JSON.stringify(updatedPannier));
+    localStorage.setItem('pannierPurchase', JSON.stringify(updatedPannier));
     await updateCountPannier();
     await getAllDataProductWithRemainingStock();
   }
 
   const updateCountPannier = async () => {
-    const pannierStorage = await localStorage.getItem('pannierPurchase');
+    const pannierStorage = localStorage.getItem('pannierPurchase');
 
     if (pannierStorage) {
       const pannierList: IDetails[] = JSON.parse(pannierStorage);
@@ -299,7 +299,7 @@
   }
 
   const updatePannierList = async () => {
-    const pannierStorage = await localStorage.getItem('pannierPurchase');
+    const pannierStorage = localStorage.getItem('pannierPurchase');
 
     if (pannierStorage) {
       dataDetailsMovement.value = JSON.parse(pannierStorage);
@@ -402,7 +402,7 @@
   const getAllDataProductWithRemainingStock = async () => {
     try {
       loading.value = true;
-      const response: Paginate<dataProductWithRemainingStock[]> = await getAllProductWithRemainingStockService(
+      const response: Paginate<IProductRemainingStock[]> = await getAllProductWithRemainingStockService(
           keyword.value,
           pageSize.value,
           currentPage.value,
@@ -530,7 +530,7 @@
 
       loadingBtn.value = false;
       isOpenModalPannier.value = false;
-      await localStorage.setItem('pannierPurchase', '[]');
+      localStorage.setItem('pannierPurchase', '[]');
 
       await navigateTo(RouteList.INVENTORY_PURCHASE);
     } catch (error) {
@@ -599,8 +599,13 @@
 
   // Watch the language and update the 'all' label reactively
   watchEffect(() => {
-    optionsCategory.value[0].label = translations[language.value].all;
-    optionsUnit.value[0].label = translations[language.value].all;
+    if (optionsCategory.value) {
+      optionsCategory.value[0].label = translations[language.value].all;
+    }
+
+    if (optionsUnit.value) {
+      optionsUnit.value[0].label = translations[language.value].all;
+    }
   });
 
   onMounted(() => {
@@ -639,7 +644,6 @@
           :options="optionsCategory"
           :filter-option="filterOption"
           @change="handleChangeFilterCategoryInList"
-          :disabled="isView"
           :loading="loadingCategoryFilterList"
       ></a-select>
     </a-col>
