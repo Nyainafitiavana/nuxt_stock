@@ -1,12 +1,15 @@
 <script setup lang="ts">
+  import Highcharts from 'highcharts';
   import {translations} from "~/composables/translations";
   import {computed, onMounted, ref} from "vue";
   import {handleInAuthorizedError} from "~/composables/CustomError";
   import type {
-    ICashDetail,
-    ICashGlobalSummary,
+    ICashGlobalSummary, IExpensesCash, IProfitLoss, ISalesPurchase,
   } from "~/composables/cash/cashSummary.interface";
-  import {getCashDetailsService, getCashSummaryGlobalService} from "~/composables/cash/cashSummary.service";
+  import {
+    getCashSummaryGlobalService, getExpensesCashService,
+    getProfitAndLossService, getSalesPurchaseService
+  } from "~/composables/cash/cashSummary.service";
   import type {ICurrency} from "~/composables/settings/general/settings.interface";
   import {getCurrencyService} from "~/composables/settings/general/settings.service";
   import type {SelectProps} from "ant-design-vue/lib";
@@ -15,7 +18,6 @@
   const language = useLanguage();
 
   const loadingGlobalCash = ref<boolean>(false);
-  const loadingDetailCash = ref<boolean>(false);
   const dataCashGlobalSummary = reactive<ICashGlobalSummary>({
     amountExpenses: 0,
     amount_input: 0,
@@ -28,19 +30,30 @@
     totalAmountPurchase: 0,
     totalAmountSales: 0
   });
-  const currencyType = ref<string>('');
-  const optionsModeCashDetail = ref<SelectProps['options']>([
-    { value: 'weekly', label: 'Weekly' },
-    { value: 'monthly', label: 'Monthly' },
-    { value: 'yearly', label: 'Yearly' },
+  const optionsMode = ref<SelectProps['options']>([
+      { value: 'weekly', label: 'Weekly' },
+      { value: 'monthly', label: 'Monthly' },
+      { value: 'yearly', label: 'Yearly' },
   ]);
-  const modeChartCashDetail = ref<'weekly' | 'monthly' | 'yearly'>('monthly');
-  const xAxis = ref<any>([]);
-  const totalPurchasePrice = ref<any>([]);
-  const totalSales = ref<number[]>([]);
-  const totalExpenses = ref<number[]>([]);
-  const benefits = ref<number[]>([]);
-  const loss = ref<number[]>([]);
+  const currencyType = ref<string>('');
+
+  //Ref for Profit and loss
+  const loadingProfitLoss = ref<boolean>(false);
+  const modeChartProfitLoss = ref<'weekly' | 'monthly' | 'yearly'>('monthly');
+  const xAxisProfitLoss = ref<any>([]);
+  const profitAmount = ref<number[]>([]);
+  const lossAmount = ref<number[]>([]);
+  //Ref for Sales and purchase
+  const loadingSalesPurchase = ref<boolean>(false);
+  const modeChartSalesPurchase = ref<'weekly' | 'monthly' | 'yearly'>('monthly');
+  const xAxisSalesPurchase = ref<any>([]);
+  const salesAmount = ref<number[]>([]);
+  const purchaseAmount = ref<number[]>([]);
+  //Ref for Expenses
+  const loadingExpenses = ref<boolean>(false);
+  const modeChartExpenses = ref<'weekly' | 'monthly' | 'yearly'>('monthly');
+  const xAxisExpenses = ref<any>([]);
+  const expensesAmount = ref<number[]>([]);
 
   const getAllDataGlobalCashSummary = async () => {
     try {
@@ -79,29 +92,23 @@
     }
   }
 
-  const getAllDataCashDetails = async () => {
+  const getProfitAndLoss = async () => {
     try {
-      loadingDetailCash.value = true;
+      loadingProfitLoss.value = true;
       // Clear previous data
-      xAxis.value = [];
-      totalPurchasePrice.value = [];
-      totalSales.value = [];
-      totalExpenses.value = [];
-      benefits.value = [];
-      loss.value = [];
+      xAxisProfitLoss.value = [];
+      profitAmount.value = [];
+      lossAmount.value = [];
 
-      const result: ICashDetail[]  = await getCashDetailsService(modeChartCashDetail.value);
+      const result: IProfitLoss[]  = await getProfitAndLossService(modeChartProfitLoss.value);
 
       result.map(item => {
-        xAxis.value.push(modeChartCashDetail.value === 'weekly' ? formatDateString(item.x_series, language.value, false) : item.x_series);
-        totalPurchasePrice.value.push(item.total_purchase_price);
-        totalSales.value.push(item.total_sales);
-        totalExpenses.value.push(item.total_expenses);
-        benefits.value.push(item.benefits);
-        loss.value.push(item.loss);
+        xAxisProfitLoss.value.push(modeChartProfitLoss.value === 'weekly' ? formatDateString(item.x_series, language.value, false) : item.x_series);
+        profitAmount.value.push(item.total_profit_amount);
+        lossAmount.value.push(item.total_loss_amount);
       });
 
-      loadingDetailCash.value = false;
+      loadingProfitLoss.value = false;
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
@@ -119,7 +126,81 @@
         class: 'custom-error-notification'
       });
 
-      loadingDetailCash.value = false;
+      loadingProfitLoss.value = false;
+    }
+  }
+
+  const getSalesAndPurchase = async () => {
+    try {
+      loadingSalesPurchase.value = true;
+      // Clear previous data
+      xAxisSalesPurchase.value = [];
+      salesAmount.value = [];
+      purchaseAmount.value = [];
+
+      const result: ISalesPurchase[]  = await getSalesPurchaseService(modeChartSalesPurchase.value);
+
+      result.map(item => {
+        xAxisSalesPurchase.value.push(modeChartSalesPurchase.value === 'weekly' ? formatDateString(item.x_series, language.value, false) : item.x_series);
+        salesAmount.value.push(item.total_sales_amount);
+        purchaseAmount.value.push(item.total_purchase_amount);
+      });
+
+      loadingSalesPurchase.value = false;
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: translations[language.value].error,
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+
+      loadingSalesPurchase.value = false;
+    }
+  }
+
+  const getExpenses = async () => {
+    try {
+      loadingExpenses.value = true;
+      // Clear previous data
+      xAxisExpenses.value = [];
+      expensesAmount.value = [];
+
+      const result: IExpensesCash[]  = await getExpensesCashService(modeChartExpenses.value);
+
+      result.map(item => {
+        xAxisExpenses.value.push(modeChartExpenses.value === 'weekly' ? formatDateString(item.x_series, language.value, false) : item.x_series);
+        expensesAmount.value.push(item.total_expenses_amount);
+      });
+
+      loadingExpenses.value = false;
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: translations[language.value].error,
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+
+      loadingExpenses.value = false;
     }
   }
 
@@ -148,30 +229,51 @@
     }
   }
 
-  // Watch for mode changes and re-fetch data, then re-render chart
-  watch(modeChartCashDetail, async () => {
-    await getAllDataCashDetails(); // Fetch new data when mode changes
+  watchEffect(() => {
+    if (optionsMode.value) {
+      optionsMode.value[0].label = translations[language.value].weekly;
+      optionsMode.value[1].label = translations[language.value].monthly;
+      optionsMode.value[2].label = translations[language.value].yearly;
+    }
+  });
+
+  // Watch for mode changes of modeChartProfitLoss and re-fetch data, then re-render chart
+  watch(modeChartProfitLoss, async () => {
+    await getProfitAndLoss(); // Fetch new data when mode changes
+  });
+
+  // Watch for mode changes of modeChartSalesPurchase and re-fetch data, then re-render chart
+  watch(modeChartSalesPurchase, async () => {
+    await getSalesAndPurchase(); // Fetch new data when mode changes
+  });
+
+  // Watch for mode changes of modeChartExpenses and re-fetch data, then re-render chart
+  watch(modeChartExpenses, async () => {
+    await getExpenses(); // Fetch new data when mode changes
   });
 
   onMounted( async () => {
     await getCurrencyType();
     await getAllDataGlobalCashSummary();
-    await getAllDataCashDetails();
+    await getProfitAndLoss();
+    await getSalesAndPurchase();
+    await getExpenses();
   });
 
   // Call chart function
-  const chartColumnOptions = computed(() => ({
+  //Profit and loss chart
+  const chartColumnProfitLossOptions = computed(() => ({
     chart: {
-      type: 'column', // Change to 'column' for vertical bars
+      type: 'area', // Change to 'column' for vertical bars
       animation: {
         enabled: false
       }
     },
     title: {
-      text: 'Details of cash',
+      text: translations[language.value].profitsLosses,
     },
     xAxis: {
-      categories: xAxis.value,
+      categories: xAxisProfitLoss.value,
       labels: {
         rotation: -45, // Optional: Rotate labels if needed
         style: {
@@ -184,7 +286,65 @@
     yAxis: {
       min: 0,
       title: {
-        text: '',
+        text: translations[language.value].amount + " (" + (language.value === 'ENG' ? 'in ' : 'en ') + currencyType.value + ")",
+        align: 'high'
+      },
+      labels: {
+        overflow: 'justify',
+      }
+    },
+    plotOptions: {
+      area: {
+        stacking: 'normal',
+        lineWidth: 1,
+        marker: {
+          enabled: false
+        },
+        dataLabels: {
+          enabled: true,
+          formatter(this: Highcharts.Point): string {
+            return formatPrice(this.y as number) + ' ' + currencyType.value;
+          }
+        }
+      }
+    },
+    series: [
+      {
+        name: translations[language.value].profits,
+        data: profitAmount.value
+      },
+      {
+        name: translations[language.value].losses,
+        data: lossAmount.value
+      }
+    ]
+  }));
+  //Sales and purchase chart
+  const chartColumnSalesPurchaseOptions = computed(() => ({
+    chart: {
+      type: 'column', // Change to 'column' for vertical bars
+      animation: {
+        enabled: false
+      }
+    },
+    title: {
+      text: translations[language.value].salesPurchases,
+    },
+    xAxis: {
+      categories: xAxisSalesPurchase.value,
+      labels: {
+        rotation: -45, // Optional: Rotate labels if needed
+        style: {
+          fontSize: '12px',
+          fontFamily: 'Arial'
+        },
+      },
+      tickWidth: 0
+    },
+    yAxis: {
+      min: 0,
+      title: {
+        text: translations[language.value].amount + " (" + (language.value === 'ENG' ? 'in ' : 'en ') + currencyType.value + ")",
         align: 'high'
       },
       labels: {
@@ -194,32 +354,79 @@
     plotOptions: {
       column: {
         dataLabels: {
-          enabled: true
-        },
-        pointWidth: 15,
+          enabled: true,
+          formatter(this: Highcharts.Point): string {
+            return formatPrice(this.y as number) + ' ' + currencyType.value;
+          }
+        }
       }
     },
     series: [
       {
-        name: 'Total Purchase Price',
-        data: totalPurchasePrice.value,
+        name: translations[language.value].sales,
+        color: '#38c172',
+        data: salesAmount.value
       },
       {
-        name: 'Total Sales',
-        data: totalSales.value
-      },
-      {
-        name: 'Total Expenses',
-        data: totalExpenses.value
-      },
-      {
-        name: 'Benefits',
-        data: benefits.value
-      },
-      {
-        name: 'Loss',
-        data: loss.value
+        name: translations[language.value].purchase,
+        color: '#3490dc',
+        data: purchaseAmount.value
       }
+    ]
+  }));
+  //Expenses chart
+  const chartColumnExpensesOptions = computed(() => ({
+    chart: {
+      type: 'area', // Change to 'column' for vertical bars
+      animation: {
+        enabled: false
+      }
+    },
+    title: {
+      text: translations[language.value].expenses,
+    },
+    xAxis: {
+      categories: xAxisExpenses.value,
+      labels: {
+        rotation: -45, // Optional: Rotate labels if needed
+        style: {
+          fontSize: '12px',
+          fontFamily: 'Arial'
+        }
+      },
+      tickWidth: 0
+    },
+    yAxis: {
+      min: 0,
+      title: {
+        text: translations[language.value].amount + " (" + (language.value === 'ENG' ? 'in ' : 'en ') + currencyType.value + ")",
+        align: 'high'
+      },
+      labels: {
+        overflow: 'justify'
+      }
+    },
+    plotOptions: {
+      area: {
+        stacking: 'normal',
+        lineWidth: 1,
+        marker: {
+          enabled: false
+        },
+        dataLabels: {
+          enabled: true,
+          formatter(this: Highcharts.Point): string {
+            return formatPrice(this.y as number) + ' ' + currencyType.value;
+          }
+        }
+      }
+    },
+    series: [
+      {
+        name: translations[language.value].expenses,
+        color: '#e5b33e',
+        data: expensesAmount.value
+      },
     ]
   }));
 </script>
@@ -237,7 +444,7 @@
         <ACard class="card-space">
           <ASpace direction="horizontal">
             <ShoppingOutlined class="success-color icon-space" />
-            <AStatistic title="Present sales" :value="dataCashGlobalSummary.presentSalesAmount"/>
+            <AStatistic :title="translations[language].presentSales" :value="dataCashGlobalSummary.presentSalesAmount"/>
             <span>{{ currencyType }}</span>
           </ASpace>
         </ACard>
@@ -248,7 +455,7 @@
         <ACard class="card-space">
           <ASpace direction="horizontal">
             <ShoppingCartOutlined class="info-color icon-space" />
-            <AStatistic title="Present purchase" :value="dataCashGlobalSummary.presentPurchaseAmount"/>
+            <AStatistic :title="translations[language].presentPurchase" :value="dataCashGlobalSummary.presentPurchaseAmount"/>
             <span>{{ currencyType }}</span>
           </ASpace>
         </ACard>
@@ -259,7 +466,7 @@
         <ACard class="card-space">
           <ASpace direction="horizontal">
             <WalletOutlined class="warning-color icon-space" />
-            <AStatistic title="Present expenses" :value="dataCashGlobalSummary.presentExpensesAmount"/>
+            <AStatistic :title="translations[language].presentExpenses" :value="dataCashGlobalSummary.presentExpensesAmount"/>
             <span>{{ currencyType }}</span>
           </ASpace>
         </ACard>
@@ -270,7 +477,7 @@
         <ACard class="card-space">
           <ASpace direction="horizontal">
             <MoneyCollectOutlined class="primary-color icon-space" />
-            <AStatistic title="Initial cash" :value="dataCashGlobalSummary.initial_cash"/>
+            <AStatistic :title="translations[language].initialCash" :value="dataCashGlobalSummary.initial_cash"/>
             <span>{{ currencyType }}</span>
           </ASpace>
         </ACard>
@@ -283,7 +490,7 @@
         <ACard class="card-space">
           <ASpace direction="horizontal">
             <ShoppingOutlined class="success-color icon-space" />
-            <AStatistic title="Total of sales" :value="dataCashGlobalSummary.totalAmountSales"/>
+            <AStatistic :title="translations[language].totalOfSales" :value="dataCashGlobalSummary.totalAmountSales"/>
             <span>{{ currencyType }}</span>
           </ASpace>
         </ACard>
@@ -294,7 +501,7 @@
         <ACard class="card-space">
           <ASpace direction="horizontal">
             <ShoppingCartOutlined class="info-color icon-space" />
-            <AStatistic title="Total of purchase" :value="dataCashGlobalSummary.totalAmountPurchase"/>
+            <AStatistic :title="translations[language].totalOfPurchase" :value="dataCashGlobalSummary.totalAmountPurchase"/>
             <span>{{ currencyType }}</span>
           </ASpace>
         </ACard>
@@ -305,7 +512,7 @@
         <ACard class="card-space">
           <ASpace direction="horizontal">
             <WalletOutlined class="warning-color icon-space" />
-            <AStatistic title="Total of expenses" :value="dataCashGlobalSummary.amountExpenses"/>
+            <AStatistic :title="translations[language].totalOfExpenses" :value="dataCashGlobalSummary.amountExpenses"/>
             <span>{{ currencyType }}</span>
           </ASpace>
         </ACard>
@@ -316,31 +523,88 @@
         <ACard class="card-space">
           <ASpace direction="horizontal">
             <MoneyCollectOutlined class="primary-color icon-space" />
-            <AStatistic title="Real cash" :value="dataCashGlobalSummary.real_cash"/>
+            <AStatistic :title="translations[language].realCash" :value="dataCashGlobalSummary.real_cash"/>
             <span>{{ currencyType }}</span>
           </ASpace>
         </ACard>
       </div>
     </a-col>
   </a-row>
-  <!--Cash summary graph-->
+  <!--Profit and loss chart-->
   <a-row class="mt-8" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="gutter-row" :span="24">
       <div class="gutter-box">
         <ACard class="card-space" style="min-height: 500px;">
-          <a-select
-              v-model:value="modeChartCashDetail"
-              :options="optionsModeCashDetail"
-              placeholder=""
-              style="width: 200px"
-          />
-          <a-spin :spinning="loadingDetailCash" size="default"></a-spin>
-          <highchart v-if="!loadingDetailCash" :options="chartColumnOptions"/>
+          <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="24">
+              <a-select
+                  v-model:value="modeChartProfitLoss"
+                  :options="optionsMode"
+                  placeholder=""
+                  style="width: 200px"
+              />
+            </a-col>
+          </a-row>
+          <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="24">
+              <a-spin :spinning="loadingProfitLoss" size="default">
+                <highchart v-if="!loadingProfitLoss" :options="chartColumnProfitLossOptions"/>
+              </a-spin>
+            </a-col>
+          </a-row>
         </ACard>
       </div>
     </a-col>
   </a-row>
-
+  <!--Sales and Purchase chart-->
+  <a-row class="mt-8" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+    <a-col :span="12">
+      <div class="gutter-box">
+        <ACard class="card-space" style="min-height: 500px;">
+          <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="24">
+              <a-select
+                  v-model:value="modeChartSalesPurchase"
+                  :options="optionsMode"
+                  placeholder=""
+                  style="width: 200px"
+              />
+            </a-col>
+          </a-row>
+          <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="24">
+              <a-spin :spinning="loadingSalesPurchase" size="default">
+                <highchart v-if="!loadingSalesPurchase" :options="chartColumnSalesPurchaseOptions"/>
+              </a-spin>
+            </a-col>
+          </a-row>
+        </ACard>
+      </div>
+    </a-col>
+    <a-col :span="12">
+      <div class="gutter-box">
+        <ACard class="card-space" style="min-height: 500px;">
+          <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="24">
+              <a-select
+                  v-model:value="modeChartExpenses"
+                  :options="optionsMode"
+                  placeholder=""
+                  style="width: 200px"
+              />
+            </a-col>
+          </a-row>
+          <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="24">
+              <a-spin :spinning="loadingExpenses" size="default">
+                <highchart v-if="!loadingExpenses" :options="chartColumnExpensesOptions"/>
+              </a-spin>
+            </a-col>
+          </a-row>
+        </ACard>
+      </div>
+    </a-col>
+  </a-row>
 </template>
 
 <style scoped>

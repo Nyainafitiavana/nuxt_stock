@@ -11,7 +11,9 @@ export const API = {
     "EXPENSE_TYPE" : "/api/expense-type",
     "EXPENSES" : "/api/expenses",
     "CASH_SUMMARY_GLOBAL" : "/api/cash-register/global",
-    "CASH_DETAIL" : "/api/cash-register",
+    "PROFIT_LOSS" : "/api/cash-register/profit-loss",
+    "SALES_PURCHASE" : "/api/cash-register/sales-purchase",
+    "EXPENSES_CASH" : "/api/cash-register/expenses",
 }
 
 export const getAccessToken = (): string | null => {

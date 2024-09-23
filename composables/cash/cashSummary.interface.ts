@@ -11,11 +11,19 @@ export interface ICashGlobalSummary {
     real_cash: number;
 }
 
-export interface ICashDetail {
-    "x_series": string,
-    "total_purchase_price": number,
-    "total_sales": number,
-    "total_expenses": number,
-    "benefits": number,
-    "loss": number
+export interface IProfitLoss {
+    x_series: string;
+    total_profit_amount: number;
+    total_loss_amount: number;
+}
+
+export interface ISalesPurchase {
+    x_series: string;
+    total_purchase_amount: number;
+    total_sales_amount: number;
+}
+
+export interface IExpensesCash {
+    x_series: string;
+    total_expenses_amount: number;
 }
