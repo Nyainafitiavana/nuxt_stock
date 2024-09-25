@@ -223,8 +223,9 @@ import type {RuleObject} from "ant-design-vue/es/form";
 
   //************Beginning of actions datatable button method**********
   const handleView = (record: IExpenses) => {
+    console.log(record.expenseType);
     resetForm();
-    formState.idExpenseType = record.expensesType.uuid;
+    formState.idExpenseType = record.expenseType.uuid;
     formState.description = record.description;
     formState.amount = record.amount;
 
@@ -233,7 +234,7 @@ import type {RuleObject} from "ant-design-vue/es/form";
 
   const handleEdit = (record: IExpenses) => {
     resetForm();
-    formState.idExpenseType = record.expensesType.uuid;
+    formState.idExpenseType = record.expenseType.uuid;
     formState.description = record.description;
     formState.amount = record.amount;
     expensesId.value = record.uuid;
@@ -410,6 +411,7 @@ import type {RuleObject} from "ant-design-vue/es/form";
           endDateStr,
           props.activePage);
       data.value = response.data;
+      console.log(response.data);
       totalPage.value = response.totalRows;
       loading.value = false;
     } catch (error) {

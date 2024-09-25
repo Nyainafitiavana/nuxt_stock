@@ -264,7 +264,7 @@
   //Profit and loss chart
   const chartColumnProfitLossOptions = computed(() => ({
     chart: {
-      type: 'area', // Change to 'column' for vertical bars
+      type: 'column', // Change to 'column' for vertical bars
       animation: {
         enabled: false
       }
@@ -281,7 +281,6 @@
           fontFamily: 'Arial'
         }
       },
-      tickWidth: 0
     },
     yAxis: {
       min: 0,
@@ -294,12 +293,7 @@
       }
     },
     plotOptions: {
-      area: {
-        stacking: 'normal',
-        lineWidth: 1,
-        marker: {
-          enabled: false
-        },
+      column: {
         dataLabels: {
           enabled: true,
           formatter(this: Highcharts.Point): string {
@@ -314,9 +308,10 @@
         data: profitAmount.value
       },
       {
+        color: '#ff5959',
         name: translations[language.value].losses,
         data: lossAmount.value
-      }
+      },
     ]
   }));
   //Sales and purchase chart
@@ -439,18 +434,18 @@
   </ATypographyTitle>
   <!--Beginning of spaces-->
   <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-    <a-col class="gutter-row" :span="6">
+    <a-col class="gutter-row" :span="8">
       <div class="gutter-box">
         <ACard class="card-space">
           <ASpace direction="horizontal">
             <ShoppingOutlined class="success-color icon-space" />
-            <AStatistic :title="translations[language].presentSales" :value="dataCashGlobalSummary.presentSalesAmount"/>
+            <AStatistic class="w-full" :title="translations[language].presentSales" :value="dataCashGlobalSummary.presentSalesAmount"/>
             <span>{{ currencyType }}</span>
           </ASpace>
         </ACard>
       </div>
     </a-col>
-    <a-col class="gutter-row" :span="6">
+    <a-col class="gutter-row" :span="8">
       <div class="gutter-box">
         <ACard class="card-space">
           <ASpace direction="horizontal">
@@ -461,7 +456,7 @@
         </ACard>
       </div>
     </a-col>
-    <a-col class="gutter-row" :span="6">
+    <a-col class="gutter-row" :span="8">
       <div class="gutter-box">
         <ACard class="card-space">
           <ASpace direction="horizontal">
@@ -472,20 +467,9 @@
         </ACard>
       </div>
     </a-col>
-    <a-col class="gutter-row" :span="6">
-      <div class="gutter-box">
-        <ACard class="card-space">
-          <ASpace direction="horizontal">
-            <MoneyCollectOutlined class="primary-color icon-space" />
-            <AStatistic :title="translations[language].initialCash" :value="dataCashGlobalSummary.initial_cash"/>
-            <span>{{ currencyType }}</span>
-          </ASpace>
-        </ACard>
-      </div>
-    </a-col>
   </a-row>
   <a-row class="mt-4" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-    <a-col class="gutter-row" :span="6">
+    <a-col class="gutter-row" :span="8">
       <div class="gutter-box">
         <ACard class="card-space">
           <ASpace direction="horizontal">
@@ -496,7 +480,7 @@
         </ACard>
       </div>
     </a-col>
-    <a-col class="gutter-row" :span="6">
+    <a-col class="gutter-row" :span="8">
       <div class="gutter-box">
         <ACard class="card-space">
           <ASpace direction="horizontal">
@@ -507,7 +491,7 @@
         </ACard>
       </div>
     </a-col>
-    <a-col class="gutter-row" :span="6">
+    <a-col class="gutter-row" :span="8">
       <div class="gutter-box">
         <ACard class="card-space">
           <ASpace direction="horizontal">
@@ -518,12 +502,36 @@
         </ACard>
       </div>
     </a-col>
-    <a-col class="gutter-row" :span="6">
+  </a-row>
+  <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+    <a-col class="gutter-row" :span="8">
+      <div class="gutter-box">
+        <ACard class="card-space">
+          <ASpace direction="horizontal">
+            <MoneyCollectOutlined class="primary-color icon-space" />
+            <AStatistic :title="translations[language].initialCash" :value="dataCashGlobalSummary.initial_cash"/>
+            <span>{{ currencyType }}</span>
+          </ASpace>
+        </ACard>
+      </div>
+    </a-col>
+    <a-col class="gutter-row" :span="8">
       <div class="gutter-box">
         <ACard class="card-space">
           <ASpace direction="horizontal">
             <MoneyCollectOutlined class="primary-color icon-space" />
             <AStatistic :title="translations[language].realCash" :value="dataCashGlobalSummary.real_cash"/>
+            <span>{{ currencyType }}</span>
+          </ASpace>
+        </ACard>
+      </div>
+    </a-col>
+    <a-col class="gutter-row" :span="8">
+      <div class="gutter-box">
+        <ACard class="card-space">
+          <ASpace direction="horizontal">
+            <MoneyCollectOutlined class="primary-color icon-space" />
+            <AStatistic title="CA" :value="dataCashGlobalSummary.real_cash"/>
             <span>{{ currencyType }}</span>
           </ASpace>
         </ACard>

@@ -5,7 +5,7 @@ export interface IExpenses {
     uuid: string;
     description: string;
     amount: number;
-    expensesType: IExpenseType;
+    expenseType: IExpenseType;
     status: IStatus;
     createdAt: string;
 }
