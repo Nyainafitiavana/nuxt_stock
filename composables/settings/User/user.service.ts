@@ -3,8 +3,9 @@ import {CustomError} from "~/composables/CustomError";
 import type {Paginate} from "~/composables/apiResponse.interface";
 import type {TStatus} from "~/composables/Status.interface";
 import {getAccessToken} from "~/composables/api";
+import {EnvApiConfig} from "~/composables/Env.config";
 
-const BASE_URL_API: string = EnvApiConfig.host + ':' + EnvApiConfig.port;
+const BASE_URL_API: string = `${window.location.protocol}//${window.location.hostname}:${EnvApiConfig.port}`;
 
 export const getAllUser = async (
     keyword: string,
@@ -46,7 +47,6 @@ export const getOneUser = async (id: string): Promise<IUser> => {
 };
 
 export const insertOrUpdateUser = async (data: IUser, id: string | null, method: string): Promise<IUser> => {
-    const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
     const path: string = id ? `${BASE_URL_API}${API.USER}/${id}` : `${BASE_URL_API}${API.USER}`;
 
     const response: any = await fetch(path, {
@@ -67,7 +67,6 @@ export const insertOrUpdateUser = async (data: IUser, id: string | null, method:
 };
 
 export const deleteUserService = async (id: string | null): Promise<IUser> => {
-    const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
     const path: string = `${BASE_URL_API}${API.USER}/${id}`;
 
     const response: any = await fetch(path, {

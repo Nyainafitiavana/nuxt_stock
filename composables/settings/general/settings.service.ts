@@ -2,8 +2,9 @@ import type {ExecuteResponse} from "~/composables/apiResponse.interface";
 import {getAccessToken} from "~/composables/api";
 import {CustomError} from "~/composables/CustomError";
 import type {ICurrency, ISettings} from "~/composables/settings/general/settings.interface";
+import {EnvApiConfig} from "~/composables/Env.config";
 
-const BASE_URL_API: string = EnvApiConfig.host + ':' + EnvApiConfig.port;
+const BASE_URL_API: string = `${window.location.protocol}//${window.location.hostname}:${EnvApiConfig.port}`;
 
 export const getSettingsService = async (): Promise<ISettings> => {
     const response: any = await fetch(`${BASE_URL_API}${API.SETTINGS}`, {

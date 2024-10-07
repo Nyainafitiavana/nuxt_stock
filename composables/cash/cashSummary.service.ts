@@ -6,8 +6,9 @@ import type {
     IProfitLoss,
     ISalesPurchase
 } from "~/composables/cash/cashSummary.interface";
+import {EnvApiConfig} from "~/composables/Env.config";
 
-const BASE_URL_API: string = EnvApiConfig.host + ':' + EnvApiConfig.port;
+const BASE_URL_API: string = `${window.location.protocol}//${window.location.hostname}:${EnvApiConfig.port}`;
 
 export const getCashSummaryGlobalService = async (): Promise<ICashGlobalSummary> => {
     const response: any = await fetch(`${BASE_URL_API}${API.CASH_SUMMARY_GLOBAL}`, {

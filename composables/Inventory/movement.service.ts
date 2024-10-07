@@ -9,8 +9,9 @@ import type {
     IFormReject, IHistoryValidation,
     IMovement
 } from "~/composables/Inventory/Movement.interface";
+import {EnvApiConfig} from "~/composables/Env.config";
 
-const BASE_URL_API: string = EnvApiConfig.host + ':' + EnvApiConfig.port;
+const BASE_URL_API: string = `${window.location.protocol}//${window.location.hostname}:${EnvApiConfig.port}`;
 
 export const getAllMovementService = async (
     isSales: boolean,

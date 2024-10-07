@@ -3,8 +3,9 @@ import type {Paginate} from "~/composables/apiResponse.interface";
 import type {TStatus} from "~/composables/Status.interface";
 import {getAccessToken} from "~/composables/api";
 import type {FormUnit, IUnit} from "~/composables/settings/Unit/Unit.interface";
+import {EnvApiConfig} from "~/composables/Env.config";
 
-const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
+const BASE_URL_API: string = `${window.location.protocol}//${window.location.hostname}:${EnvApiConfig.port}`;
 
 export const getAllUnit = async (keyword: string, pageSize: number | string, currentPage: number | string, status: TStatus): Promise<Paginate<IUnit[]>> => {
     const response: any = await fetch(`${BASE_URL_API}${API.UNIT}?limit=${pageSize}&page=${currentPage}&value=${keyword}&status=${status}`, {

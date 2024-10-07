@@ -3,8 +3,9 @@ import type {Paginate} from "~/composables/apiResponse.interface";
 import type {TStatus} from "~/composables/Status.interface";
 import type {FormCategory, ICategory} from "~/composables/settings/Category/Category.interface";
 import {getAccessToken} from "~/composables/api";
+import {EnvApiConfig} from "~/composables/Env.config";
 
-const BASE_URL_API: string = EnvApiConfig.host + ':' + EnvApiConfig.port;
+const BASE_URL_API: string = `${window.location.protocol}//${window.location.hostname}:${EnvApiConfig.port}`;
 
 export const getAllCategory = async (keyword: string, pageSize: number | string, currentPage: number | string, status: TStatus): Promise<Paginate<ICategory[]>> => {
 
@@ -25,7 +26,6 @@ export const getAllCategory = async (keyword: string, pageSize: number | string,
 };
 
 export const insertOrUpdateCategory = async (data: FormCategory, id: string | null, method: string): Promise<ICategory> => {
-    const BASE_URL_API = EnvApiConfig.host + ':' + EnvApiConfig.port;
     const path: string = id ? `${BASE_URL_API}${API.CATEGORY}/${id}` : `${BASE_URL_API}${API.CATEGORY}`;
 
     const response: any = await fetch(path, {

@@ -4,8 +4,9 @@ import type {TStatus} from "~/composables/Status.interface";
 import {getAccessToken} from "~/composables/api";
 import type {FormProduct, IProduct, IProductRemainingStock} from "~/composables/settings/Product/Product.interface";
 import type {FormProductSalesPrice, IProductSalesPrice} from "~/composables/settings/Product/ProductSalesPrice.interface";
+import {EnvApiConfig} from "~/composables/Env.config";
 
-const BASE_URL_API: string = EnvApiConfig.host + ':' + EnvApiConfig.port;
+const BASE_URL_API: string = `${window.location.protocol}//${window.location.hostname}:${EnvApiConfig.port}`;
 
 export const getAllDataProductService = async (
     keyword: string,

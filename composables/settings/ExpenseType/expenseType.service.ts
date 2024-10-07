@@ -3,8 +3,9 @@ import type {ExecuteResponse, Paginate} from "~/composables/apiResponse.interfac
 import type {TStatus} from "~/composables/Status.interface";
 import {getAccessToken} from "~/composables/api";
 import type {FormExpenseType, IExpenseType} from "~/composables/settings/ExpenseType/ExpenseType.interface";
+import {EnvApiConfig} from "~/composables/Env.config";
 
-const BASE_URL_API: string = EnvApiConfig.host + ':' + EnvApiConfig.port;
+const BASE_URL_API: string = `${window.location.protocol}//${window.location.hostname}:${EnvApiConfig.port}`;
 
 export const getAllExpenseTypeService = async (
     keyword: string,
