@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "@ant-design-vue/nuxt": "^1.4.2",
+    "@ant-design/icons-vue": "^7.0.1",
     "body-parser": "^1.20.2",
     "nuxt": "^3.12.3",
     "nuxt-highcharts": "^3.1.1",
-    "sass": "^1.77.6",
     "vue": "latest"
   },
   "devDependencies": {

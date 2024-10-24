@@ -2,15 +2,15 @@
 import {ref, computed, onMounted, reactive, h, watch} from 'vue';
 import { useRoute } from 'vue-router';
 import { RouteList } from '~/composables/Route';
+import {useLanguage} from "~/composables/states";
 import {
   AppstoreAddOutlined,
   AppstoreOutlined,
-  BarChartOutlined, FileSearchOutlined, SettingOutlined,
-  ShopOutlined, ShoppingCartOutlined, StockOutlined,
-  TeamOutlined, ToolOutlined, ToTopOutlined,
-  UserOutlined, VerticalAlignBottomOutlined, WalletOutlined
-} from "#components";
-import {useLanguage} from "~/composables/states";
+  BarChartOutlined, FileSearchOutlined, SettingOutlined, ShopOutlined,
+  ShoppingCartOutlined, StockOutlined, TeamOutlined, ToolOutlined,
+  ToTopOutlined, UserOutlined,
+  VerticalAlignBottomOutlined, WalletOutlined
+} from "@ant-design/icons-vue";
 
 // State
 const state = reactive({

@@ -103,26 +103,26 @@ interface Props {
     width: 200,
     fixed: 'right',
     customRender: ({ record }: { record: IProduct }) => h('div', [
-      h('a-button', {
-        class: 'btn--info-outline btn-tab',
+      h(AButton, {
+        class: 'btn--info-outline',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleView(record)
       }, [h(EyeOutlined)]),
-      h('a-button', {
-        class: 'btn--warning-outline btn-tab',
+      h(AButton, {
+        class: 'btn--warning-outline',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleShowProductSalesPrice(record)
       }, [h(DollarCircleOutlined)]),
-      h('a-button', {
-        class: 'btn--primary-outline btn-tab',
+      h(AButton, {
+        class: 'btn--primary-outline',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleEdit(record)
       }, [h(FormOutlined)]),
-      h('a-button', {
-        class: 'btn--danger-outline btn-tab',
+      h(AButton, {
+        class: 'btn--danger-outline',
         size: 'large',
         onClick: () => handleDelete(record)
       }, [h(DeleteOutlined)])
@@ -135,13 +135,13 @@ interface Props {
     width: 200,
     fixed: 'right',
     customRender: ({ record }: { record: IProduct }) => h('div', [
-      h('a-button', {
+      h(AButton, {
         class: 'btn--info-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleView(record)
       }, [h(EyeOutlined)]),
-      h('a-button', {
+      h(AButton, {
         class: 'btn--warning-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },

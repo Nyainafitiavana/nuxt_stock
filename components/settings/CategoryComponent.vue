@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {createVNode, h} from 'vue';
 import {
+  AButton,
   DeleteOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
@@ -44,19 +45,19 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: ICategory }) => h('div', [
-      h('a-button', {
+      h(AButton, {
         class: 'btn--info-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleView(record)
       }, [h(EyeOutlined)]),
-      h('a-button', {
+      h(AButton, {
         class: 'btn--primary-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleEdit(record)
       }, [h(FormOutlined)]),
-      h('a-button', {
+      h(AButton, {
         class: 'btn--danger-outline btn-tab',
         size: 'large',
         onClick: () => handleDelete(record)
@@ -69,7 +70,7 @@ import {deleteCategoryService, getAllCategory, insertOrUpdateCategory} from "~/c
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: ICategory }) => h('div', [
-      h('a-button', {
+      h(AButton, {
         class: 'btn--info-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
