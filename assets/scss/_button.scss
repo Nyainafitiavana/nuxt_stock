@@ -1,4 +1,4 @@
-@use 'colors' as *;  // Import color variables
+@import 'colors';  // Import color variables
 
 .btn {
   font-size: 14px;
@@ -17,7 +17,7 @@
   color: #fff;
 
   &:hover {
-    background-color: $primary-darken-color;
+    background-color: darken($primary-color, 10%);
     border: none;
     color: #fff!important;
   }
@@ -42,7 +42,7 @@
   color: #fff;
 
   &:hover {
-    background-color: $secondary-darken-color;
+    background-color: darken($secondary-color, 10%);
     border: none;
     color: #fff!important;
   }
@@ -67,7 +67,7 @@
   color: #fff;
 
   &:hover {
-    background-color: $success-darken-color;
+    background-color: darken($success-color, 10%);
     border: none;
     color: #fff!important;
   }
@@ -92,7 +92,7 @@
   color: #fff;
 
   &:hover {
-    background-color: $info-darken-color;
+    background-color: darken($info-color, 10%);
     border: none;
     color: #fff!important;
   }
@@ -117,7 +117,7 @@
   color: #fff;
 
   &:hover {
-    background-color: $warning-darken-color;
+    background-color: darken($warning-color, 10%);
     border: none;
     color: #fff!important;
   }
@@ -142,7 +142,7 @@
   color: #fff;
 
   &:hover {
-    background-color: $danger-darken-color;
+    background-color: darken($danger-color, 10%);
     border: none;
     color: #fff!important;
   }

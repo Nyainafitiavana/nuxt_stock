@@ -12,8 +12,17 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  modules: ["@ant-design-vue/nuxt", "nuxt-highcharts"],
-  css: ["~/assets/scss/main.scss"],
+  modules: [
+      "@ant-design-vue/nuxt",
+      "nuxt-highcharts"
+  ],
+  css: [
+      "~/assets/css/main.css",
+      "~/assets/css/colors.css",
+      "~/assets/css/button.css",
+      "~/assets/css/mix.css",
+      "~/assets/css/notification.css"
+  ],
   antd: {
     // Options
   },

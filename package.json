@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "preinstall": "npx npm-force-resolutions",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "start": "nuxt start",
@@ -13,11 +12,10 @@
   },
   "dependencies": {
     "@ant-design-vue/nuxt": "^1.4.2",
+    "@ant-design/icons-vue": "^7.0.1",
     "body-parser": "^1.20.2",
-    "npm-force-resolutions": "^0.0.10",
     "nuxt": "^3.12.3",
     "nuxt-highcharts": "^3.1.1",
-    "sass": "^1.80.3",
     "vue": "latest"
   },
   "devDependencies": {
@@ -25,9 +23,5 @@
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.4",
     "vite-svg-loader": "^5.1.0"
-  },
-  "resolutions": {
-    "glob": "^9.0.0",
-    "rimraf": "^4.0.0"
   }
 }

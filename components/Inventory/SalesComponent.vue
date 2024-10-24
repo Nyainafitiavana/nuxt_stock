@@ -80,25 +80,25 @@
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IMovement }) => h('a-row', [
-      h('a-button', {
+      h(AButton, {
         class: 'btn--primary-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleViewHistoryValidationMovement(record)
       }, [h(HistoryOutlined)]),
-      h('a-button', {
+      h(AButton, {
         class: 'btn--info-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleViewDetailsMovement(record)
       }, [h(InfoOutlined)]),
-      h('a-button', {
+      h(AButton, {
         class: 'btn--success-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleValidateMovement(record)
       }, [h(CheckOutlined)]),
-      h('a-button', {
+      h(AButton, {
         class: 'btn--danger-outline btn-tab',
         size: 'large',
         onClick: () => handleRejectMovement(record)
@@ -111,19 +111,19 @@
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IMovement }) => h('div', [
-      h('a-button', {
+      h(AButton, {
         class: 'btn--primary-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleViewHistoryValidationMovement(record)
       }, [h(HistoryOutlined)]),
-      h('a-button', {
+      h(AButton, {
         class: 'btn--info-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleViewDetailsMovement(record)
       }, [h(InfoOutlined)]),
-      h('a-button', {
+      h(AButton, {
         class: 'btn--success btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
@@ -136,13 +136,13 @@
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IMovement }) => h('div', [
-      h('a-button', {
+      h(AButton, {
         class: 'btn--primary-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleViewHistoryValidationMovement(record)
       }, [h(HistoryOutlined)]),
-      h('a-button', {
+      h(AButton, {
         class: 'btn--info-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },

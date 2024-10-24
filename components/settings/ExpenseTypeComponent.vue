@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {createVNode, h} from 'vue';
 import {
+  AButton,
   DeleteOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
@@ -48,19 +49,19 @@ import {
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IExpenseType }) => h('div', [
-      h('a-button', {
+      h(AButton, {
         class: 'btn--info-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleView(record)
       }, [h(EyeOutlined)]),
-      h('a-button', {
+      h(AButton, {
         class: 'btn--primary-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
         onClick: () => handleEdit(record)
       }, [h(FormOutlined)]),
-      h('a-button', {
+      h(AButton, {
         class: 'btn--danger-outline btn-tab',
         size: 'large',
         onClick: () => handleDelete(record)
@@ -73,7 +74,7 @@ import {
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IExpenseType }) => h('div', [
-      h('a-button', {
+      h(AButton, {
         class: 'btn--info-outline btn-tab',
         size: 'large',
         style: { marginRight: '8px' },
