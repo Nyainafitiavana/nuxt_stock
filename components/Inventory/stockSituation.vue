@@ -73,6 +73,7 @@
         title: translations[language.value].category,
         key: 'category',
         dataIndex: 'category_name',
+        width: 200,
       },
       {
         title: translations[language.value].unit,
@@ -84,6 +85,7 @@
         title: translations[language.value].stockInput,
         key: 'stockInput',
         dataIndex: 'stock_input',
+        width: 150,
         customRender: ({ record }: { record: IProductRemainingStock}) => [
           h('div', [
             h(CaretDownOutlined, { style: {fontSize: '30px'}, class: 'success-color' }),
@@ -95,6 +97,7 @@
         title: translations[language.value].stockOutput,
         key: 'stockOutput',
         dataIndex: 'stock_output',
+        width: 150,
         customRender: ({ record }: { record: IProductRemainingStock}) => [
           h('div', [
             h(CaretUpOutlined, { style: {fontSize: '30px'}, class: 'danger-color' }),
@@ -109,9 +112,10 @@
                   title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].remainingStock]),
                   key: 'remainingStock',
                   dataIndex: 'remaining_stock',
+                  width: 150,
                   customRender: ({ record }: { record: IProductRemainingStock}) => [
                     h('div', {
-                      style: { textAlign: 'center', color: 'white', fontWeight: '800' },
+                      style: { textAlign: 'center', color: 'white', fontWeight: '800', borderRadius: '10px' },
                       class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color',
                     }, [
                       h('span', [record.remaining_stock]),
@@ -367,11 +371,11 @@
   <!-- Legend -->
   <a-row v-if="props.activePage === 'SUMMARIZE'" class="mt-8 flex justify-center" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col  span="6" class="flex">
-      <div class="primary-background-color w-12 h-5"></div>
+      <div class="primary-background-color w-12 h-5 rounded-md"></div>
       <h6 class="ml-4">{{ translations[language].productAvailable }}</h6>
     </a-col>
     <a-col  span="6" class="flex">
-      <div class="danger-background-color w-12 h-5"></div>
+      <div class="danger-background-color w-12 h-5 rounded-md"></div>
       <h6 class="ml-4">{{ translations[language].productOutOfStock }}</h6>
     </a-col>
   </a-row>

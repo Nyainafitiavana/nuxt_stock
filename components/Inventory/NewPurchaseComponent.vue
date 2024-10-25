@@ -81,6 +81,7 @@
       title: translations[language.value].category,
       key: 'category',
       dataIndex: 'category_name',
+      width: 200,
     },
     {
       title: translations[language.value].unit,
@@ -92,6 +93,7 @@
       title: translations[language.value].purchasePrice,
       key: 'purchasePrice',
       dataIndex: 'purchase_price',
+      width: 200,
       customRender: ({ record }: { record: IProductRemainingStock}) => {
         const value = new Intl.NumberFormat('en-US', {
           style: 'decimal',
@@ -106,9 +108,10 @@
       title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].remainingStock]),
       key: 'remainingStock',
       dataIndex: 'remaining_stock',
+      width: 150,
       customRender: ({ record }: { record: IProductRemainingStock}) => [
         h('div', {
-          style: { textAlign: 'center', color: 'white', fontWeight: '800' },
+          style: { textAlign: 'center', color: 'white', fontWeight: '800', borderRadius: '10px' },
           class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color'
         }, [
           h('span', [record.remaining_stock]),
@@ -118,7 +121,8 @@
     {
       title: 'Actions',
       key: 'actions',
-      width: 100,
+      width: 80,
+      fixed: 'right',
       customRender: ({ record }: { record: IProductRemainingStock }) => {
         const pannierStorage = localStorage.getItem('pannierPurchase');
         //If pannier is not empty, we need to check if record is not already there
@@ -180,7 +184,7 @@
       dataIndex: 'remaining_stock',
       customRender: ({ record }: { record: IDetails}) => [
         h('div', {
-          style: { textAlign: 'center', color: 'white', fontWeight: '800' },
+          style: { textAlign: 'center', color: 'white', fontWeight: '800', borderRadius: '10px' },
           class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color',
         }, [
           h('span', [record.remaining_stock]),
@@ -224,6 +228,7 @@
       title: 'Actions',
       key: 'actions',
       width: 100,
+      fixed: 'right',
       customRender: ({ record }: { record: IDetails }) => h('row',
           {
             class: 'flex justify-center',
@@ -703,11 +708,11 @@
   <!-- Legend -->
   <a-row class="mt-8 flex justify-center" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col  span="6" class="flex">
-      <div class="primary-background-color w-12 h-5"></div>
+      <div class="primary-background-color w-12 h-5 rounded-md"></div>
       <h6 class="ml-4">{{ translations[language].productAvailable }}</h6>
     </a-col>
     <a-col  span="6" class="flex">
-      <div class="danger-background-color w-12 h-5"></div>
+      <div class="danger-background-color w-12 h-5 rounded-md"></div>
       <h6 class="ml-4">{{ translations[language].productOutOfStock }}</h6>
     </a-col>
   </a-row>
@@ -745,11 +750,11 @@
       <!-- Legend -->
       <a-col class="mt-8 flex" span="16">
         <a-col  span="12" class="flex">
-          <div class="primary-background-color w-12 h-4"></div>
+          <div class="primary-background-color w-12 h-4 rounded-md"></div>
           <h6 class="ml-4">{{ translations[language].productAvailable }}</h6>
         </a-col>
         <a-col  span="12" class="flex">
-          <div class="danger-background-color w-12 h-4"></div>
+          <div class="danger-background-color w-12 h-4 rounded-md"></div>
           <h6 class="ml-4">{{ translations[language].productOutOfStock }}</h6>
         </a-col>
       </a-col>

@@ -82,25 +82,25 @@
     customRender: ({ record }: { record: IMovement }) => h('a-row', [
       h(AButton, {
         class: 'btn--primary-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleViewHistoryValidationMovement(record)
       }, [h(HistoryOutlined)]),
       h(AButton, {
         class: 'btn--info-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleViewDetailsMovement(record)
       }, [h(InfoOutlined)]),
       h(AButton, {
         class: 'btn--success-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleValidateMovement(record)
       }, [h(CheckOutlined)]),
       h(AButton, {
         class: 'btn--danger-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         onClick: () => handleRejectMovement(record)
       }, [h(StopOutlined)])
     ])
@@ -113,19 +113,19 @@
     customRender: ({ record }: { record: IMovement }) => h('div', [
       h(AButton, {
         class: 'btn--primary-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleViewHistoryValidationMovement(record)
       }, [h(HistoryOutlined)]),
       h(AButton, {
         class: 'btn--info-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleViewDetailsMovement(record)
       }, [h(InfoOutlined)]),
       h(AButton, {
         class: 'btn--success btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
       }, [h(PrinterOutlined)]),
     ])
@@ -138,13 +138,13 @@
     customRender: ({ record }: { record: IMovement }) => h('div', [
       h(AButton, {
         class: 'btn--primary-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleViewHistoryValidationMovement(record)
       }, [h(HistoryOutlined)]),
       h(AButton, {
         class: 'btn--info-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleViewDetailsMovement(record)
       }, [h(InfoOutlined)]),
@@ -243,7 +243,7 @@
       width: 100,
       customRender: ({ record }: { record: IDetails}) => [
         h('div', {
-          style: { textAlign: 'center', color: 'white', fontWeight: '800' },
+          style: { textAlign: 'center', color: 'white', fontWeight: '800', borderRadius: '10px' },
           class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color'
         }, [
           h('span', [record.remaining_stock]),
@@ -293,7 +293,7 @@
     {
       title: 'Actions',
       key: 'actions',
-      width: 100,
+      width: 80,
       fixed: 'right',
       customRender: ({ record }: { record: IDetails }) => h('row',
           {
@@ -303,7 +303,7 @@
             h(AButton, {
               disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
               class: 'btn--danger-outline btn-tab',
-              size: 'large',
+              size: 'middle',
               onClick: () => handleRemoveItemDetails(record)
             }, [h(DeleteOutlined)])
           ]
@@ -336,11 +336,12 @@
     {
       title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
       key: 'status',
+      width: 120,
       customRender: ({ record }: { record: IMovement}) => h('a-row', [
         record.status.code === STCodeList.IN_PROGRESS ?
             h('div',
                 {
-                  style: { textAlign: 'center', color: 'white' },
+                  style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                   class: 'info-background-color'
                 },
                 [translations[language.value].inProgress]
@@ -350,7 +351,7 @@
                 record.status.code === STCodeList.COMPLETED ?
                     h('div',
                         {
-                          style: { textAlign: 'center', color: 'white' },
+                          style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                           class: 'primary-background-color'
                         },
                         [translations[language.value].completed]
@@ -359,14 +360,14 @@
                         record.status.code === STCodeList.VALIDATED ?
                             h('div',
                                 {
-                                  style: { textAlign: 'center', color: 'white' },
+                                  style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                                   class: 'success-background-color'
                                 },
                                 [translations[language.value].validated]
                             ) :
                             h('div',
                                 {
-                                  style: { textAlign: 'center', color: 'white' },
+                                  style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                                   class: 'danger-background-color'
                                 },
                                 [translations[language.value].rejected]
@@ -386,6 +387,7 @@
         title: 'Type',
         key: 'isSales',
         dataIndex: 'isSales',
+        width: 100,
         customRender: ({ record }: { record: IMovement}) => [record.isSales ? 'Vente' : translations[language.value].purchase],
       },
       {
@@ -406,11 +408,12 @@
       {
         title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
         key: 'status',
+        width: 120,
         customRender: ({ record }: { record: IMovement}) => h('a-row', [
           record.status.code === STCodeList.IN_PROGRESS ?
               h('div',
                   {
-                    style: { textAlign: 'center', color: 'white' },
+                    style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                     class: 'info-background-color'
                   },
                   [translations[language.value].inProgress]
@@ -420,7 +423,7 @@
                   record.status.code === STCodeList.COMPLETED ?
                       h('div',
                           {
-                            style: { textAlign: 'center', color: 'white' },
+                            style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                             class: 'primary-background-color'
                           },
                           [translations[language.value].completed]
@@ -429,14 +432,14 @@
                           record.status.code === STCodeList.VALIDATED ?
                               h('div',
                                   {
-                                    style: { textAlign: 'center', color: 'white' },
+                                    style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                                     class: 'success-background-color'
                                   },
                                   [translations[language.value].validated]
                               ) :
                               h('div',
                                   {
-                                    style: { textAlign: 'center', color: 'white' },
+                                    style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                                     class: 'danger-background-color'
                                   },
                                   [translations[language.value].rejected]
@@ -1047,11 +1050,11 @@
       <!-- Legend -->
       <a-col class="mt-8 flex" span="16">
         <a-col  span="12" class="flex">
-          <div class="primary-background-color w-12 h-4"></div>
+          <div class="primary-background-color w-12 h-4 rounded-md"></div>
           <h6 class="ml-4">{{ translations[language].productAvailable }}</h6>
         </a-col>
         <a-col  span="12" class="flex">
-          <div class="danger-background-color w-12 h-4"></div>
+          <div class="danger-background-color w-12 h-4 rounded-md"></div>
           <h6 class="ml-4">{{ translations[language].productOutOfStock }}</h6>
         </a-col>
       </a-col>

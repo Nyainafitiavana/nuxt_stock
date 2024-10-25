@@ -122,9 +122,10 @@
       title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].remainingStock]),
       key: 'remainingStock',
       dataIndex: 'remaining_stock',
+      width: 120,
       customRender: ({ record }: { record: IProductRemainingStock}) => [
         h('div', {
-          style: { textAlign: 'center', color: 'white', fontWeight: '800' },
+          style: { textAlign: 'center', color: 'white', fontWeight: '800', borderRadius: '10px' },
           class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color',
         }, [
           h('span', [record.remaining_stock]),
@@ -234,7 +235,7 @@
       width: 100,
       customRender: ({ record }: { record: IDetails}) => [
         h('div', {
-          style: { textAlign: 'center', color: 'white', fontWeight: '800' },
+          style: { textAlign: 'center', color: 'white', fontWeight: '800', borderRadius: '10px' },
           class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color',
         }, [
           h('span', [record.remaining_stock]),
@@ -763,11 +764,11 @@
   <!-- Legend -->
   <a-row class="mt-8 flex justify-center" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col  span="12" class="flex justify-center">
-      <div class="primary-background-color w-12 h-5"></div>
+      <div class="primary-background-color w-12 h-5 rounded-md"></div>
       <h6 class="ml-4">{{ translations[language].productAvailable }}</h6>
     </a-col>
     <a-col  span="12" class="flex justify-center">
-      <div class="danger-background-color w-12 h-5"></div>
+      <div class="danger-background-color w-12 h-5 rounded-md"></div>
       <h6 class="ml-4">{{ translations[language].productOutOfStock }}</h6>
     </a-col>
   </a-row>
@@ -805,11 +806,11 @@
       <!-- Legend -->
       <a-col class="mt-8 flex" span="16">
         <a-col  span="12" class="flex">
-          <div class="primary-background-color w-12 h-4"></div>
+          <div class="primary-background-color w-12 h-4 rounded-md"></div>
           <h6 class="ml-4">{{ translations[language].productAvailable }}</h6>
         </a-col>
         <a-col  span="12" class="flex">
-          <div class="danger-background-color w-12 h-4"></div>
+          <div class="danger-background-color w-12 h-4 rounded-md"></div>
           <h6 class="ml-4">{{ translations[language].productOutOfStock }}</h6>
         </a-col>
       </a-col>
