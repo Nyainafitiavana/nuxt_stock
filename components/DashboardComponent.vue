@@ -19,7 +19,6 @@
 
   const loadingGlobalCash = ref<boolean>(false);
   const dataCashGlobalSummary = reactive<ICashGlobalSummary>({
-    amountExpenses: 0,
     amount_input: 0,
     amount_output: 0,
     initial_cash: 0,
@@ -27,8 +26,6 @@
     presentPurchaseAmount: 0,
     presentSalesAmount: 0,
     real_cash: 0,
-    totalAmountPurchase: 0,
-    totalAmountSales: 0
   });
   const optionsMode = ref<SelectProps['options']>([
       { value: 'weekly', label: 'Weekly' },
@@ -64,9 +61,6 @@
       dataCashGlobalSummary.presentSalesAmount = response.presentSalesAmount;
       dataCashGlobalSummary.presentPurchaseAmount = response.presentPurchaseAmount;
       dataCashGlobalSummary.presentExpensesAmount = response.presentExpensesAmount;
-      dataCashGlobalSummary.totalAmountSales = response.totalAmountSales;
-      dataCashGlobalSummary.totalAmountPurchase = response.totalAmountPurchase;
-      dataCashGlobalSummary.amountExpenses = response.amountExpenses;
       dataCashGlobalSummary.amount_output = response.amount_output;
       dataCashGlobalSummary.amount_input = response.amount_input;
       dataCashGlobalSummary.real_cash = response.real_cash;
@@ -295,10 +289,7 @@
     plotOptions: {
       column: {
         dataLabels: {
-          enabled: true,
-          formatter(this: Highcharts.Point): string {
-            return formatPrice(this.y as number) + ' ' + currencyType.value;
-          }
+          enabled: false,
         }
       }
     },
@@ -349,10 +340,7 @@
     plotOptions: {
       column: {
         dataLabels: {
-          enabled: true,
-          formatter(this: Highcharts.Point): string {
-            return formatPrice(this.y as number) + ' ' + currencyType.value;
-          }
+          enabled: false,
         }
       }
     },
@@ -409,10 +397,7 @@
           enabled: false
         },
         dataLabels: {
-          enabled: true,
-          formatter(this: Highcharts.Point): string {
-            return formatPrice(this.y as number) + ' ' + currencyType.value;
-          }
+          enabled: false,
         }
       }
     },
@@ -462,41 +447,6 @@
           <ASpace direction="horizontal">
             <WalletOutlined class="warning-color icon-space" />
             <AStatistic :title="translations[language].presentExpenses" :value="dataCashGlobalSummary.presentExpensesAmount"/>
-            <span>{{ currencyType }}</span>
-          </ASpace>
-        </ACard>
-      </div>
-    </a-col>
-  </a-row>
-  <a-row class="mt-4" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-    <a-col class="gutter-row" :span="8">
-      <div class="gutter-box">
-        <ACard class="card-space">
-          <ASpace direction="horizontal">
-            <ShoppingOutlined class="success-color icon-space" />
-            <AStatistic :title="translations[language].totalOfSales" :value="dataCashGlobalSummary.totalAmountSales"/>
-            <span>{{ currencyType }}</span>
-          </ASpace>
-        </ACard>
-      </div>
-    </a-col>
-    <a-col class="gutter-row" :span="8">
-      <div class="gutter-box">
-        <ACard class="card-space">
-          <ASpace direction="horizontal">
-            <ShoppingCartOutlined class="info-color icon-space" />
-            <AStatistic :title="translations[language].totalOfPurchase" :value="dataCashGlobalSummary.totalAmountPurchase"/>
-            <span>{{ currencyType }}</span>
-          </ASpace>
-        </ACard>
-      </div>
-    </a-col>
-    <a-col class="gutter-row" :span="8">
-      <div class="gutter-box">
-        <ACard class="card-space">
-          <ASpace direction="horizontal">
-            <WalletOutlined class="warning-color icon-space" />
-            <AStatistic :title="translations[language].totalOfExpenses" :value="dataCashGlobalSummary.amountExpenses"/>
             <span>{{ currencyType }}</span>
           </ASpace>
         </ACard>

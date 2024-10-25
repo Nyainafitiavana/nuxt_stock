@@ -3,9 +3,6 @@ export interface ICashGlobalSummary {
     presentSalesAmount: number;
     presentPurchaseAmount: number;
     presentExpensesAmount: number;
-    totalAmountSales: number;
-    totalAmountPurchase: number;
-    amountExpenses: number;
     amount_output: number;
     amount_input: number;
     real_cash: number;
