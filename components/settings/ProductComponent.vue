@@ -104,26 +104,26 @@ interface Props {
     fixed: 'right',
     customRender: ({ record }: { record: IProduct }) => h('div', [
       h(AButton, {
-        class: 'btn--info-outline',
-        size: 'large',
+        class: 'btn--info-outline btn-tab',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleView(record)
       }, [h(EyeOutlined)]),
       h(AButton, {
-        class: 'btn--warning-outline',
-        size: 'large',
+        class: 'btn--warning-outline btn-tab',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleShowProductSalesPrice(record)
       }, [h(DollarCircleOutlined)]),
       h(AButton, {
-        class: 'btn--primary-outline',
-        size: 'large',
+        class: 'btn--primary-outline btn-tab',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleEdit(record)
       }, [h(FormOutlined)]),
       h(AButton, {
-        class: 'btn--danger-outline',
-        size: 'large',
+        class: 'btn--danger-outline btn-tab',
+        size: 'middle',
         onClick: () => handleDelete(record)
       }, [h(DeleteOutlined)])
     ])
@@ -137,13 +137,13 @@ interface Props {
     customRender: ({ record }: { record: IProduct }) => h('div', [
       h(AButton, {
         class: 'btn--info-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleView(record)
       }, [h(EyeOutlined)]),
       h(AButton, {
         class: 'btn--warning-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleShowProductSalesPrice(record)
       }, [h(DollarCircleOutlined)]),
@@ -245,26 +245,26 @@ interface Props {
       title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
       key: 'status',
       dataIndex: 'status',
-      width: 100,
+      width: 120,
       customRender: ({ record }: { record: ICategory}) => h('div', [
         record.status.code === STCodeList.ACTIVE ?
             h('div',
                 {
-                  style: { textAlign: 'center', color: 'white' },
+                  style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                   class: 'primary-background-color'
                 },
                 [translations[language.value].active]
             )
             : (record.status.code === STCodeList.DELETED ? h('div',
                         {
-                          style: { textAlign: 'center', color: 'white' },
+                          style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                           class: 'danger-background-color'
                         },
                         [translations[language.value].deleted]
                     ):
                     h('div',
                         {
-                          style: { textAlign: 'center', color: 'white' },
+                          style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                           class: 'secondary-background-color'
                         },
                         [translations[language.value].old]

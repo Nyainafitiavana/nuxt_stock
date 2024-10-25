@@ -52,36 +52,36 @@
   const activeActionsColumns = {
     title: 'Actions',
     key: 'actions',
-    width: 200,
+    width: 150,
     customRender: ({ record }: { record: IUser }) => h('div', [
       h(AButton, {
         class: 'btn--info-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleView(record)
       }, [h(EyeOutlined)]),
       h(AButton, {
         class: 'btn--primary-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleEdit(record)
       }, [h(FormOutlined)]),
       h(AButton, {
         class: 'btn--danger-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         onClick: () => handleDelete(record)
       }, [h(DeleteOutlined)])
     ])
   };
 
   const deletedActionColumns = {
-    title: 'Actions',
+    title: 'Action',
     key: 'actions',
-    width: 200,
+    width: 90,
     customRender: ({ record }: { record: IUser }) => h('div', [
       h(AButton, {
         class: 'btn--info-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleView(record)
       }, [h(EyeOutlined)]),
@@ -164,18 +164,19 @@
     {
       title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].status]),
       key: 'status',
+      width: 120,
       customRender: ({ record }: { record: IUser}) => h('div', [
         record.status && (record.status.code === STCodeList.ACTIVE) ?
             h('div',
                 {
-                  style: { textAlign: 'center', color: 'white' },
+                  style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                   class: 'primary-background-color'
                 },
                 [translations[language.value].active]
             )
             : h('div',
                 {
-                  style: { textAlign: 'center', color: 'white' },
+                  style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                   class: 'danger-background-color'
                 },
                 [translations[language.value].deleted]
