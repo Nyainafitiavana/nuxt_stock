@@ -6,7 +6,7 @@ import type {FormProduct, IProduct, IProductRemainingStock} from "~/composables/
 import type {FormProductSalesPrice, IProductSalesPrice} from "~/composables/settings/Product/ProductSalesPrice.interface";
 import {EnvApiConfig} from "~/composables/Env.config";
 
-const BASE_URL_API: string = `${window.location.protocol}//${window.location.hostname}:${EnvApiConfig.port}`;
+const BASE_URL_API: string = `${EnvApiConfig.host}:${EnvApiConfig.port}`;
 
 export const getAllDataProductService = async (
     keyword: string,

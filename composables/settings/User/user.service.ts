@@ -5,7 +5,7 @@ import type {TStatus} from "~/composables/Status.interface";
 import {getAccessToken} from "~/composables/api";
 import {EnvApiConfig} from "~/composables/Env.config";
 
-const BASE_URL_API: string = `${window.location.protocol}//${window.location.hostname}:${EnvApiConfig.port}`;
+const BASE_URL_API: string = `${EnvApiConfig.host}:${EnvApiConfig.port}`;
 
 export const getAllUser = async (
     keyword: string,

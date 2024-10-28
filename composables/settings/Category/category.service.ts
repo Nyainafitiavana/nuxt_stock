@@ -5,7 +5,7 @@ import type {FormCategory, ICategory} from "~/composables/settings/Category/Cate
 import {getAccessToken} from "~/composables/api";
 import {EnvApiConfig} from "~/composables/Env.config";
 
-const BASE_URL_API: string = `${window.location.protocol}//${window.location.hostname}:${EnvApiConfig.port}`;
+const BASE_URL_API: string = `${EnvApiConfig.host}:${EnvApiConfig.port}`;
 
 export const getAllCategory = async (keyword: string, pageSize: number | string, currentPage: number | string, status: TStatus): Promise<Paginate<ICategory[]>> => {
 

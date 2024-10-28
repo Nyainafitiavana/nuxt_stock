@@ -1,8 +1,10 @@
 import {EnvApiConfig} from "~/composables/Env.config";
 import type {AuthInterface} from "~/composables/Auth/auth.interface";
 
+const BASE_URL_API: string = `${EnvApiConfig.host}:${EnvApiConfig.port}`;
+
 export const loginUser = async (userData: { email: string, password: string }): Promise<AuthInterface> => {
-    const BASE_URL_API: string = `${window.location.protocol}//${window.location.hostname}:${EnvApiConfig.port}`;
+
     const response = await fetch(`${BASE_URL_API}${API.LOGIN}`, {
         method: 'POST',
         headers: {

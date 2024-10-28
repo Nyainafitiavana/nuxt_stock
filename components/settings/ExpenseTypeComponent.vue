@@ -51,19 +51,19 @@ import {
     customRender: ({ record }: { record: IExpenseType }) => h('div', [
       h(AButton, {
         class: 'btn--info-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleView(record)
       }, [h(EyeOutlined)]),
       h(AButton, {
         class: 'btn--primary-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleEdit(record)
       }, [h(FormOutlined)]),
       h(AButton, {
         class: 'btn--danger-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         onClick: () => handleDelete(record)
       }, [h(DeleteOutlined)])
     ])
@@ -76,7 +76,7 @@ import {
     customRender: ({ record }: { record: IExpenseType }) => h('div', [
       h(AButton, {
         class: 'btn--info-outline btn-tab',
-        size: 'large',
+        size: 'middle',
         style: { marginRight: '8px' },
         onClick: () => handleView(record)
       }, [h(EyeOutlined)]),
@@ -96,14 +96,14 @@ import {
         record.status.code === STCodeList.ACTIVE ?
             h('div',
                 {
-                  style: { textAlign: 'center', color: 'white' },
+                  style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                   class: 'primary-background-color'
                 },
                 [translations[language.value].active]
             )
             : h('div',
                 {
-                  style: { textAlign: 'center', color: 'white' },
+                  style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                   class: 'danger-background-color'
                 },
                 [translations[language.value].deleted]
