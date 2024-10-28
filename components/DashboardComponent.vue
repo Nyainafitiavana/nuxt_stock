@@ -4,11 +4,11 @@
   import {computed, onMounted, ref} from "vue";
   import {handleInAuthorizedError} from "~/composables/CustomError";
   import type {
-    ICashGlobalSummary, IExpensesCash, IProfitLoss, ISalesPurchase,
+    ICashGlobalSummary, IExpensesCash, IProfitLoss, IRevenueCash, ISalesPurchase,
   } from "~/composables/cash/cashSummary.interface";
   import {
     getCashSummaryGlobalService, getExpensesCashService,
-    getProfitAndLossService, getSalesPurchaseService
+    getProfitAndLossService, getRevenueCashService, getSalesPurchaseService
   } from "~/composables/cash/cashSummary.service";
   import type {ICurrency} from "~/composables/settings/general/settings.interface";
   import {getCurrencyService} from "~/composables/settings/general/settings.service";
@@ -51,6 +51,11 @@
   const modeChartExpenses = ref<'weekly' | 'monthly' | 'yearly'>('monthly');
   const xAxisExpenses = ref<any>([]);
   const expensesAmount = ref<number[]>([]);
+  //Ref for revenue growth
+  const loadingRevenue = ref<boolean>(false);
+  const modeChartRevenue = ref<'weekly' | 'monthly' | 'yearly'>('monthly');
+  const xAxisRevenue = ref<any>([]);
+  const revenueAmount = ref<number[]>([]);
 
   const getAllDataGlobalCashSummary = async () => {
     try {
@@ -83,6 +88,42 @@
       });
 
       loadingGlobalCash.value = false;
+    }
+  }
+
+  const getRevenue = async () => {
+    try {
+      loadingRevenue.value = true;
+      // Clear previous data
+      xAxisRevenue.value = [];
+      revenueAmount.value = [];
+
+      const result: IRevenueCash[]  = await getRevenueCashService(modeChartRevenue.value);
+
+      result.map(item => {
+        xAxisRevenue.value.push(modeChartRevenue.value === 'weekly' ? formatDateString(item.x_series, language.value, false) : item.x_series);
+        revenueAmount.value.push(item.total_revenue_amount);
+      });
+
+      loadingRevenue.value = false;
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: translations[language.value].error,
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+
+      loadingExpenses.value = false;
     }
   }
 
@@ -231,6 +272,11 @@
     }
   });
 
+  // Watch for mode changes of modeChartRevenue and re-fetch data, then re-render chart
+  watch(modeChartRevenue, async () => {
+    await getRevenue(); // Fetch new data when mode changes
+  });
+
   // Watch for mode changes of modeChartProfitLoss and re-fetch data, then re-render chart
   watch(modeChartProfitLoss, async () => {
     await getProfitAndLoss(); // Fetch new data when mode changes
@@ -246,15 +292,73 @@
     await getExpenses(); // Fetch new data when mode changes
   });
 
+  // Watch for mode changes of modeChartRevenue and re-fetch data, then re-render chart
+  watch(modeChartRevenue, async () => {
+    await getRevenue(); // Fetch new data when mode changes
+  });
+
   onMounted( async () => {
     await getCurrencyType();
     await getAllDataGlobalCashSummary();
+    await getRevenue();
     await getProfitAndLoss();
     await getSalesAndPurchase();
     await getExpenses();
   });
 
-  // Call chart function
+  //-------------------Beginning of chart function--------------------------
+  //Expenses chart
+  const chartColumnRevenueGrowthOptions = computed(() => ({
+    chart: {
+      type: 'area', // Change to 'column' for vertical bars
+      animation: {
+        enabled: false
+      }
+    },
+    title: {
+      text: translations[language.value].revenueGrowth,
+    },
+    xAxis: {
+      categories: xAxisRevenue.value,
+      labels: {
+        rotation: -45, // Optional: Rotate labels if needed
+        style: {
+          fontSize: '12px',
+          fontFamily: 'Arial'
+        }
+      },
+      tickWidth: 0
+    },
+    yAxis: {
+      min: 0,
+      title: {
+        text: translations[language.value].amount + " (" + (language.value === 'ENG' ? 'in ' : 'en ') + currencyType.value + ")",
+        align: 'high'
+      },
+      labels: {
+        overflow: 'justify'
+      }
+    },
+    plotOptions: {
+      area: {
+        stacking: 'normal',
+        lineWidth: 1,
+        marker: {
+          enabled: false
+        },
+        dataLabels: {
+          enabled: false,
+        }
+      }
+    },
+    series: [
+      {
+        name: translations[language.value].revenue,
+        color: '#e5b33e',
+        data: revenueAmount.value
+      },
+    ]
+  }));
   //Profit and loss chart
   const chartColumnProfitLossOptions = computed(() => ({
     chart: {
@@ -409,6 +513,7 @@
       },
     ]
   }));
+  //-------------------End of chart function--------------------------
 </script>
 
 <template>
@@ -419,42 +524,7 @@
   </ATypographyTitle>
   <!--Beginning of spaces-->
   <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-    <a-col class="gutter-row" :span="8">
-      <div class="gutter-box">
-        <ACard class="card-space">
-          <ASpace direction="horizontal">
-            <ShoppingOutlined class="success-color icon-space" />
-            <AStatistic class="w-full" :title="translations[language].presentSales" :value="dataCashGlobalSummary.presentSalesAmount"/>
-            <span>{{ currencyType }}</span>
-          </ASpace>
-        </ACard>
-      </div>
-    </a-col>
-    <a-col class="gutter-row" :span="8">
-      <div class="gutter-box">
-        <ACard class="card-space">
-          <ASpace direction="horizontal">
-            <ShoppingCartOutlined class="info-color icon-space" />
-            <AStatistic :title="translations[language].presentPurchase" :value="dataCashGlobalSummary.presentPurchaseAmount"/>
-            <span>{{ currencyType }}</span>
-          </ASpace>
-        </ACard>
-      </div>
-    </a-col>
-    <a-col class="gutter-row" :span="8">
-      <div class="gutter-box">
-        <ACard class="card-space">
-          <ASpace direction="horizontal">
-            <WalletOutlined class="warning-color icon-space" />
-            <AStatistic :title="translations[language].presentExpenses" :value="dataCashGlobalSummary.presentExpensesAmount"/>
-            <span>{{ currencyType }}</span>
-          </ASpace>
-        </ACard>
-      </div>
-    </a-col>
-  </a-row>
-  <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-    <a-col class="gutter-row" :span="8">
+    <a-col class="gutter-row" :span="6">
       <div class="gutter-box">
         <ACard class="card-space">
           <ASpace direction="horizontal">
@@ -465,25 +535,62 @@
         </ACard>
       </div>
     </a-col>
-    <a-col class="gutter-row" :span="8">
+    <a-col class="gutter-row" :span="6">
       <div class="gutter-box">
         <ACard class="card-space">
           <ASpace direction="horizontal">
-            <MoneyCollectOutlined class="primary-color icon-space" />
-            <AStatistic :title="translations[language].realCash" :value="dataCashGlobalSummary.real_cash"/>
+            <ShoppingOutlined class="success-color icon-space" />
+            <AStatistic class="w-full" :title="translations[language].sales" :value="dataCashGlobalSummary.presentSalesAmount"/>
             <span>{{ currencyType }}</span>
           </ASpace>
         </ACard>
       </div>
     </a-col>
-    <a-col class="gutter-row" :span="8">
+    <a-col class="gutter-row" :span="6">
       <div class="gutter-box">
         <ACard class="card-space">
           <ASpace direction="horizontal">
-            <MoneyCollectOutlined class="primary-color icon-space" />
-            <AStatistic title="CA" :value="dataCashGlobalSummary.real_cash"/>
+            <ShoppingCartOutlined class="info-color icon-space" />
+            <AStatistic :title="translations[language].purchase" :value="dataCashGlobalSummary.presentPurchaseAmount"/>
             <span>{{ currencyType }}</span>
           </ASpace>
+        </ACard>
+      </div>
+    </a-col>
+    <a-col class="gutter-row" :span="6">
+      <div class="gutter-box">
+        <ACard class="card-space">
+          <ASpace direction="horizontal">
+            <WalletOutlined class="warning-color icon-space" />
+            <AStatistic :title="translations[language].expenses" :value="dataCashGlobalSummary.presentExpensesAmount"/>
+            <span>{{ currencyType }}</span>
+          </ASpace>
+        </ACard>
+      </div>
+    </a-col>
+  </a-row>
+  <!--Revenue growth chart-->
+  <a-row class="mt-8" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+    <a-col class="gutter-row" :span="24">
+      <div class="gutter-box">
+        <ACard class="card-space" style="min-height: 500px;">
+          <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="24">
+              <a-select
+                  v-model:value="modeChartRevenue"
+                  :options="optionsMode"
+                  placeholder=""
+                  style="width: 200px"
+              />
+            </a-col>
+          </a-row>
+          <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="24">
+              <a-spin :spinning="loadingRevenue" size="default">
+                <highchart v-if="!loadingRevenue" :options="chartColumnRevenueGrowthOptions"/>
+              </a-spin>
+            </a-col>
+          </a-row>
         </ACard>
       </div>
     </a-col>

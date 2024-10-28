@@ -141,7 +141,9 @@ export const translations: Translations = {
         totalOfExpenses: 'Total of expenses',
         weekly: 'Weekly',
         monthly: 'Monthly',
-        yearly: 'Yearly'
+        yearly: 'Yearly',
+        revenueGrowth: "Revenue growth",
+        revenue: "Revenue"
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -275,6 +277,8 @@ export const translations: Translations = {
         totalOfExpenses: 'Total des dépenses',
         weekly: 'Hebdomadaires',
         monthly: 'Mensuels',
-        yearly: 'Annuel'
+        yearly: 'Annuel',
+        revenueGrowth: "Évolution du chiffre d'affaires",
+        revenue: "Chiffre d'affaires"
     }
 };

@@ -24,3 +24,8 @@ export interface IExpensesCash {
     x_series: string;
     total_expenses_amount: number;
 }
+
+export interface IRevenueCash {
+    x_series: string;
+    total_revenue_amount: number;
+}
