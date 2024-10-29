@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import Highcharts from 'highcharts';
   import {translations} from "~/composables/translations";
   import {computed, onMounted, ref} from "vue";
   import {handleInAuthorizedError} from "~/composables/CustomError";
