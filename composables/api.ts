@@ -14,6 +14,7 @@ export const API = {
     "PROFIT_LOSS" : "/api/cash-register/profit-loss",
     "SALES_PURCHASE" : "/api/cash-register/sales-purchase",
     "EXPENSES_CASH" : "/api/cash-register/expenses",
+    "REVENUE_CASH" : "/api/cash-register/revenue",
 }
 
 export const getAccessToken = (): string | null => {

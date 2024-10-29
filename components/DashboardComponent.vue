@@ -32,6 +32,10 @@
       { value: 'monthly', label: 'Monthly' },
       { value: 'yearly', label: 'Yearly' },
   ]);
+  const optionsRevenueMode = ref<SelectProps['options']>([
+    { value: 'monthly', label: 'Monthly' },
+    { value: 'yearly', label: 'Yearly' },
+  ]);
   const currencyType = ref<string>('');
 
   //Ref for Profit and loss
@@ -53,7 +57,7 @@
   const expensesAmount = ref<number[]>([]);
   //Ref for revenue growth
   const loadingRevenue = ref<boolean>(false);
-  const modeChartRevenue = ref<'weekly' | 'monthly' | 'yearly'>('monthly');
+  const modeChartRevenue = ref<'monthly' | 'yearly'>('monthly');
   const xAxisRevenue = ref<any>([]);
   const revenueAmount = ref<number[]>([]);
 
@@ -102,7 +106,7 @@
 
       result.map(item => {
         xAxisRevenue.value.push(modeChartRevenue.value === 'weekly' ? formatDateString(item.x_series, language.value, false) : item.x_series);
-        revenueAmount.value.push(item.total_revenue_amount);
+        revenueAmount.value.push(item.revenue);
       });
 
       loadingRevenue.value = false;
@@ -354,7 +358,7 @@
     series: [
       {
         name: translations[language.value].revenue,
-        color: '#e5b33e',
+        color: '#3490dc',
         data: revenueAmount.value
       },
     ]
@@ -569,16 +573,16 @@
       </div>
     </a-col>
   </a-row>
-  <!--Revenue growth chart-->
   <a-row class="mt-8" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-    <a-col class="gutter-row" :span="24">
+    <!--Revenue growth chart-->
+    <a-col class="gutter-row" :span="12">
       <div class="gutter-box">
         <ACard class="card-space" style="min-height: 500px;">
           <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
             <a-col class="gutter-row" :span="24">
               <a-select
                   v-model:value="modeChartRevenue"
-                  :options="optionsMode"
+                  :options="optionsRevenueMode"
                   placeholder=""
                   style="width: 200px"
               />
@@ -594,10 +598,8 @@
         </ACard>
       </div>
     </a-col>
-  </a-row>
-  <!--Profit and loss chart-->
-  <a-row class="mt-8" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-    <a-col class="gutter-row" :span="24">
+    <!--Profit and loss chart-->
+    <a-col class="gutter-row" :span="12">
       <div class="gutter-box">
         <ACard class="card-space" style="min-height: 500px;">
           <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">

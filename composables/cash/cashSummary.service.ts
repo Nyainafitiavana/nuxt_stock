@@ -27,23 +27,6 @@ export const getCashSummaryGlobalService = async (): Promise<ICashGlobalSummary>
     return await response.json();
 };
 
-export const getRevenueCashService = async (type: 'weekly' | 'monthly' | 'yearly'): Promise<IRevenueCash[]> => {
-    const response: any = await fetch(`${BASE_URL_API}${API.EXPENSES_CASH}/${type}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAccessToken()}`
-        },
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new CustomError(errorData.message, response.status);
-    }
-
-    return await response.json();
-};
-
 export const getProfitAndLossService = async (type: 'weekly' | 'monthly' | 'yearly'): Promise<IProfitLoss[]> => {
     const response: any = await fetch(`${BASE_URL_API}${API.PROFIT_LOSS}/${type}`, {
         method: 'GET',
@@ -80,6 +63,23 @@ export const getSalesPurchaseService = async (type: 'weekly' | 'monthly' | 'year
 
 export const getExpensesCashService = async (type: 'weekly' | 'monthly' | 'yearly'): Promise<IExpensesCash[]> => {
     const response: any = await fetch(`${BASE_URL_API}${API.EXPENSES_CASH}/${type}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAccessToken()}`
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new CustomError(errorData.message, response.status);
+    }
+
+    return await response.json();
+};
+
+export const getRevenueCashService = async (type: 'monthly' | 'yearly'): Promise<IRevenueCash[]> => {
+    const response: any = await fetch(`${BASE_URL_API}${API.REVENUE_CASH}/${type}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
