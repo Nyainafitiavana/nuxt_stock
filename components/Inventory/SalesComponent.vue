@@ -1,42 +1,47 @@
 <script setup lang="ts">
-  import {createVNode, h, type UnwrapRef} from 'vue';
-  import {
-    AButton,
-    AInputNumber, ASelect,
-    CheckOutlined,
-    DeleteOutlined, ExclamationCircleOutlined, FilterOutlined, HistoryOutlined,
-    InfoOutlined,
-    PlusOutlined, PrinterOutlined,
-    StopOutlined,
-  } from "#components";
-  import type {SelectValue} from "ant-design-vue/es/select";
-  import {handleInAuthorizedError} from "~/composables/CustomError";
-  import type {Paginate} from "~/composables/apiResponse.interface";
-  import {type FormInstance, Switch} from "ant-design-vue";
-  import {STCodeList, type TStatus} from "~/composables/Status.interface";
-  import type {
-    IDetails,
-    IFormDetails,
-    IFormReject,
-    IHistoryValidation,
-    IMovement
-  } from "~/composables/Inventory/Movement.interface";
-  import {
-    getAllDetailsMovementService, getAllHistoryValidationMovementService,
-    getAllMovementService,
-    updateDetailMovementService, validateOrRejectMovementService
-  } from "~/composables/Inventory/movement.service";
-  import {formatDateString} from "~/composables/helper";
-  import type {SelectProps} from "ant-design-vue/lib";
-  import type {IProductRemainingStock} from "~/composables/settings/Product/Product.interface";
-  import {getAllProductWithRemainingStockService} from "~/composables/settings/Product/product.service";
-  import type {RangeValue} from "~/composables/dayJs.type";
-  import type {ICurrency} from "~/composables/settings/general/settings.interface";
-  import {getCurrencyService} from "~/composables/settings/general/settings.service";
-  import {translations} from "~/composables/translations";
+import {createVNode, h, type UnwrapRef} from 'vue';
+import type {SelectValue} from "ant-design-vue/es/select";
+import {handleInAuthorizedError} from "~/composables/CustomError";
+import type {Paginate} from "~/composables/apiResponse.interface";
+import {type FormInstance, Switch} from "ant-design-vue";
+import {STCodeList, type TStatus} from "~/composables/Status.interface";
+import type {
+  IDetails,
+  IFormDetails,
+  IFormReject,
+  IHistoryValidation,
+  IMovement
+} from "~/composables/Inventory/Movement.interface";
+import {
+  getAllDetailsMovementService,
+  getAllHistoryValidationMovementService,
+  getAllMovementService,
+  updateDetailMovementService,
+  validateOrRejectMovementService
+} from "~/composables/Inventory/movement.service";
+import {formatDateString} from "~/composables/helper";
+import type {SelectProps} from "ant-design-vue/lib";
+import type {IProductRemainingStock} from "~/composables/settings/Product/Product.interface";
+import {getAllProductWithRemainingStockService} from "~/composables/settings/Product/product.service";
+import type {RangeValue} from "~/composables/dayJs.type";
+import type {ICurrency} from "~/composables/settings/general/settings.interface";
+import {getCurrencyService} from "~/composables/settings/general/settings.service";
+import {translations} from "~/composables/translations";
+import {
+  CheckOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+  FilterOutlined,
+  HistoryOutlined,
+  InfoOutlined,
+  PlusOutlined,
+  SnippetsOutlined,
+  StopOutlined,
+} from "@ant-design/icons-vue";
+import {AButton, AInputNumber, ASelect} from "#components";
 
 
-  interface Props {
+interface Props {
     activePage: TStatus;
   }
 
@@ -45,6 +50,7 @@
   //**************Beginning of state management**************
   //This is a global state for language of the app
   const language = useLanguage();
+  const currencyType = ref<string>('');
   const dateFilter = ref<RangeValue>();
   const isAdmin = ref<string>('');
   const loading = ref<boolean>(false);
@@ -59,19 +65,25 @@
   const dataProductWithRemainingStock = ref<IProductRemainingStock[]>([]);
   const dataHistoryValidation = ref<IHistoryValidation[]>([]);
   const isOpenModal = ref<boolean>(false);
+  const isOpenInvoiceModal = ref<boolean>(false);
   const isOpenModalReject = ref<boolean>(false);
   const isOpenModalHistoryValidation = ref<boolean>(false);
   const movementId = ref<string>('');
   const amountDetail = ref<string>('');
+  const amountInvoice = ref<string>('0.00');
+  const amountStillToBePaid = ref<string>('0.00');
   const optionsProductDetails = ref<SelectProps['options']>([]);
   const isShowErrorDetail = ref<boolean>(false);
   const errorMessageDetails = ref<string>('');
   const stockThreshold = ref<number>(70);
-  const currencyType = ref<string>('');
   const formStateReject: UnwrapRef<IFormReject> = reactive({
     observation: '',
   });
   const formRef = ref<FormInstance>();
+  const amountInvoiceNoFormat = ref<number>(0);
+  const clientAmount = ref<number>(0);
+  const amountReimbursed = ref<string>('0.00');
+  const isClientAmountValidated = ref<string>(true);
   //**************End of state management**************
   //**************Beginning of Column datatable property***********
 
@@ -121,13 +133,8 @@
         class: 'btn--info-outline btn-tab',
         size: 'middle',
         style: { marginRight: '8px' },
-        onClick: () => handleViewDetailsMovement(record)
-      }, [h(InfoOutlined)]),
-      h(AButton, {
-        class: 'btn--success btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-      }, [h(PrinterOutlined)]),
+        onClick: () => handleGenerateInvoice(record)
+      }, [h(SnippetsOutlined)]),
     ])
   };
 
@@ -311,6 +318,177 @@
     },
   ]);
 
+  const columnsInvoiceMovement = computed<any>(() => [
+    {
+      title: translations[language.value].product,
+      key: 'product',
+      dataIndex: 'product_name',
+      width: 200,
+      fixed: 'left',
+      customRender: ({ record }: { record: IDetails}) => [
+        h(ASelect, {
+          disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
+          style:'width: 100%',
+          'placeholder': translations[language.value].selectProduct,
+          'show-search': true,
+          value: record.product_id,
+          options: optionsProductDetails.value,
+          'filter-option': filterOption,
+          onSelect: (value: any) => {
+            changeItemDetails(value, record);
+          }
+        })
+      ]
+    },
+    {
+      title: translations[language.value].category,
+      key: 'category',
+      dataIndex: 'category_name',
+      width: 100,
+    },
+    {
+      title: translations[language.value].unit,
+      key: 'unit',
+      dataIndex: 'unit_name',
+      width: 100,
+    },
+    {
+      title: translations[language.value].unitPrice,
+      key: 'unitPrice',
+      dataIndex: 'unit_price',
+      width: 170,
+      customRender: ({ record }: { record: IDetails}) => {
+        const value = new Intl.NumberFormat('en-US', {
+          style: 'decimal',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(record.unit_price ? record.unit_price : 0);
+
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
+      }
+    },
+    {
+      title: translations[language.value].wholesalePrice,
+      key: 'wholesalePrice',
+      dataIndex: 'wholesale_price',
+      width: 170,
+      customRender: ({ record }: { record: IDetails}) => {
+        const value = new Intl.NumberFormat('en-US', {
+          style: 'decimal',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(record.wholesale_price ? record.wholesale_price : 0);
+
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
+      }
+    },
+    {
+      title: translations[language.value].priceType,
+      key: 'priceType',
+      dataIndex: 'is_unit_price',
+      width: 180,
+      customRender: ({ record }: { record: IDetails }) => {
+        return h(Switch, {
+          disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
+          checked: record.is_unit_price,
+          'checked-children': translations[language.value].unitaryPriceType,
+          'un-checked-children': translations[language.value].wholesalePriceType,
+          onChange: () => {
+            record.is_unit_price = !record.is_unit_price;
+            //We need to reload the amount of details
+            getAmountDetails();
+          },
+        });
+      },
+    },
+    {
+      title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].remainingStock]),
+      key: 'remainingStock',
+      dataIndex: 'remaining_stock',
+      width: 100,
+      fixed: 'right',
+      customRender: ({ record }: { record: IDetails}) => [
+        h('div', {
+          style: { textAlign: 'center', color: 'white', fontWeight: '800', borderRadius: '10px' },
+          class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color'
+        }, [
+          h('span', [record.remaining_stock]),
+        ]),
+      ]
+    },
+    {
+      title: translations[language.value].quantity,
+      key: 'quantity',
+      dataIndex: 'quantity',
+      width: 120,
+      fixed: 'right',
+      customRender: ({ record }: { record: IDetails }) => {
+        return h(AInputNumber, {
+          disabled: true,
+          value: record.quantity,
+          class: 'ant-input-status-error',
+          min: 0,
+          max: record.remaining_stock,
+        });
+      },
+    },
+    {
+      title: translations[language.value].quantityDelivered,
+      key: 'quantityDelivered',
+      dataIndex: 'quantity_delivered',
+      width: 120,
+      fixed: 'right',
+      customRender: ({ record }: { record: IDetails }) => {
+        return h(AInputNumber, {
+          disabled: props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED,
+          value: record.quantity_delivered ? record.quantity_delivered : 0,
+          class: 'ant-input-status-error',
+          min: 0,
+          max: record.quantity,
+          onChange: (value: any) => {
+            //Guard of max quantity
+            if (record.quantity_delivered > record.quantity) {
+              record.quantity_delivered = 0;
+            } else {
+              record.quantity_delivered = value ? value : 0;
+            }
+
+            //We need to reload the amount of invoice
+            getAmountInvoice();
+          },
+        });
+      },
+    },
+    {
+      title: translations[language.value].remainderToBeDelivered,
+      key: 'remainderToBeDelivered',
+      width: 120,
+      fixed: 'right',
+      customRender: ({ record }: { record: IDetails }) => {
+        return h(AInputNumber, {
+          disabled: true,
+          value: record.quantity && record.quantity_delivered ? record.quantity - record.quantity_delivered : 0,
+          min: 0,
+        });
+      },
+    },
+    {
+      title: translations[language.value].amount,
+      key: 'amount',
+      width: 170,
+      fixed: 'right',
+      customRender: ({ record }: { record: IDetails}) => {
+        const price = new Intl.NumberFormat('en-US', {
+          style: 'decimal',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(record.is_unit_price ? (record.unit_price * (record.quantity_delivered ?? 0 )) : (record.wholesale_price * (record.quantity_delivered ?? 0 )));
+
+        return h('div', { style: { textAlign: 'right' } }, [`${price} ${currencyType.value}`]);
+      }
+    },
+  ]);
+
   const columnsHistoryValidation = computed<any>(() => [
     {
       title: 'Date',
@@ -388,7 +566,7 @@
         key: 'isSales',
         dataIndex: 'isSales',
         width: 100,
-        customRender: ({ record }: { record: IMovement}) => [record.isSales ? 'Vente' : translations[language.value].purchase],
+        customRender: ({ record }: { record: IMovement}) => [record.isSales ? translations[language.value].sales : translations[language.value].purchase],
       },
       {
         title: 'Date',
@@ -481,6 +659,13 @@
     getAllDetailsMovement();
     getAllProductWithRemainingStock();
     handleShowModalDetails();
+  };
+
+  const handleGenerateInvoice = (record: IMovement) => {
+    movementId.value = record.uuid;
+    getAllDetailsMovement();
+    getAllProductWithRemainingStock();
+    handleShowModalInvoice();
   };
 
   const handleViewHistoryValidationMovement = (record: IMovement) => {
@@ -598,8 +783,22 @@
     isOpenModal.value = true;
   }
 
+  const handleShowModalInvoice = () => {
+    isOpenInvoiceModal.value = true;
+    amountInvoice.value = '0.00';
+    amountStillToBePaid.value = '0.00';
+    clientAmount.value = 0;
+    amountReimbursed.value = '0.00';
+    amountInvoiceNoFormat.value = 0;
+    isClientAmountValidated.value = true;
+  }
+
   const handleCloseModalDetails = () => {
     isOpenModal.value = false;
+  }
+
+  const handleCloseModalInvoice = () => {
+    isOpenInvoiceModal.value = false;
   }
 
   const handleShowModalHistoryValidation = () => {
@@ -895,6 +1094,40 @@
     }
   }
 
+  const getAmountInvoice = async () => {
+    let realAmount: number = 0;
+    let amountPaid: number = 0;
+    //Browse all item to calculi amount
+    dataDetailsMovement.value.map((item: IDetails) => {
+      //Get real amount
+      realAmount += item.is_unit_price ? (item.unit_price * (item.quantity ?? 0 )) : (item.wholesale_price * (item.quantity ?? 0 ));
+      //Get amount to be paid
+      amountPaid += item.is_unit_price ? (item.unit_price * (item.quantity_delivered ?? 0 )) : (item.wholesale_price * (item.quantity_delivered ?? 0 ));
+    });
+    //Calculated amountToBePaid
+    const amountToBePaid: number = await (realAmount - amountPaid);
+    //Keep amountPaid for reimbursed operation
+    amountInvoiceNoFormat.value = amountPaid;
+
+    //format amount paid
+    const formatAmountPaid: string =  await new Intl.NumberFormat('en-US', {
+      style: 'decimal',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amountPaid);
+    //format amount to be paid
+    const formatAmountToBePaid: string =  await new Intl.NumberFormat('en-US', {
+      style: 'decimal',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amountToBePaid);
+    //set value of amountDetailState
+    if (formatAmountPaid && formatAmountToBePaid) {
+      amountInvoice.value = formatAmountPaid;
+      amountStillToBePaid.value = formatAmountToBePaid;
+    }
+  }
+
   const getCurrencyType = async () => {
     try {
       const dataCurrencyType: ICurrency = await getCurrencyService();
@@ -936,6 +1169,30 @@
       getAllDataMovement();
   }
   //******************End filter of and paginator methods****
+
+  // Watch clientAmount changed so we recalculate amountToBeReimbursed
+  watch(clientAmount, async () => {
+    if (clientAmount.value >= amountInvoiceNoFormat.value && clientAmount.value !== 0) {
+      //Calculated amount to be reimbursed
+      const amountToBeReimbursed = clientAmount.value - amountInvoiceNoFormat.value;
+      //format amount to be reimbursed
+      amountReimbursed.value = await new Intl.NumberFormat('en-US', {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(amountToBeReimbursed);
+      //Close error if clientAmount is lower than amountInvoiceNoFormat
+      isClientAmountValidated.value = true;
+    } else if (!clientAmount.value || clientAmount.value === 0) {
+      clientAmount.value = 0;
+      isClientAmountValidated.value = true;
+      amountReimbursed.value = '0.00';
+    } else {
+      amountReimbursed.value = '0.00';
+      //Show error if clientAmount is lower than amountInvoiceNoFormat
+      isClientAmountValidated.value = false;
+    }
+  });
 
 
   onMounted(() => {
@@ -1072,6 +1329,98 @@
             v-if="props.activePage === STCodeList.IN_PROGRESS && isAdmin === 'true' || props.activePage === STCodeList.REJECTED && isAdmin !== 'true'"
         >{{ translations[language].save }}</a-button>
         <span class="danger-color ml-5" style="font-size: 18px;" v-if="isShowErrorDetail">{{ errorMessageDetails }}</span>
+      </a-col>
+    </a-row>
+  </a-modal>
+  <!--Invoice Modal-->
+  <a-modal
+      v-model:open="isOpenInvoiceModal"
+      v-if="isOpenInvoiceModal"
+      closable
+      :footer="null"
+      style="top: 20px"
+      @ok=""
+      width="1600px"
+      :title="translations[language].invoice"
+  >
+    <!--Datatable invoice-->
+    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+      <a-col class="mt-8" span="24">
+        <a-spin :spinning="loadingDetailsMovement" size="large">
+          <a-table
+              class="w-full"
+              :columns="columnsInvoiceMovement"
+              :data-source="dataDetailsMovement"
+              :pagination="false"
+              :scroll="{ x: 1200, y: 1000 }"
+              bordered
+          />
+        </a-spin>
+      </a-col>
+    </a-row>
+    <!-- Legend row -->
+    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+      <a-col class="mt-8 flex justify-center" span="24">
+        <a-col  span="6" class="flex justify-center">
+          <div class="primary-background-color w-12 h-4 rounded-md"></div>
+          <h6 class="ml-4">{{ translations[language].productAvailable }}</h6>
+        </a-col>
+        <a-col  span="6" class="flex justify-center">
+          <div class="danger-background-color w-12 h-4 rounded-md"></div>
+          <h6 class="ml-4">{{ translations[language].productOutOfStock }}</h6>
+        </a-col>
+      </a-col>
+    </a-row>
+    <!-- Amount row -->
+    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+      <a-col class="mt-8" span="8">
+        <p style="font-size: 16px;">{{ translations[language].amountPaid }} : {{ amountInvoice }} {{ currencyType }}</p>
+      </a-col>
+      <a-col class="mt-8" span="8">
+        <p style="font-size: 16px;">{{ translations[language].amountStillToBePaid }} : {{ amountStillToBePaid }} {{ currencyType }}</p>
+      </a-col>
+    </a-row>
+    <!-- Client Amount row -->
+    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+      <a-col class="mt-8" span="8">
+        <label for="client-amount" style="font-size: 16px;">{{ translations[language].clientAmount }} : </label>
+        <a-input-number
+            id="client-amount"
+            :status="isClientAmountValidated ? 'success' : 'error'"
+            class="w-56"
+            v-model:value="clientAmount"
+            style="font-size: 16px;"
+            :min="0"
+            :disabled="amountInvoiceNoFormat == 0"
+        />
+        <span style="font-size: 16px;">&nbsp;{{ currencyType }}</span>
+      </a-col>
+      <a-col class="mt-8" span="8">
+        <p style="font-size: 16px;">{{ translations[language].amountToBeReimbursed }} : {{ amountReimbursed }} {{ currencyType }}</p>
+      </a-col>
+    </a-row>
+    <!-- Error row -->
+    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+      <a-col class="mt-8" span="24">
+        <p class="danger-color" style="font-size: 16px;" v-if="!isClientAmountValidated">{{ translations[language].errorClientAmount }}</p>
+      </a-col>
+    </a-row>
+    <!-- Action modal of invoice -->
+    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+      <a-col class="mt-8" span="24">
+        <a-button class="btn btn--default" size="middle" @click="handleCloseModalInvoice">{{ translations[language].cancel }}</a-button>
+        <a-button
+            class="btn btn--primary ml-4"
+            html-type="submit"
+            size="middle"
+            :loading="loadingBtn"
+            @click="handleSaveChangeDetails"
+            v-if="
+              props.activePage === STCodeList.VALIDATED &&
+              amountInvoiceNoFormat > 0 &&
+              isClientAmountValidated
+            "
+        >{{ translations[language].save }}</a-button>
       </a-col>
     </a-row>
   </a-modal>

@@ -16,6 +16,7 @@ export interface IDetails {
     product_id: string;
     product_name: string;
     quantity: number;
+    quantity_delivered: number;
     category_id: string;
     category_name: string;
     unit_id: string;

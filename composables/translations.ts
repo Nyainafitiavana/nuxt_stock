@@ -143,7 +143,15 @@ export const translations: Translations = {
         monthly: 'Monthly',
         yearly: 'Yearly',
         revenueGrowth: "Revenue growth",
-        revenue: "Revenue"
+        revenue: "Revenue",
+        quantityDelivered: "Quantity delivered",
+        invoice: 'Invoice',
+        amountPaid: 'Amount paid',
+        amountStillToBePaid: 'Amount still to be paid',
+        remainderToBeDelivered: 'Remainder to be delivered',
+        amountToBeReimbursed: 'Amount to be reimbursed',
+        clientAmount: 'Client amount',
+        errorClientAmount: 'The client amount must be greater than or equal to the amount paid or be equal to 0.'
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -279,6 +287,14 @@ export const translations: Translations = {
         monthly: 'Mensuels',
         yearly: 'Annuel',
         revenueGrowth: "Évolution du chiffre d'affaires",
-        revenue: "Chiffre d'affaires"
+        revenue: "Chiffre d'affaires",
+        quantityDelivered: "Quantité livrée",
+        invoice: 'Facture',
+        amountPaid: 'Montant payé',
+        amountStillToBePaid: 'Montant restant à payer',
+        remainderToBeDelivered: 'Reste à livrer',
+        amountToBeReimbursed: 'Montant à rembourser',
+        clientAmount: 'Montant du client',
+        errorClientAmount: 'Le montant du client doit être supérieur ou égal au montant payé ou être égal à 0.'
     }
 };
