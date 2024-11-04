@@ -100,6 +100,27 @@ export const updateDetailMovementService = async (
     return await response.json();
 };
 
+export const generateInvoiceService = async (
+    idMovement: string,
+    details: IFormDetails[],
+): Promise<{url: string}> => {
+    const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}/${idMovement}/generate_invoice`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAccessToken()}`
+        },
+        body: JSON.stringify({ details: details }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new CustomError(errorData.message, response.status);
+    }
+
+    return await response.json();
+};
+
 export const validateOrRejectMovementService = async (
     idMovement: string,
     isValidate: boolean,

@@ -33,6 +33,7 @@ export interface IFormDetails {
     idProduct: string;
     isUnitPrice: boolean;
     quantity: number;
+    quantityDelivered?: number;
 }
 
 export interface IBodyMovement {
@@ -57,4 +58,12 @@ export interface IHistoryValidation {
         designation: string;
         code: string;
     };
+}
+
+export interface IInvoice {
+    uuid: string;
+    reference: string;
+    editor: string;
+    client: string;
+    createdAt: string;
 }

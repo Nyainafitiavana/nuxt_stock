@@ -9,10 +9,11 @@ import type {
   IDetails,
   IFormDetails,
   IFormReject,
-  IHistoryValidation,
+  IHistoryValidation, IInvoice,
   IMovement
 } from "~/composables/Inventory/Movement.interface";
 import {
+  generateInvoiceService,
   getAllDetailsMovementService,
   getAllHistoryValidationMovementService,
   getAllMovementService,
@@ -39,6 +40,7 @@ import {
   StopOutlined,
 } from "@ant-design/icons-vue";
 import {AButton, AInputNumber, ASelect} from "#components";
+import {EnvApiConfig} from "~/composables/Env.config";
 
 
 interface Props {
@@ -79,11 +81,16 @@ interface Props {
   const formStateReject: UnwrapRef<IFormReject> = reactive({
     observation: '',
   });
+  const showTableNewInvoice = ref<boolean>(false);
+  const dataInvoiceList = ref<IInvoice[]>([]);
   const formRef = ref<FormInstance>();
   const amountInvoiceNoFormat = ref<number>(0);
   const clientAmount = ref<number>(0);
   const amountReimbursed = ref<string>('0.00');
-  const isClientAmountValidated = ref<string>(true);
+  const isClientAmountValidated = ref<boolean>(true);
+  const pdfUrl = ref<string>('');
+  const isOpenModalViewPdf = ref<boolean>(false);
+
   //**************End of state management**************
   //**************Beginning of Column datatable property***********
 
@@ -556,6 +563,33 @@ interface Props {
       ])
     },
   ]);
+
+  const columnsInvoiceList = computed<any>(() => [
+    {
+      title: 'Reference',
+      key: 'reference',
+      dataIndex: 'reference',
+    },
+    {
+      title: translations[language.value].editor,
+      key: 'editor',
+      dataIndex: 'editor',
+    },
+    {
+      title: 'Client',
+      key: 'client',
+      dataIndex: 'client',
+    },
+    {
+      title: 'Date',
+      key: 'createdAt',
+      dataIndex: 'createdAt',
+      customRender: ({ record }: { record: IHistoryValidation}) => {
+        const createdAt: string = formatDateString(record.createdAt, language.value, true);
+        return h('div', {style: {textAlign: 'left'}}, [createdAt]);
+      }
+    },
+  ]);
   //**************End of Column datatable property***********
 
   //**********Init column of datatable*****************
@@ -663,8 +697,6 @@ interface Props {
 
   const handleGenerateInvoice = (record: IMovement) => {
     movementId.value = record.uuid;
-    getAllDetailsMovement();
-    getAllProductWithRemainingStock();
     handleShowModalInvoice();
   };
 
@@ -791,6 +823,7 @@ interface Props {
     amountReimbursed.value = '0.00';
     amountInvoiceNoFormat.value = 0;
     isClientAmountValidated.value = true;
+    showTableNewInvoice.value = false;
   }
 
   const handleCloseModalDetails = () => {
@@ -846,6 +879,39 @@ interface Props {
     }
   }
 
+  const handleSaveChangeDetailsInvoice = () => {
+    //Verify if we have a details with the movement
+    if (dataDetailsMovement.value.length > 0) {
+      //Check if an item of the details contains empty product_id
+      const indexEmptyProduct = dataDetailsMovement.value.findIndex(item => item.product_id === '' || item.quantity === 0);
+
+      if (indexEmptyProduct !== -1) {
+        errorMessageDetails.value = translations[language.value].errorSaveDetailsSales;
+        isShowErrorDetail.value = true;
+      } else {
+        isShowErrorDetail.value = false;
+        Modal.confirm({
+          title: translations[language.value].confirmationTitle,
+          icon: createVNode(ExclamationCircleOutlined),
+          content: translations[language.value].confirmationDescription,
+          okText: translations[language.value].yes,
+          cancelText: translations[language.value].no,
+          onOk: async () => {
+            loadingBtn.value = true;
+            await generateInvoice();
+          }
+        });
+      }
+    } else {
+      // Show error notification
+      notification.error({
+        message: translations[language.value].error,
+        description: translations[language.value].errorSale,
+        class: 'custom-error-notification'
+      });
+    }
+  }
+
   const onFinishReject = () => {
     Modal.confirm({
       title: translations[language.value].confirmationTitle,
@@ -861,6 +927,17 @@ interface Props {
       }
     });
   }
+
+  const handleShowNewInvoice = async () => {
+    showTableNewInvoice.value = true;
+    await getAllDetailsMovement();
+    await getAllProductWithRemainingStock();
+    await getAmountInvoice();
+  };
+
+  const handleCancelNewInvoice = () => {
+    showTableNewInvoice.value = false;
+  };
   //************End of modal actions*********************
 
   //******************Beginning of CRUD controller**************
@@ -1005,6 +1082,7 @@ interface Props {
           idProduct: item.product_id,
           isUnitPrice: item.is_unit_price,
           quantity: item.quantity,
+          quantityDelivered: item.quantity_delivered,
         })
       })
 
@@ -1020,6 +1098,55 @@ interface Props {
       loadingBtn.value = false;
 
       handleCloseModalDetails();
+      //Reload data movement
+      await getAllDataMovement();
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: translations[language.value].error,
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+
+      loadingBtn.value = false;
+    }
+  }
+
+  const generateInvoice = async () => {
+    try {
+      let data: IFormDetails[] = [];
+      //Create a data dictionary
+      dataDetailsMovement.value.forEach((item: IDetails) => {
+        data.push({
+          idProduct: item.product_id,
+          isUnitPrice: item.is_unit_price,
+          quantity: item.quantity,
+          quantityDelivered: item.quantity_delivered,
+        })
+      })
+
+      const result = await generateInvoiceService(movementId.value, data);
+      pdfUrl.value = `${EnvApiConfig.host}:${EnvApiConfig.port}${result.url}` ;
+      isOpenModalViewPdf.value = true;
+      // Show success notification
+      notification.success({
+        message: translations[language.value].success,
+        description: translations[language.value].successDescription,
+        class: 'custom-success-notification'
+      });
+
+      loadingBtn.value = false;
+
+      showTableNewInvoice.value = false;
       //Reload data movement
       await getAllDataMovement();
     } catch (error) {
@@ -1341,16 +1468,114 @@ interface Props {
       style="top: 20px"
       @ok=""
       width="1600px"
-      :title="translations[language].invoice"
   >
-    <!--Datatable invoice-->
+    <!-- Template title modal -->
+    <template #title>
+      <span>{{ translations[language].invoice }}</span>
+      <a-button
+          class="btn--success ml-4"
+          :icon="h(PlusOutlined)"
+          @click="handleShowNewInvoice"
+          size="middle"
+          v-if="props.activePage === STCodeList.VALIDATED"
+      >
+        Generate
+      </a-button>
+    </template>
+
+    <!--Invoice section-->
+    <a-row class="w-full" v-if="showTableNewInvoice">
+      <a-col span="24">
+        <!--Datatable new invoice-->
+        <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+          <a-col class="mt-8" span="24">
+            <a-spin :spinning="loadingDetailsMovement" size="large">
+              <a-table
+                  class="w-full"
+                  :columns="columnsInvoiceMovement"
+                  :data-source="dataDetailsMovement"
+                  :pagination="false"
+                  :scroll="{ x: 1200, y: 1000 }"
+                  bordered
+              />
+            </a-spin>
+          </a-col>
+        </a-row>
+        <!-- Legend row -->
+        <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+          <a-col class="mt-8 flex justify-center" span="24">
+            <a-col  span="6" class="flex justify-center">
+              <div class="primary-background-color w-12 h-4 rounded-md"></div>
+              <h6 class="ml-4">{{ translations[language].productAvailable }}</h6>
+            </a-col>
+            <a-col  span="6" class="flex justify-center">
+              <div class="danger-background-color w-12 h-4 rounded-md"></div>
+              <h6 class="ml-4">{{ translations[language].productOutOfStock }}</h6>
+            </a-col>
+          </a-col>
+        </a-row>
+        <!-- Amount row -->
+        <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+          <a-col class="mt-8" span="8">
+            <p style="font-size: 16px;">{{ translations[language].amountPaid }} : {{ amountInvoice }} {{ currencyType }}</p>
+          </a-col>
+          <a-col class="mt-8" span="8">
+            <p style="font-size: 16px;">{{ translations[language].amountStillToBePaid }} : {{ amountStillToBePaid }} {{ currencyType }}</p>
+          </a-col>
+        </a-row>
+        <!-- Client Amount row -->
+        <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+          <a-col class="mt-8" span="8">
+            <label for="client-amount" style="font-size: 16px;">{{ translations[language].clientAmount }} : </label>
+            <a-input-number
+                id="client-amount"
+                :status="isClientAmountValidated ? 'success' : 'error'"
+                class="w-56"
+                v-model:value="clientAmount"
+                style="font-size: 16px;"
+                :min="0"
+                :disabled="amountInvoiceNoFormat == 0"
+            />
+            <span style="font-size: 16px;">&nbsp;{{ currencyType }}</span>
+          </a-col>
+          <a-col class="mt-8" span="8">
+            <p style="font-size: 16px;">{{ translations[language].amountToBeReimbursed }} : {{ amountReimbursed }} {{ currencyType }}</p>
+          </a-col>
+        </a-row>
+        <!-- Error row -->
+        <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+          <a-col class="mt-8" span="24">
+            <p class="danger-color" style="font-size: 16px;" v-if="!isClientAmountValidated">{{ translations[language].errorClientAmount }}</p>
+          </a-col>
+        </a-row>
+        <!-- Action modal of invoice -->
+        <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+          <a-col class="mt-8" span="24">
+            <a-button class="btn btn--default" size="middle" @click="handleCancelNewInvoice">{{ translations[language].cancel }}</a-button>
+            <a-button
+                class="btn btn--primary ml-4"
+                html-type="submit"
+                size="middle"
+                :loading="loadingBtn"
+                @click="handleSaveChangeDetailsInvoice"
+                v-if="
+              props.activePage === STCodeList.VALIDATED &&
+              amountInvoiceNoFormat > 0 &&
+              isClientAmountValidated
+            "
+            >{{ translations[language].save }}</a-button>
+          </a-col>
+        </a-row>
+      </a-col>
+    </a-row>
+    <!--Datatable invoice list-->
     <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
       <a-col class="mt-8" span="24">
         <a-spin :spinning="loadingDetailsMovement" size="large">
           <a-table
               class="w-full"
-              :columns="columnsInvoiceMovement"
-              :data-source="dataDetailsMovement"
+              :columns="columnsInvoiceList"
+              :data-source="dataInvoiceList"
               :pagination="false"
               :scroll="{ x: 1200, y: 1000 }"
               bordered
@@ -1358,71 +1583,28 @@ interface Props {
         </a-spin>
       </a-col>
     </a-row>
-    <!-- Legend row -->
-    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-      <a-col class="mt-8 flex justify-center" span="24">
-        <a-col  span="6" class="flex justify-center">
-          <div class="primary-background-color w-12 h-4 rounded-md"></div>
-          <h6 class="ml-4">{{ translations[language].productAvailable }}</h6>
-        </a-col>
-        <a-col  span="6" class="flex justify-center">
-          <div class="danger-background-color w-12 h-4 rounded-md"></div>
-          <h6 class="ml-4">{{ translations[language].productOutOfStock }}</h6>
-        </a-col>
-      </a-col>
-    </a-row>
-    <!-- Amount row -->
-    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-      <a-col class="mt-8" span="8">
-        <p style="font-size: 16px;">{{ translations[language].amountPaid }} : {{ amountInvoice }} {{ currencyType }}</p>
-      </a-col>
-      <a-col class="mt-8" span="8">
-        <p style="font-size: 16px;">{{ translations[language].amountStillToBePaid }} : {{ amountStillToBePaid }} {{ currencyType }}</p>
-      </a-col>
-    </a-row>
-    <!-- Client Amount row -->
-    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-      <a-col class="mt-8" span="8">
-        <label for="client-amount" style="font-size: 16px;">{{ translations[language].clientAmount }} : </label>
-        <a-input-number
-            id="client-amount"
-            :status="isClientAmountValidated ? 'success' : 'error'"
-            class="w-56"
-            v-model:value="clientAmount"
-            style="font-size: 16px;"
-            :min="0"
-            :disabled="amountInvoiceNoFormat == 0"
-        />
-        <span style="font-size: 16px;">&nbsp;{{ currencyType }}</span>
-      </a-col>
-      <a-col class="mt-8" span="8">
-        <p style="font-size: 16px;">{{ translations[language].amountToBeReimbursed }} : {{ amountReimbursed }} {{ currencyType }}</p>
-      </a-col>
-    </a-row>
-    <!-- Error row -->
-    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-      <a-col class="mt-8" span="24">
-        <p class="danger-color" style="font-size: 16px;" v-if="!isClientAmountValidated">{{ translations[language].errorClientAmount }}</p>
-      </a-col>
-    </a-row>
-    <!-- Action modal of invoice -->
-    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-      <a-col class="mt-8" span="24">
-        <a-button class="btn btn--default" size="middle" @click="handleCloseModalInvoice">{{ translations[language].cancel }}</a-button>
-        <a-button
-            class="btn btn--primary ml-4"
-            html-type="submit"
-            size="middle"
-            :loading="loadingBtn"
-            @click="handleSaveChangeDetails"
-            v-if="
-              props.activePage === STCodeList.VALIDATED &&
-              amountInvoiceNoFormat > 0 &&
-              isClientAmountValidated
-            "
-        >{{ translations[language].save }}</a-button>
-      </a-col>
-    </a-row>
+  </a-modal>
+  <!--View invoice modal-->
+  <a-modal
+      v-model:open="isOpenModalViewPdf"
+      v-if="isOpenModalViewPdf"
+      closable
+      :footer="null"
+      style="top: 20px"
+      @ok=""
+      width="1000px"
+      :title="Invoice"
+  >
+    <div>
+      <h1>Invoice</h1>
+      <iframe
+          v-if="pdfUrl"
+          :src="pdfUrl"
+          width="100%"
+          height="600"
+          frameborder="0"
+      ></iframe>
+    </div>
   </a-modal>
   <!--Reject Modal-->
   <a-modal
