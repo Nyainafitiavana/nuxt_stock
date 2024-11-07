@@ -90,6 +90,12 @@ interface Props {
   const isClientAmountValidated = ref<boolean>(true);
   const pdfUrl = ref<string>('');
   const isOpenModalViewPdf = ref<boolean>(false);
+  const clientName = ref<string>('');
+  const optionsFormat = ref<SelectProps['options']>([
+      { value: 'TICKET', label: 'Ticket' },
+      { value: 'A4', label: 'A4' },
+  ]);
+  const currentFormat = ref<string>('TICKET');
 
   //**************End of state management**************
   //**************Beginning of Column datatable property***********
@@ -816,7 +822,7 @@ interface Props {
   }
 
   const handleShowModalInvoice = () => {
-    isOpenInvoiceModal.value = true;
+    //Reset value of fields
     amountInvoice.value = '0.00';
     amountStillToBePaid.value = '0.00';
     clientAmount.value = 0;
@@ -824,6 +830,10 @@ interface Props {
     amountInvoiceNoFormat.value = 0;
     isClientAmountValidated.value = true;
     showTableNewInvoice.value = false;
+    clientName.value = '';
+    currentFormat.value = 'TICKET';
+    //Open invoice modal
+    isOpenInvoiceModal.value = true;
   }
 
   const handleCloseModalDetails = () => {
@@ -929,6 +939,8 @@ interface Props {
   }
 
   const handleShowNewInvoice = async () => {
+    clientName.value = '';
+    currentFormat.value = 'TICKET';
     showTableNewInvoice.value = true;
     await getAllDetailsMovement();
     await getAllProductWithRemainingStock();
@@ -1140,6 +1152,8 @@ interface Props {
           details: dataDetailsMovement.value,
           amountPaid: amountInvoiceNoFormat.value,
           language: language.value,
+          client: clientName.value,
+          format: currentFormat.value,
         }
       }
 
@@ -1525,10 +1539,23 @@ interface Props {
         </a-row>
         <!-- Amount row -->
         <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-          <a-col class="mt-8" span="8">
+          <a-col class="mt-8" span="6">
+            <span style="font-size: 16px;">Client : </span>
+            <a-input v-model:value="clientName" placeholder="Client" style="width: 200px"/>
+          </a-col>
+          <a-col class="mt-8" span="6">
+            <span style="font-size: 16px;">Format : </span>
+            <a-select
+                ref="select"
+                v-model:value="currentFormat"
+                style="width: 120px"
+                :options="optionsFormat"
+            ></a-select>
+          </a-col>
+          <a-col class="mt-8" span="6">
             <p style="font-size: 16px;">{{ translations[language].amountPaid }} : {{ amountInvoice }} {{ currencyType }}</p>
           </a-col>
-          <a-col class="mt-8" span="8">
+          <a-col class="mt-8" span="6">
             <p style="font-size: 16px;">{{ translations[language].amountStillToBePaid }} : {{ amountStillToBePaid }} {{ currencyType }}</p>
           </a-col>
         </a-row>
