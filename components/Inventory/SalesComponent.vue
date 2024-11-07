@@ -9,7 +9,7 @@ import type {
   IDetails,
   IFormDetails,
   IFormReject,
-  IHistoryValidation, IInvoice,
+  IHistoryValidation, IInvoice, IInvoicePayload,
   IMovement
 } from "~/composables/Inventory/Movement.interface";
 import {
@@ -1123,16 +1123,25 @@ interface Props {
 
   const generateInvoice = async () => {
     try {
-      let data: IFormDetails[] = [];
+      let formDetails: IFormDetails[] = [];
       //Create a data dictionary
       dataDetailsMovement.value.forEach((item: IDetails) => {
-        data.push({
+        formDetails.push({
           idProduct: item.product_id,
           isUnitPrice: item.is_unit_price,
           quantity: item.quantity,
           quantityDelivered: item.quantity_delivered,
         })
-      })
+      });
+
+      const data: IInvoicePayload = {
+        details: formDetails,
+        invoiceData: {
+          details: dataDetailsMovement.value,
+          amountPaid: amountInvoiceNoFormat.value,
+          language: language.value,
+        }
+      }
 
       const result = await generateInvoiceService(movementId.value, data);
       pdfUrl.value = `${EnvApiConfig.host}:${EnvApiConfig.port}${result.url}` ;

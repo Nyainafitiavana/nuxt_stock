@@ -6,7 +6,7 @@ import type {
     IBodyMovement,
     IDetails,
     IFormDetails,
-    IFormReject, IHistoryValidation,
+    IFormReject, IHistoryValidation, IInvoicePayload,
     IMovement
 } from "~/composables/Inventory/Movement.interface";
 import {EnvApiConfig} from "~/composables/Env.config";
@@ -102,7 +102,7 @@ export const updateDetailMovementService = async (
 
 export const generateInvoiceService = async (
     idMovement: string,
-    details: IFormDetails[],
+    invoiceData: IInvoicePayload,
 ): Promise<{url: string}> => {
     const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}/${idMovement}/generate_invoice`, {
         method: 'PATCH',
@@ -110,7 +110,7 @@ export const generateInvoiceService = async (
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${getAccessToken()}`
         },
-        body: JSON.stringify({ details: details }),
+        body: JSON.stringify(invoiceData),
     });
 
     if (!response.ok) {

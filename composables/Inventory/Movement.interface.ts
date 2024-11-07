@@ -36,6 +36,15 @@ export interface IFormDetails {
     quantityDelivered?: number;
 }
 
+export interface IInvoicePayload {
+    details: IFormDetails[];
+    invoiceData: {
+        details: IDetails[],
+        amountPaid: number;
+        language: 'ENG' | 'FR';
+    };
+}
+
 export interface IBodyMovement {
     isSales: boolean;
     details: IFormDetails[];
