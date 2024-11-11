@@ -78,7 +78,7 @@ export const getExpensesCashService = async (type: 'weekly' | 'monthly' | 'yearl
     return await response.json();
 };
 
-export const getRevenueCashService = async (type: 'monthly' | 'yearly'): Promise<IRevenueCash[]> => {
+export const getRevenueCashService = async (type: 'weekly' | 'monthly' | 'yearly'): Promise<IRevenueCash[]> => {
     const response: any = await fetch(`${BASE_URL_API}${API.REVENUE_CASH}/${type}`, {
         method: 'GET',
         headers: {

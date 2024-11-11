@@ -32,6 +32,7 @@
       { value: 'yearly', label: 'Yearly' },
   ]);
   const optionsRevenueMode = ref<SelectProps['options']>([
+    { value: 'weekly', label: 'Weekly' },
     { value: 'monthly', label: 'Monthly' },
     { value: 'yearly', label: 'Yearly' },
   ]);
@@ -319,7 +320,7 @@
       }
     },
     title: {
-      text: translations[language.value].revenueGrowth,
+      text: translations[language.value].recipes,
     },
     xAxis: {
       categories: xAxisRevenue.value,
@@ -573,7 +574,7 @@
     </a-col>
   </a-row>
   <a-row class="mt-8" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-    <!--Revenue growth chart-->
+    <!--Recipes chart-->
     <a-col class="gutter-row" :span="12">
       <div class="gutter-box">
         <ACard class="card-space" style="min-height: 500px;">
