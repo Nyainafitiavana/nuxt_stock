@@ -689,7 +689,7 @@ interface Props {
       props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'true' ?
           activeActionsColumns :
           (
-              (props.activePage === STCodeList.VALIDATED && isAdmin.value === 'true') ?
+              (props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED) ?
                   validatedActionColumns : rejectOrCompletedActionColumns
           ),
     ]);
