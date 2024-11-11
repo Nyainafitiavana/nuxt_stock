@@ -272,27 +272,27 @@
   });
 
   // Watch for mode changes of modeChartRevenue and re-fetch data, then re-render chart
-  watch(modeChartRevenue.value, async () => {
+  watch(modeChartRevenue, async () => {
     await getRevenue(); // Fetch new data when mode changes
   });
 
   // Watch for mode changes of modeChartProfitLoss and re-fetch data, then re-render chart
-  watch(modeChartProfitLoss.value, async () => {
+  watch(modeChartProfitLoss, async () => {
     await getProfitAndLoss(); // Fetch new data when mode changes
   });
 
   // Watch for mode changes of modeChartSalesPurchase and re-fetch data, then re-render chart
-  watch(modeChartSalesPurchase.value, async () => {
+  watch(modeChartSalesPurchase, async () => {
     await getSalesAndPurchase(); // Fetch new data when mode changes
   });
 
   // Watch for mode changes of modeChartExpenses and re-fetch data, then re-render chart
-  watch(modeChartExpenses.value, async () => {
+  watch(modeChartExpenses, async () => {
     await getExpenses(); // Fetch new data when mode changes
   });
 
   // Watch for mode changes of modeChartRevenue and re-fetch data, then re-render chart
-  watch(modeChartRevenue.value, async () => {
+  watch(modeChartRevenue, async () => {
     await getRevenue(); // Fetch new data when mode changes
   });
 
