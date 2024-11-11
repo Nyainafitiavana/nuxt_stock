@@ -31,11 +31,6 @@
       { value: 'monthly', label: 'Monthly' },
       { value: 'yearly', label: 'Yearly' },
   ]);
-  const optionsRevenueMode = ref<SelectProps['options']>([
-    { value: 'weekly', label: 'Weekly' },
-    { value: 'monthly', label: 'Monthly' },
-    { value: 'yearly', label: 'Yearly' },
-  ]);
   const currencyType = ref<string>('');
 
   //Ref for Profit and loss
@@ -277,27 +272,27 @@
   });
 
   // Watch for mode changes of modeChartRevenue and re-fetch data, then re-render chart
-  watch(modeChartRevenue, async () => {
+  watch(modeChartRevenue.value, async () => {
     await getRevenue(); // Fetch new data when mode changes
   });
 
   // Watch for mode changes of modeChartProfitLoss and re-fetch data, then re-render chart
-  watch(modeChartProfitLoss, async () => {
+  watch(modeChartProfitLoss.value, async () => {
     await getProfitAndLoss(); // Fetch new data when mode changes
   });
 
   // Watch for mode changes of modeChartSalesPurchase and re-fetch data, then re-render chart
-  watch(modeChartSalesPurchase, async () => {
+  watch(modeChartSalesPurchase.value, async () => {
     await getSalesAndPurchase(); // Fetch new data when mode changes
   });
 
   // Watch for mode changes of modeChartExpenses and re-fetch data, then re-render chart
-  watch(modeChartExpenses, async () => {
+  watch(modeChartExpenses.value, async () => {
     await getExpenses(); // Fetch new data when mode changes
   });
 
   // Watch for mode changes of modeChartRevenue and re-fetch data, then re-render chart
-  watch(modeChartRevenue, async () => {
+  watch(modeChartRevenue.value, async () => {
     await getRevenue(); // Fetch new data when mode changes
   });
 
@@ -311,8 +306,8 @@
   });
 
   //-------------------Beginning of chart function--------------------------
-  //Expenses chart
-  const chartColumnRevenueGrowthOptions = computed(() => ({
+  //Recipes chart
+  const chartColumnRecipeOptions = computed(() => ({
     chart: {
       type: 'area', // Change to 'column' for vertical bars
       animation: {
@@ -582,7 +577,7 @@
             <a-col class="gutter-row" :span="24">
               <a-select
                   v-model:value="modeChartRevenue"
-                  :options="optionsRevenueMode"
+                  :options="optionsMode"
                   placeholder=""
                   style="width: 200px"
               />
@@ -591,7 +586,7 @@
           <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
             <a-col class="gutter-row" :span="24">
               <a-spin :spinning="loadingRevenue" size="default">
-                <highchart v-if="!loadingRevenue" :options="chartColumnRevenueGrowthOptions"/>
+                <highchart v-if="!loadingRevenue" :options="chartColumnRecipeOptions"/>
               </a-spin>
             </a-col>
           </a-row>
