@@ -6,7 +6,7 @@ import type {
     IBodyMovement,
     IDetails,
     IFormDetails,
-    IFormReject, IHistoryValidation, IInvoicePayload,
+    IFormReject, IHistoryValidation, IInvoice, IInvoicePayload,
     IMovement
 } from "~/composables/Inventory/Movement.interface";
 import {EnvApiConfig} from "~/composables/Env.config";
@@ -64,6 +64,27 @@ export const getAllDetailsMovementService = async (idMovement: string): Promise<
 
 export const getAllHistoryValidationMovementService = async (idMovement: string): Promise<IHistoryValidation[]> => {
     const response: any = await fetch(`${BASE_URL_API}${API.MOVEMENT}/${idMovement}/history/validation`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAccessToken()}`
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new CustomError(errorData.message, response.status);
+    }
+
+    return await response.json();
+};
+
+export const getAllInvoiceListByMovementService = async (
+    idMovement: string,
+    pageSize: number | string,
+    currentPage: number | string,
+): Promise<IInvoice[]> => {
+    const response: any = await fetch(`${BASE_URL_API}${API.INVOICE_LIST}${idMovement}?limit=${pageSize}&page=${currentPage}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

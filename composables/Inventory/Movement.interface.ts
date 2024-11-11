@@ -74,7 +74,8 @@ export interface IHistoryValidation {
 export interface IInvoice {
     uuid: string;
     reference: string;
-    editor: string;
-    client: string;
+    editor: IUser;
+    clientName: string;
     createdAt: string;
+    fileName: string;
 }

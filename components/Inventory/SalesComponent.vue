@@ -15,7 +15,7 @@ import type {
 import {
   generateInvoiceService,
   getAllDetailsMovementService,
-  getAllHistoryValidationMovementService,
+  getAllHistoryValidationMovementService, getAllInvoiceListByMovementService,
   getAllMovementService,
   updateDetailMovementService,
   validateOrRejectMovementService
@@ -31,7 +31,7 @@ import {translations} from "~/composables/translations";
 import {
   CheckOutlined,
   DeleteOutlined,
-  ExclamationCircleOutlined,
+  ExclamationCircleOutlined, EyeOutlined,
   FilterOutlined,
   HistoryOutlined,
   InfoOutlined,
@@ -58,6 +58,7 @@ interface Props {
   const loading = ref<boolean>(false);
   const loadingDetailsMovement = ref<boolean>(false);
   const loadingHistoryValidation = ref<boolean>(false);
+  const loadingInvoiceMovement = ref<boolean>(false);
   const loadingBtn = ref<boolean>(false);
   const pageSizeMovement = ref<number>(10);
   const currentPageMovement = ref<number>(1);
@@ -82,7 +83,6 @@ interface Props {
     observation: '',
   });
   const showTableNewInvoice = ref<boolean>(false);
-  const dataInvoiceList = ref<IInvoice[]>([]);
   const formRef = ref<FormInstance>();
   const amountInvoiceNoFormat = ref<number>(0);
   const clientAmount = ref<number>(0);
@@ -96,6 +96,10 @@ interface Props {
       { value: 'A4', label: 'A4' },
   ]);
   const currentFormat = ref<string>('TICKET');
+  const invoiceListMovement = ref<IInvoice[]>([]);
+  const pageSizeInvoiceListMovement = ref<number>(10);
+  const currentPageInvoiceListMovement = ref<number>(1);
+  const totalPageInvoiceListMovement = ref<number>(0);
 
   //**************End of state management**************
   //**************Beginning of Column datatable property***********
@@ -577,23 +581,38 @@ interface Props {
       dataIndex: 'reference',
     },
     {
+      title: 'Date',
+      key: 'createdAt',
+      dataIndex: 'createdAt',
+      customRender: ({ record }: { record: IInvoice}) => {
+        const createdAt: string = formatDateString(record.createdAt, language.value, true);
+        return h('div', {style: {textAlign: 'left'}}, [createdAt]);
+      }
+    },
+    {
       title: translations[language.value].editor,
       key: 'editor',
       dataIndex: 'editor',
+      customRender: ({ record }: { record: IInvoice}) => [`${record.editor.lastName} ${record.editor.firstName}`]
     },
     {
       title: 'Client',
       key: 'client',
       dataIndex: 'client',
+      customRender: ({ record }: { record: IInvoice}) => [record.clientName ? record.clientName : '---']
     },
     {
-      title: 'Date',
-      key: 'createdAt',
-      dataIndex: 'createdAt',
-      customRender: ({ record }: { record: IHistoryValidation}) => {
-        const createdAt: string = formatDateString(record.createdAt, language.value, true);
-        return h('div', {style: {textAlign: 'left'}}, [createdAt]);
-      }
+      title: 'Actions',
+      key: 'actions',
+      width: 200,
+      customRender: ({ record }: { record: IInvoice }) => h('a-row', [
+        h(AButton, {
+          class: 'btn--primary-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleShowInvoicePdf(record)
+        }, [h(EyeOutlined)]),
+      ]),
     },
   ]);
   //**************End of Column datatable property***********
@@ -814,6 +833,11 @@ interface Props {
     formStateReject.observation = '';
     handleShowModalReject();
   };
+
+  const handleShowInvoicePdf = (record: IInvoice) => {
+    pdfUrl.value = `${EnvApiConfig.host}:${EnvApiConfig.port}${API.INVOICE_PDF}${record.fileName}` ;
+    isOpenModalViewPdf.value = true;
+  }
   //************End of actions datatable button method**********
 
   //************Beginning of modal actions*********************
@@ -834,6 +858,8 @@ interface Props {
     currentFormat.value = 'TICKET';
     //Open invoice modal
     isOpenInvoiceModal.value = true;
+    //Get list invoice
+    getAllListInvoiceByMovement();
   }
 
   const handleCloseModalDetails = () => {
@@ -1170,6 +1196,7 @@ interface Props {
       loadingBtn.value = false;
 
       showTableNewInvoice.value = false;
+      await getAllListInvoiceByMovement();
       //Reload data movement
       await getAllDataMovement();
     } catch (error) {
@@ -1192,6 +1219,37 @@ interface Props {
       loadingBtn.value = false;
     }
   }
+
+  const getAllListInvoiceByMovement = async () => {
+    try {
+      loadingInvoiceMovement.value = true;
+      const response: Paginate<IInvoice[]> = await getAllInvoiceListByMovementService(
+          movementId.value,
+          pageSizeInvoiceListMovement.value,
+          currentPageInvoiceListMovement.value,
+      );
+      invoiceListMovement.value = response.data;
+      totalPageInvoiceListMovement.value = response.totalRows;
+      loadingInvoiceMovement.value = false;
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: translations[language.value].error,
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
+      loadingInvoiceMovement.value = false;
+    }
+}
 
   const validateOrRejectMovement = async (movementId: string, isValidate: boolean, observation: IFormReject | null) => {
     try {
@@ -1318,6 +1376,16 @@ interface Props {
   const handleFilterByDate = () => {
       getAllDataMovement();
   }
+
+  const handleClickPaginatorInvoice = () => {
+    getAllListInvoiceByMovement();
+  };
+
+  const handleChangePageSizeInvoice = async (value: SelectValue) => {
+    pageSizeInvoiceListMovement.value = Number(value);
+    currentPageInvoiceListMovement.value = 1;
+    await getAllListInvoiceByMovement();
+  };
   //******************End filter of and paginator methods****
 
   // Watch clientAmount changed so we recalculate amountToBeReimbursed
@@ -1506,7 +1574,7 @@ interface Props {
       </a-button>
     </template>
 
-    <!--Invoice section-->
+    <!--New Invoice section-->
     <a-row class="w-full" v-if="showTableNewInvoice">
       <a-col span="24">
         <!--Datatable new invoice-->
@@ -1604,19 +1672,49 @@ interface Props {
         </a-row>
       </a-col>
     </a-row>
+    <!--Filter datatable-->
+    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+      <!--Page size select-->
+      <a-col class="mt-8" span="8">
+        <a-select
+            ref="select"
+            v-model:value="pageSizeInvoiceListMovement"
+            style="width: 80px; text-align: center;"
+            @change="handleChangePageSizeInvoice"
+        >
+          <a-select-option value="10">10</a-select-option>
+          <a-select-option value="25">25</a-select-option>
+          <a-select-option value="50">50</a-select-option>
+        </a-select>
+        <span> / page</span>
+      </a-col>
+    </a-row>
     <!--Datatable invoice list-->
     <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
       <a-col class="mt-8" span="24">
-        <a-spin :spinning="loadingDetailsMovement" size="large">
+        <a-spin :spinning="loadingInvoiceMovement" size="large">
           <a-table
               class="w-full"
               :columns="columnsInvoiceList"
-              :data-source="dataInvoiceList"
+              :data-source="invoiceListMovement"
               :pagination="false"
               :scroll="{ x: 1200, y: 1000 }"
               bordered
           />
         </a-spin>
+      </a-col>
+    </a-row>
+    <!--Paginator datatable-->
+    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+      <a-col class="mt-8 flex justify-end" span="24">
+        <a-pagination
+            v-model:current="currentPageInvoiceListMovement"
+            v-model:pageSize="pageSizeInvoiceListMovement"
+            :total="totalPageInvoiceListMovement"
+            @prevClick="handleClickPaginatorInvoice"
+            @change="handleClickPaginatorInvoice"
+            @nextClick="handleClickPaginatorInvoice"
+            :showSizeChanger="false" />
       </a-col>
     </a-row>
   </a-modal>
