@@ -37,7 +37,6 @@ export interface IFormDetails {
 }
 
 export interface IInvoicePayload {
-    details: IFormDetails[];
     invoiceData: {
         details: IDetails[],
         amountPaid: number;

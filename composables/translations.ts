@@ -151,7 +151,8 @@ export const translations: Translations = {
         remainderToBeDelivered: 'Remainder to be delivered',
         amountToBeReimbursed: 'Amount to be reimbursed',
         clientAmount: 'Client amount',
-        errorClientAmount: 'The client amount must be greater than or equal to the amount paid or be equal to 0.'
+        errorClientAmount: 'The client amount must be greater than or equal to the amount paid or be equal to 0.',
+        generate: 'Generate',
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -295,6 +296,7 @@ export const translations: Translations = {
         remainderToBeDelivered: 'Reste à livrer',
         amountToBeReimbursed: 'Montant à rembourser',
         clientAmount: 'Montant du client',
-        errorClientAmount: 'Le montant du client doit être supérieur ou égal au montant payé ou être égal à 0.'
+        errorClientAmount: 'Le montant du client doit être supérieur ou égal au montant payé ou être égal à 0.',
+        generate: 'Générer',
     }
 };

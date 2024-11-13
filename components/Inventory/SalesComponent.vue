@@ -74,7 +74,6 @@ interface Props {
   const movementId = ref<string>('');
   const amountDetail = ref<string>('');
   const amountInvoice = ref<string>('0.00');
-  const amountStillToBePaid = ref<string>('0.00');
   const optionsProductDetails = ref<SelectProps['options']>([]);
   const isShowErrorDetail = ref<boolean>(false);
   const errorMessageDetails = ref<string>('');
@@ -82,7 +81,6 @@ interface Props {
   const formStateReject: UnwrapRef<IFormReject> = reactive({
     observation: '',
   });
-  const showTableNewInvoice = ref<boolean>(false);
   const formRef = ref<FormInstance>();
   const amountInvoiceNoFormat = ref<number>(0);
   const clientAmount = ref<number>(0);
@@ -332,177 +330,6 @@ interface Props {
             }, [h(DeleteOutlined)])
           ]
       )
-    },
-  ]);
-
-  const columnsInvoiceMovement = computed<any>(() => [
-    {
-      title: translations[language.value].product,
-      key: 'product',
-      dataIndex: 'product_name',
-      width: 200,
-      fixed: 'left',
-      customRender: ({ record }: { record: IDetails}) => [
-        h(ASelect, {
-          disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
-          style:'width: 100%',
-          'placeholder': translations[language.value].selectProduct,
-          'show-search': true,
-          value: record.product_id,
-          options: optionsProductDetails.value,
-          'filter-option': filterOption,
-          onSelect: (value: any) => {
-            changeItemDetails(value, record);
-          }
-        })
-      ]
-    },
-    {
-      title: translations[language.value].category,
-      key: 'category',
-      dataIndex: 'category_name',
-      width: 100,
-    },
-    {
-      title: translations[language.value].unit,
-      key: 'unit',
-      dataIndex: 'unit_name',
-      width: 100,
-    },
-    {
-      title: translations[language.value].unitPrice,
-      key: 'unitPrice',
-      dataIndex: 'unit_price',
-      width: 170,
-      customRender: ({ record }: { record: IDetails}) => {
-        const value = new Intl.NumberFormat('en-US', {
-          style: 'decimal',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(record.unit_price ? record.unit_price : 0);
-
-        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
-      }
-    },
-    {
-      title: translations[language.value].wholesalePrice,
-      key: 'wholesalePrice',
-      dataIndex: 'wholesale_price',
-      width: 170,
-      customRender: ({ record }: { record: IDetails}) => {
-        const value = new Intl.NumberFormat('en-US', {
-          style: 'decimal',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(record.wholesale_price ? record.wholesale_price : 0);
-
-        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
-      }
-    },
-    {
-      title: translations[language.value].priceType,
-      key: 'priceType',
-      dataIndex: 'is_unit_price',
-      width: 180,
-      customRender: ({ record }: { record: IDetails }) => {
-        return h(Switch, {
-          disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
-          checked: record.is_unit_price,
-          'checked-children': translations[language.value].unitaryPriceType,
-          'un-checked-children': translations[language.value].wholesalePriceType,
-          onChange: () => {
-            record.is_unit_price = !record.is_unit_price;
-            //We need to reload the amount of details
-            getAmountDetails();
-          },
-        });
-      },
-    },
-    {
-      title: h('div', { style: { textAlign: 'center' } }, [translations[language.value].remainingStock]),
-      key: 'remainingStock',
-      dataIndex: 'remaining_stock',
-      width: 100,
-      fixed: 'right',
-      customRender: ({ record }: { record: IDetails}) => [
-        h('div', {
-          style: { textAlign: 'center', color: 'white', fontWeight: '800', borderRadius: '10px' },
-          class: record.remaining_stock <= stockThreshold.value ? 'danger-background-color' : 'primary-background-color'
-        }, [
-          h('span', [record.remaining_stock]),
-        ]),
-      ]
-    },
-    {
-      title: translations[language.value].quantity,
-      key: 'quantity',
-      dataIndex: 'quantity',
-      width: 120,
-      fixed: 'right',
-      customRender: ({ record }: { record: IDetails }) => {
-        return h(AInputNumber, {
-          disabled: true,
-          value: record.quantity,
-          class: 'ant-input-status-error',
-          min: 0,
-          max: record.remaining_stock,
-        });
-      },
-    },
-    {
-      title: translations[language.value].quantityDelivered,
-      key: 'quantityDelivered',
-      dataIndex: 'quantity_delivered',
-      width: 120,
-      fixed: 'right',
-      customRender: ({ record }: { record: IDetails }) => {
-        return h(AInputNumber, {
-          disabled: props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED,
-          value: record.quantity_delivered ? record.quantity_delivered : 0,
-          class: 'ant-input-status-error',
-          min: 0,
-          max: record.quantity,
-          onChange: (value: any) => {
-            //Guard of max quantity
-            if (record.quantity_delivered > record.quantity) {
-              record.quantity_delivered = 0;
-            } else {
-              record.quantity_delivered = value ? value : 0;
-            }
-
-            //We need to reload the amount of invoice
-            getAmountInvoice();
-          },
-        });
-      },
-    },
-    {
-      title: translations[language.value].remainderToBeDelivered,
-      key: 'remainderToBeDelivered',
-      width: 120,
-      fixed: 'right',
-      customRender: ({ record }: { record: IDetails }) => {
-        return h(AInputNumber, {
-          disabled: true,
-          value: record.quantity && record.quantity_delivered ? record.quantity - record.quantity_delivered : 0,
-          min: 0,
-        });
-      },
-    },
-    {
-      title: translations[language.value].amount,
-      key: 'amount',
-      width: 170,
-      fixed: 'right',
-      customRender: ({ record }: { record: IDetails}) => {
-        const price = new Intl.NumberFormat('en-US', {
-          style: 'decimal',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(record.is_unit_price ? (record.unit_price * (record.quantity_delivered ?? 0 )) : (record.wholesale_price * (record.quantity_delivered ?? 0 )));
-
-        return h('div', { style: { textAlign: 'right' } }, [`${price} ${currencyType.value}`]);
-      }
     },
   ]);
 
@@ -845,21 +672,23 @@ interface Props {
     isOpenModal.value = true;
   }
 
-  const handleShowModalInvoice = () => {
+  const handleShowModalInvoice = async () => {
     //Reset value of fields
     amountInvoice.value = '0.00';
-    amountStillToBePaid.value = '0.00';
     clientAmount.value = 0;
     amountReimbursed.value = '0.00';
     amountInvoiceNoFormat.value = 0;
     isClientAmountValidated.value = true;
-    showTableNewInvoice.value = false;
     clientName.value = '';
     currentFormat.value = 'TICKET';
     //Open invoice modal
     isOpenInvoiceModal.value = true;
+    //Get data modal
+    await getAllProductWithRemainingStock();
+    await getAllDetailsMovement();
+    await getAmountInvoice();
     //Get list invoice
-    getAllListInvoiceByMovement();
+    await getAllListInvoiceByMovement();
   }
 
   const handleCloseModalDetails = () => {
@@ -963,15 +792,6 @@ interface Props {
       }
     });
   }
-
-  const handleShowNewInvoice = async () => {
-    clientName.value = '';
-    currentFormat.value = 'TICKET';
-    showTableNewInvoice.value = true;
-    await getAllDetailsMovement();
-    await getAllProductWithRemainingStock();
-    await getAmountInvoice();
-  };
 
   const handleCancelNewInvoice = () => {
     showTableNewInvoice.value = false;
@@ -1161,19 +981,7 @@ interface Props {
 
   const generateInvoice = async () => {
     try {
-      let formDetails: IFormDetails[] = [];
-      //Create a data dictionary
-      dataDetailsMovement.value.forEach((item: IDetails) => {
-        formDetails.push({
-          idProduct: item.product_id,
-          isUnitPrice: item.is_unit_price,
-          quantity: item.quantity,
-          quantityDelivered: item.quantity_delivered,
-        })
-      });
-
       const data: IInvoicePayload = {
-        details: formDetails,
         invoiceData: {
           details: dataDetailsMovement.value,
           amountPaid: amountInvoiceNoFormat.value,
@@ -1194,9 +1002,8 @@ interface Props {
       });
 
       loadingBtn.value = false;
-
-      showTableNewInvoice.value = false;
-      await getAllListInvoiceByMovement();
+      //Close modal invoice
+      await handleCloseModalInvoice();
       //Reload data movement
       await getAllDataMovement();
     } catch (error) {
@@ -1217,6 +1024,7 @@ interface Props {
       });
 
       loadingBtn.value = false;
+      handleCloseModalInvoice();
     }
   }
 
@@ -1303,17 +1111,12 @@ interface Props {
   }
 
   const getAmountInvoice = async () => {
-    let realAmount: number = 0;
     let amountPaid: number = 0;
     //Browse all item to calculi amount
     dataDetailsMovement.value.map((item: IDetails) => {
-      //Get real amount
-      realAmount += item.is_unit_price ? (item.unit_price * (item.quantity ?? 0 )) : (item.wholesale_price * (item.quantity ?? 0 ));
       //Get amount to be paid
-      amountPaid += item.is_unit_price ? (item.unit_price * (item.quantity_delivered ?? 0 )) : (item.wholesale_price * (item.quantity_delivered ?? 0 ));
+      amountPaid += item.is_unit_price ? (item.unit_price * (item.quantity ?? 0 )) : (item.wholesale_price * (item.quantity ?? 0 ));
     });
-    //Calculated amountToBePaid
-    const amountToBePaid: number = await (realAmount - amountPaid);
     //Keep amountPaid for reimbursed operation
     amountInvoiceNoFormat.value = amountPaid;
 
@@ -1323,16 +1126,9 @@ interface Props {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amountPaid);
-    //format amount to be paid
-    const formatAmountToBePaid: string =  await new Intl.NumberFormat('en-US', {
-      style: 'decimal',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amountToBePaid);
     //set value of amountDetailState
-    if (formatAmountPaid && formatAmountToBePaid) {
+    if (formatAmountPaid) {
       amountInvoice.value = formatAmountPaid;
-      amountStillToBePaid.value = formatAmountToBePaid;
     }
   }
 
@@ -1376,16 +1172,6 @@ interface Props {
   const handleFilterByDate = () => {
       getAllDataMovement();
   }
-
-  const handleClickPaginatorInvoice = () => {
-    getAllListInvoiceByMovement();
-  };
-
-  const handleChangePageSizeInvoice = async (value: SelectValue) => {
-    pageSizeInvoiceListMovement.value = Number(value);
-    currentPageInvoiceListMovement.value = 1;
-    await getAllListInvoiceByMovement();
-  };
   //******************End filter of and paginator methods****
 
   // Watch clientAmount changed so we recalculate amountToBeReimbursed
@@ -1559,23 +1345,11 @@ interface Props {
       style="top: 20px"
       @ok=""
       width="1600px"
+      title="Invoice"
   >
-    <!-- Template title modal -->
-    <template #title>
-      <span>{{ translations[language].invoice }}</span>
-      <a-button
-          class="btn--success ml-4"
-          :icon="h(PlusOutlined)"
-          @click="handleShowNewInvoice"
-          size="middle"
-          v-if="props.activePage === STCodeList.VALIDATED"
-      >
-        Generate
-      </a-button>
-    </template>
 
     <!--New Invoice section-->
-    <a-row class="w-full" v-if="showTableNewInvoice">
+    <a-row class="w-full">
       <a-col span="24">
         <!--Datatable new invoice-->
         <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
@@ -1583,7 +1357,7 @@ interface Props {
             <a-spin :spinning="loadingDetailsMovement" size="large">
               <a-table
                   class="w-full"
-                  :columns="columnsInvoiceMovement"
+                  :columns="columnsDetailsMovement"
                   :data-source="dataDetailsMovement"
                   :pagination="false"
                   :scroll="{ x: 1200, y: 1000 }"
@@ -1606,7 +1380,7 @@ interface Props {
           </a-col>
         </a-row>
         <!-- Amount row -->
-        <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+        <a-row v-if="props.activePage === 'VLD'" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
           <a-col class="mt-8" span="6">
             <span style="font-size: 16px;">Client : </span>
             <a-input v-model:value="clientName" placeholder="Client" style="width: 200px"/>
@@ -1623,12 +1397,9 @@ interface Props {
           <a-col class="mt-8" span="6">
             <p style="font-size: 16px;">{{ translations[language].amountPaid }} : {{ amountInvoice }} {{ currencyType }}</p>
           </a-col>
-          <a-col class="mt-8" span="6">
-            <p style="font-size: 16px;">{{ translations[language].amountStillToBePaid }} : {{ amountStillToBePaid }} {{ currencyType }}</p>
-          </a-col>
         </a-row>
         <!-- Client Amount row -->
-        <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+        <a-row v-if="props.activePage === 'VLD'" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
           <a-col class="mt-8" span="8">
             <label for="client-amount" style="font-size: 16px;">{{ translations[language].clientAmount }} : </label>
             <a-input-number
@@ -1647,13 +1418,13 @@ interface Props {
           </a-col>
         </a-row>
         <!-- Error row -->
-        <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+        <a-row v-if="props.activePage === 'VLD'" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
           <a-col class="mt-8" span="24">
             <p class="danger-color" style="font-size: 16px;" v-if="!isClientAmountValidated">{{ translations[language].errorClientAmount }}</p>
           </a-col>
         </a-row>
         <!-- Action modal of invoice -->
-        <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+        <a-row v-if="props.activePage === 'VLD'" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
           <a-col class="mt-8" span="24">
             <a-button class="btn btn--default" size="middle" @click="handleCancelNewInvoice">{{ translations[language].cancel }}</a-button>
             <a-button
@@ -1667,30 +1438,13 @@ interface Props {
               amountInvoiceNoFormat > 0 &&
               isClientAmountValidated
             "
-            >{{ translations[language].save }}</a-button>
+            >{{ translations[language].generate }}</a-button>
           </a-col>
         </a-row>
       </a-col>
     </a-row>
-    <!--Filter datatable-->
-    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-      <!--Page size select-->
-      <a-col class="mt-8" span="8">
-        <a-select
-            ref="select"
-            v-model:value="pageSizeInvoiceListMovement"
-            style="width: 80px; text-align: center;"
-            @change="handleChangePageSizeInvoice"
-        >
-          <a-select-option value="10">10</a-select-option>
-          <a-select-option value="25">25</a-select-option>
-          <a-select-option value="50">50</a-select-option>
-        </a-select>
-        <span> / page</span>
-      </a-col>
-    </a-row>
     <!--Datatable invoice list-->
-    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+    <a-row v-if="props.activePage === 'CMP'" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
       <a-col class="mt-8" span="24">
         <a-spin :spinning="loadingInvoiceMovement" size="large">
           <a-table
@@ -1702,19 +1456,6 @@ interface Props {
               bordered
           />
         </a-spin>
-      </a-col>
-    </a-row>
-    <!--Paginator datatable-->
-    <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-      <a-col class="mt-8 flex justify-end" span="24">
-        <a-pagination
-            v-model:current="currentPageInvoiceListMovement"
-            v-model:pageSize="pageSizeInvoiceListMovement"
-            :total="totalPageInvoiceListMovement"
-            @prevClick="handleClickPaginatorInvoice"
-            @change="handleClickPaginatorInvoice"
-            @nextClick="handleClickPaginatorInvoice"
-            :showSizeChanger="false" />
       </a-col>
     </a-row>
   </a-modal>
@@ -1736,7 +1477,6 @@ interface Props {
           :src="pdfUrl"
           width="100%"
           height="600"
-          frameborder="0"
       ></iframe>
     </div>
   </a-modal>
