@@ -18,8 +18,8 @@
   // This is a global state for language of the app
   const language = useLanguage();
 
-  const loadingGlobalCash = ref<boolean>(false);
-  const dataCashGlobalSummary = reactive<ICashGlobalSummary>({
+  const loadingPresentCash = ref<boolean>(false);
+  const dataPresentCash = reactive<IPresentCashSummary>({
     presentExpensesAmount: 0,
     presentPurchaseAmount: 0,
     presentSalesAmount: 0,
@@ -31,7 +31,7 @@
   ]);
   const currencyType = ref<string>('');
   //Ref for real cash
-  const loadingRealCash = ref<boolean>(false);
+  const loadingCashSummary = ref<boolean>(false);
   const initialCash = ref<string>('0.00');
   const totalOfSales = ref<string>('0.00');
   const totalOfPurchase = ref<string>('0.00');
@@ -63,13 +63,13 @@
 
   const getPresentCashSummary = async () => {
     try {
-      loadingGlobalCash.value = true;
+      loadingPresentCash.value = true;
       const response: IPresentCashSummary = await getPresentCashSummaryService();
 
-      dataCashGlobalSummary.presentSalesAmount = response.presentSalesAmount;
-      dataCashGlobalSummary.presentPurchaseAmount = response.presentPurchaseAmount;
-      dataCashGlobalSummary.presentExpensesAmount = response.presentExpensesAmount;
-      loadingGlobalCash.value = false;
+      dataPresentCash.presentSalesAmount = response.presentSalesAmount;
+      dataPresentCash.presentPurchaseAmount = response.presentPurchaseAmount;
+      dataPresentCash.presentExpensesAmount = response.presentExpensesAmount;
+      loadingPresentCash.value = false;
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
@@ -91,7 +91,7 @@
 
   const getAllCashSummary = async () => {
     try {
-      loadingRealCash.value = true;
+      loadingCashSummary.value = true;
       const response: IAllCashSummary[] = await getAllCashSummaryService();
 
       initialCash.value = formatPrice(response.initial_cash);
@@ -100,7 +100,7 @@
       totalOfExpenses.value = formatPrice(response.total_expenses_amount);
       realCash.value = formatPrice(response.real_cash);
 
-      loadingRealCash.value = false;
+      loadingCashSummary.value = false;
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
@@ -318,7 +318,7 @@
     await getRevenue(); // Fetch new data when mode changes
   });
 
-  onMounted( async () => {
+  const  loadAllData = async () => {
     await getCurrencyType();
     await getPresentCashSummary();
     await getRevenue();
@@ -326,6 +326,10 @@
     await getProfitAndLoss();
     await getSalesAndPurchase();
     await getExpenses();
+  }
+
+  onMounted( async () => {
+    await loadAllData();
   });
 
   //-------------------Beginning of chart function--------------------------
@@ -541,44 +545,56 @@
   <Title>{{ translations[language].dashboard }}</Title>
   <ATypographyTitle class="flex" style="font-size: 20px;">
     <user-outlined />&nbsp;
-    <span>{{ translations[language].dashboard }}</span>
+    <span>{{ translations[language].dashboard }}</span>&nbsp;&nbsp;
+    <a-tooltip :title="translations[language].refresh" :color="'blue'">
+      <SyncOutlined class="primary-color" @click="loadAllData"/>
+    </a-tooltip>
   </ATypographyTitle>
   <!--Beginning of spaces-->
   <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <a-col class="gutter-row" :span="8">
       <div class="gutter-box">
         <ACard class="card-space">
-          <ASpace direction="horizontal">
-            <ShoppingOutlined class="success-color icon-space" />
-            <AStatistic class="w-full" :title="translations[language].sales" :value="dataCashGlobalSummary.presentSalesAmount"/>
-            <span>{{ currencyType }}</span>
-          </ASpace>
+          <a-skeleton avatar :paragraph="{ rows: 1 }" :loading="loadingCashSummary" active="true">
+            <ASpace direction="horizontal">
+                <ShoppingOutlined class="success-color icon-space" />
+                <AStatistic class="w-full" :title="translations[language].sales" :value="dataPresentCash.presentSalesAmount"/>
+                <span>{{ currencyType }}</span>
+            </ASpace>
+          </a-skeleton>
         </ACard>
       </div>
     </a-col>
     <a-col class="gutter-row" :span="8">
       <div class="gutter-box">
         <ACard class="card-space">
-          <ASpace direction="horizontal">
-            <ShoppingCartOutlined class="info-color icon-space" />
-            <AStatistic :title="translations[language].purchase" :value="dataCashGlobalSummary.presentPurchaseAmount"/>
-            <span>{{ currencyType }}</span>
-          </ASpace>
+          <a-skeleton avatar :paragraph="{ rows: 1 }" :loading="loadingCashSummary" active="true">
+            <ASpace direction="horizontal">
+              <ShoppingCartOutlined class="info-color icon-space" />
+              <AStatistic :title="translations[language].purchase" :value="dataPresentCash.presentPurchaseAmount"/>
+              <span>{{ currencyType }}</span>
+            </ASpace>
+          </a-skeleton>
         </ACard>
       </div>
     </a-col>
     <a-col class="gutter-row" :span="8">
       <div class="gutter-box">
         <ACard class="card-space">
-          <ASpace direction="horizontal">
-            <WalletOutlined class="warning-color icon-space" />
-            <AStatistic :title="translations[language].expenses" :value="dataCashGlobalSummary.presentExpensesAmount"/>
-            <span>{{ currencyType }}</span>
-          </ASpace>
+          <a-skeleton avatar :paragraph="{ rows: 1 }" :loading="loadingCashSummary" active="true">
+            <ASpace direction="horizontal">
+              <ASpace direction="horizontal">
+                <WalletOutlined class="warning-color icon-space" />
+                <AStatistic :title="translations[language].expenses" :value="dataPresentCash.presentExpensesAmount"/>
+                <span>{{ currencyType }}</span>
+              </ASpace>
+            </ASpace>
+          </a-skeleton>
         </ACard>
       </div>
     </a-col>
   </a-row>
+  <!--Recipes chart & cash summary-->
   <a-row class="mt-8" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <!--Recipes chart-->
     <a-col class="gutter-row" :span="16">
@@ -604,7 +620,7 @@
         </ACard>
       </div>
     </a-col>
-    <!--Sales and Purchase chart-->
+    <!--Cash summary-->
     <a-col :span="8">
       <div class="gutter-box" >
         <ACard class="card-space" style="min-height: 500px;">
@@ -614,39 +630,49 @@
             </ATypographyTitle>
           </a-row>
           <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-            <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
-              <MoneyCollectOutlined class="primary-color" style="font-size: 22px;"/>&nbsp;
-              <span>{{ translations[language].initialCash }} : </span>&ensp;
-              <span style="font-weight: 400;">{{ initialCash }} {{ currencyType }}</span>
-            </ATypographyTitle>
+            <a-skeleton avatar :paragraph="{ rows: 1 }" :loading="loadingCashSummary" active="true">
+              <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
+                <MoneyCollectOutlined class="primary-color" style="font-size: 25px;"/>&nbsp;
+                <span>{{ translations[language].initialCash }} : </span>&ensp;
+                <span style="font-weight: 400;">{{ initialCash }} {{ currencyType }}</span>
+              </ATypographyTitle>
+            </a-skeleton>
           </a-row>
           <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-            <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
-              <ShoppingOutlined class="success-color" style="font-size: 22px;"/>&nbsp;
-              <span>{{ translations[language].totalOfSales }} : </span>&ensp;
-              <span style="font-weight: 400;">{{ totalOfSales }} {{ currencyType }}</span>
-            </ATypographyTitle>
+            <a-skeleton avatar :paragraph="{ rows: 1 }" :loading="loadingCashSummary" active="true">
+              <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
+                <ShoppingOutlined class="success-color" style="font-size: 25px;"/>&nbsp;
+                <span>{{ translations[language].totalOfSales }} : </span>&ensp;
+                <span style="font-weight: 400;">{{ totalOfSales }} {{ currencyType }}</span>
+              </ATypographyTitle>
+            </a-skeleton>
           </a-row>
           <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-            <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
-              <ShoppingCartOutlined class="info-color" style="font-size: 22px;"/>&nbsp;
-              <span>{{ translations[language].totalOfPurchase }} : </span>&ensp;
-              <span style="font-weight: 400;">{{ totalOfPurchase }} {{ currencyType }}</span>
-            </ATypographyTitle>
+            <a-skeleton avatar :paragraph="{ rows: 1 }" :loading="loadingCashSummary" active="true">
+              <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
+                <ShoppingCartOutlined class="info-color" style="font-size: 25px;"/>&nbsp;
+                <span>{{ translations[language].totalOfPurchase }} : </span>&ensp;
+                <span style="font-weight: 400;">{{ totalOfPurchase }} {{ currencyType }}</span>
+              </ATypographyTitle>
+            </a-skeleton>
           </a-row>
           <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-            <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
-              <WalletOutlined class="warning-color" style="font-size: 22px;"/>&nbsp;
-              <span>{{ translations[language].totalOfExpenses }} : </span>&ensp;
-              <span style="font-weight: 400;">{{ totalOfExpenses }} {{ currencyType }}</span>
-            </ATypographyTitle>
+            <a-skeleton avatar :paragraph="{ rows: 1 }" :loading="loadingCashSummary" active="true">
+              <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
+                <WalletOutlined class="warning-color" style="font-size: 25px;"/>&nbsp;
+                <span>{{ translations[language].totalOfExpenses }} : </span>&ensp;
+                <span style="font-weight: 400;">{{ totalOfExpenses }} {{ currencyType }}</span>
+              </ATypographyTitle>
+            </a-skeleton>
           </a-row>
           <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-            <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
-              <PropertySafetyOutlined class="primary-color" style="font-size: 22px;"/>&nbsp;
-              <span>{{ translations[language].realCash }} : </span>&ensp;
-              <span style="font-weight: 400;">{{ realCash }} {{ currencyType }}</span>
-            </ATypographyTitle>
+            <a-skeleton avatar :paragraph="{ rows: 1 }" :loading="loadingCashSummary" active="true">
+              <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
+                <PropertySafetyOutlined class="primary-color" style="font-size: 25px;"/>&nbsp;
+                <span>{{ translations[language].realCash }} : </span>&ensp;
+                <span style="font-weight: 400;">{{ realCash }} {{ currencyType }}</span>
+              </ATypographyTitle>
+            </a-skeleton>
           </a-row>
         </ACard>
       </div>

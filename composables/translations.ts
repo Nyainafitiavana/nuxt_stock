@@ -153,6 +153,7 @@ export const translations: Translations = {
         clientAmount: 'Client amount',
         errorClientAmount: 'The client amount must be greater than or equal to the amount paid or be equal to 0.',
         generate: 'Generate',
+        refresh: 'Refresh',
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -298,5 +299,6 @@ export const translations: Translations = {
         clientAmount: 'Montant du client',
         errorClientAmount: 'Le montant du client doit être supérieur ou égal au montant payé ou être égal à 0.',
         generate: 'Générer',
+        refresh: 'Rafraîchir',
     }
 };
