@@ -7,7 +7,7 @@ import {
   AppstoreAddOutlined,
   AppstoreOutlined,
   BarChartOutlined, FileSearchOutlined, SettingOutlined, ShopOutlined,
-  ShoppingCartOutlined, StockOutlined, TeamOutlined, ToolOutlined,
+  ShoppingCartOutlined, SnippetsOutlined, StockOutlined, TeamOutlined, ToolOutlined,
   ToTopOutlined, UserOutlined,
   VerticalAlignBottomOutlined, WalletOutlined
 } from "@ant-design/icons-vue";
@@ -63,6 +63,13 @@ const adminMenuItems = computed(() => [
         label: language.value === 'ENG' ? 'Stock situation' : 'Situation stocks',
         title: translations[language.value].stockSituation,
         onClick: () => navigateTo(RouteList.STOCK_SITUATION),
+      },
+      {
+        key: '13',
+        icon: () => h(SnippetsOutlined),
+        label: language.value === 'ENG' ? 'Invoices' : 'Factures',
+        title: language.value === 'ENG' ? 'Invoices' : 'Factures',
+        onClick: () => navigateTo(RouteList.INVOICE),
       },
     ],
   },
@@ -223,6 +230,9 @@ const updateSelectedKeys = () => {
       break;
     case RouteList.EXPENSES:
       state.selectedKeys = ['12'];
+      break;
+    case RouteList.INVOICE:
+      state.selectedKeys = ['13'];
       break;
     default:
       state.selectedKeys = ['6'];

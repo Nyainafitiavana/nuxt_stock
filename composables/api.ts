@@ -17,7 +17,8 @@ export const API = {
     "EXPENSES_CASH" : "/api/cash-register/expenses",
     "REVENUE_CASH" : "/api/cash-register/revenue",
     "INVOICE_PDF" : "/api/invoice/pdf/",
-    "INVOICE_LIST" : "/api/invoice/movement/",
+    "INVOICE_BY_MOVEMENT" : "/api/invoice/movement/",
+    "ALL_INVOICE" : "/api/invoice",
 }
 
 export const getAccessToken = (): string | null => {

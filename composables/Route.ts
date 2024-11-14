@@ -7,6 +7,7 @@ export const RouteList = {
     'INVENTORY_SALES_NEW': '/inventory/sales/new',
     'INVENTORY_PURCHASE_NEW': '/inventory/purchase/new',
     'STOCK_SITUATION': '/inventory/stock_situation',
+    'INVOICE': '/inventory/invoices',
     'GENERALE': '/settings/general',
     'PROFILE': '/settings/profile',
     'USER': '/settings/user',

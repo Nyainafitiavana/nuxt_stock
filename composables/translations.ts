@@ -155,6 +155,7 @@ export const translations: Translations = {
         generate: 'Generate',
         refresh: 'Refresh',
         errorAvailableCash: 'A purchase cannot exceed the available cash.',
+        reference: 'Reference',
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -302,5 +303,6 @@ export const translations: Translations = {
         generate: 'Générer',
         refresh: 'Rafraîchir',
         errorAvailableCash: 'Un achat ne peut pas dépasser le montant de la caisse disponible.',
+        reference: 'Référence',
     }
 };

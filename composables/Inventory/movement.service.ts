@@ -80,11 +80,32 @@ export const getAllHistoryValidationMovementService = async (idMovement: string)
 };
 
 export const getAllInvoiceListByMovementService = async (
-    idMovement: string,
-    pageSize: number | string,
-    currentPage: number | string,
+    idMovement: string
 ): Promise<IInvoice[]> => {
-    const response: any = await fetch(`${BASE_URL_API}${API.INVOICE_LIST}${idMovement}?limit=${pageSize}&page=${currentPage}`, {
+    const response: any = await fetch(`${BASE_URL_API}${API.INVOICE_BY_MOVEMENT}${idMovement}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAccessToken()}`
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new CustomError(errorData.message, response.status);
+    }
+
+    return await response.json();
+};
+
+export const getAllInvoiceService = async (
+    reference: string,
+    pageSize: number,
+    currentPage: number,
+    startDateStr: string,
+    endDateStr: string
+): Promise<IInvoice[]> => {
+    const response: any = await fetch(`${BASE_URL_API}${API.ALL_INVOICE}?reference=${reference}&limit=${pageSize}&page=${currentPage}&startDate=${startDateStr}&endDate=${endDateStr}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

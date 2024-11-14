@@ -96,9 +96,6 @@ interface Props {
   ]);
   const currentFormat = ref<string>('TICKET');
   const invoiceListMovement = ref<IInvoice[]>([]);
-  const pageSizeInvoiceListMovement = ref<number>(10);
-  const currentPageInvoiceListMovement = ref<number>(1);
-  const totalPageInvoiceListMovement = ref<number>(0);
 
   //**************End of state management**************
   //**************Beginning of Column datatable property***********
@@ -1030,13 +1027,9 @@ interface Props {
   const getAllListInvoiceByMovement = async () => {
     try {
       loadingInvoiceMovement.value = true;
-      const response: Paginate<IInvoice[]> = await getAllInvoiceListByMovementService(
-          movementId.value,
-          pageSizeInvoiceListMovement.value,
-          currentPageInvoiceListMovement.value,
-      );
+      const response: Paginate<IInvoice[]> = await getAllInvoiceListByMovementService(movementId.value);
+
       invoiceListMovement.value = response.data;
-      totalPageInvoiceListMovement.value = response.totalRows;
       loadingInvoiceMovement.value = false;
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
