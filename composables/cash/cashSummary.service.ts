@@ -1,8 +1,8 @@
 import {getAccessToken} from "~/composables/api";
 import {CustomError} from "~/composables/CustomError";
 import type {
-    ICashGlobalSummary,
-    IExpensesCash,
+    IAllCashSummary,
+    IExpensesCash, IPresentCashSummary,
     IProfitLoss, IRevenueCash,
     ISalesPurchase
 } from "~/composables/cash/cashSummary.interface";
@@ -10,8 +10,25 @@ import {EnvApiConfig} from "~/composables/Env.config";
 
 const BASE_URL_API: string = `${EnvApiConfig.host}:${EnvApiConfig.port}`;
 
-export const getCashSummaryGlobalService = async (): Promise<ICashGlobalSummary> => {
-    const response: any = await fetch(`${BASE_URL_API}${API.CASH_SUMMARY_GLOBAL}`, {
+export const getPresentCashSummaryService = async (): Promise<IPresentCashSummary> => {
+    const response: any = await fetch(`${BASE_URL_API}${API.PRESENT_CASH}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAccessToken()}`
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new CustomError(errorData.message, response.status);
+    }
+
+    return await response.json();
+};
+
+export const getAllCashSummaryService = async (): Promise<IAllCashSummary[]> => {
+    const response: any = await fetch(`${BASE_URL_API}${API.CASH_SUMMARY}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

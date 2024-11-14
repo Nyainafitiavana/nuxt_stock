@@ -37,13 +37,11 @@ export interface IFormDetails {
 }
 
 export interface IInvoicePayload {
-    invoiceData: {
-        details: IDetails[],
-        amountPaid: number;
-        client: string;
-        language: 'ENG' | 'FR';
-        format: 'TICKET' | 'A4';
-    };
+    details: IDetails[],
+    amountPaid: number;
+    client: string;
+    language: 'ENG' | 'FR';
+    format: 'TICKET' | 'A4';
 }
 
 export interface IBodyMovement {

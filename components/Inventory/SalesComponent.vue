@@ -982,13 +982,11 @@ interface Props {
   const generateInvoice = async () => {
     try {
       const data: IInvoicePayload = {
-        invoiceData: {
           details: dataDetailsMovement.value,
           amountPaid: amountInvoiceNoFormat.value,
           language: language.value,
           client: clientName.value,
           format: currentFormat.value,
-        }
       }
 
       const result = await generateInvoiceService(movementId.value, data);

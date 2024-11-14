@@ -3,10 +3,12 @@
   import {computed, onMounted, ref} from "vue";
   import {handleInAuthorizedError} from "~/composables/CustomError";
   import type {
-    ICashGlobalSummary, IExpensesCash, IProfitLoss, IRevenueCash, ISalesPurchase,
+    IAllCashSummary,
+    IExpensesCash, IPresentCashSummary, IProfitLoss, IRevenueCash, ISalesPurchase,
   } from "~/composables/cash/cashSummary.interface";
   import {
-    getCashSummaryGlobalService, getExpensesCashService,
+    getAllCashSummaryService,
+    getExpensesCashService, getPresentCashSummaryService,
     getProfitAndLossService, getRevenueCashService, getSalesPurchaseService
   } from "~/composables/cash/cashSummary.service";
   import type {ICurrency} from "~/composables/settings/general/settings.interface";
@@ -18,13 +20,9 @@
 
   const loadingGlobalCash = ref<boolean>(false);
   const dataCashGlobalSummary = reactive<ICashGlobalSummary>({
-    amount_input: 0,
-    amount_output: 0,
-    initial_cash: 0,
     presentExpensesAmount: 0,
     presentPurchaseAmount: 0,
     presentSalesAmount: 0,
-    real_cash: 0,
   });
   const optionsMode = ref<SelectProps['options']>([
       { value: 'weekly', label: 'Weekly' },
@@ -32,6 +30,13 @@
       { value: 'yearly', label: 'Yearly' },
   ]);
   const currencyType = ref<string>('');
+  //Ref for real cash
+  const loadingRealCash = ref<boolean>(false);
+  const initialCash = ref<string>('0.00');
+  const totalOfSales = ref<string>('0.00');
+  const totalOfPurchase = ref<string>('0.00');
+  const totalOfExpenses = ref<string>('0.00');
+  const realCash = ref<string>('0.00');
 
   //Ref for Profit and loss
   const loadingProfitLoss = ref<boolean>(false);
@@ -56,18 +61,14 @@
   const xAxisRevenue = ref<any>([]);
   const revenueAmount = ref<number[]>([]);
 
-  const getAllDataGlobalCashSummary = async () => {
+  const getPresentCashSummary = async () => {
     try {
       loadingGlobalCash.value = true;
-      const response: ICashGlobalSummary = await getCashSummaryGlobalService();
+      const response: IPresentCashSummary = await getPresentCashSummaryService();
 
-      dataCashGlobalSummary.initial_cash = response.initial_cash;
       dataCashGlobalSummary.presentSalesAmount = response.presentSalesAmount;
       dataCashGlobalSummary.presentPurchaseAmount = response.presentPurchaseAmount;
       dataCashGlobalSummary.presentExpensesAmount = response.presentExpensesAmount;
-      dataCashGlobalSummary.amount_output = response.amount_output;
-      dataCashGlobalSummary.amount_input = response.amount_input;
-      dataCashGlobalSummary.real_cash = response.real_cash;
       loadingGlobalCash.value = false;
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
@@ -85,8 +86,37 @@
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
+    }
+  }
 
-      loadingGlobalCash.value = false;
+  const getAllCashSummary = async () => {
+    try {
+      loadingRealCash.value = true;
+      const response: IAllCashSummary[] = await getAllCashSummaryService();
+
+      initialCash.value = formatPrice(response.initial_cash);
+      totalOfSales.value = formatPrice(response.total_sales_amount);
+      totalOfPurchase.value = formatPrice(response.total_purchase_amount);
+      totalOfExpenses.value = formatPrice(response.total_expenses_amount);
+      realCash.value = formatPrice(response.real_cash);
+
+      loadingRealCash.value = false;
+    } catch (error) {
+      //Verification code status if equal 401 then we redirect to log in
+      if (error instanceof CustomError) {
+        if (error.status === 401) {
+          //call the global handle action if in authorized
+          handleInAuthorizedError(error);
+          return;
+        }
+      }
+
+      // Show error notification
+      notification.error({
+        message: translations[language.value].error,
+        description: (error as Error).message,
+        class: 'custom-error-notification'
+      });
     }
   }
 
@@ -121,8 +151,6 @@
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
-
-      loadingExpenses.value = false;
     }
   }
 
@@ -159,8 +187,6 @@
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
-
-      loadingProfitLoss.value = false;
     }
   }
 
@@ -197,8 +223,6 @@
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
-
-      loadingSalesPurchase.value = false;
     }
   }
 
@@ -233,8 +257,6 @@
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
-
-      loadingExpenses.value = false;
     }
   }
 
@@ -298,8 +320,9 @@
 
   onMounted( async () => {
     await getCurrencyType();
-    await getAllDataGlobalCashSummary();
+    await getPresentCashSummary();
     await getRevenue();
+    await getAllCashSummary();
     await getProfitAndLoss();
     await getSalesAndPurchase();
     await getExpenses();
@@ -329,7 +352,6 @@
       tickWidth: 0
     },
     yAxis: {
-      min: 0,
       title: {
         text: translations[language.value].amount + " (" + (language.value === 'ENG' ? 'in ' : 'en ') + currencyType.value + ")",
         align: 'high'
@@ -352,7 +374,7 @@
     },
     series: [
       {
-        name: translations[language.value].revenue,
+        name: translations[language.value].recipes,
         color: '#3490dc',
         data: revenueAmount.value
       },
@@ -523,18 +545,7 @@
   </ATypographyTitle>
   <!--Beginning of spaces-->
   <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-    <a-col class="gutter-row" :span="6">
-      <div class="gutter-box">
-        <ACard class="card-space">
-          <ASpace direction="horizontal">
-            <MoneyCollectOutlined class="primary-color icon-space" />
-            <AStatistic :title="translations[language].initialCash" :value="dataCashGlobalSummary.initial_cash"/>
-            <span>{{ currencyType }}</span>
-          </ASpace>
-        </ACard>
-      </div>
-    </a-col>
-    <a-col class="gutter-row" :span="6">
+    <a-col class="gutter-row" :span="8">
       <div class="gutter-box">
         <ACard class="card-space">
           <ASpace direction="horizontal">
@@ -545,7 +556,7 @@
         </ACard>
       </div>
     </a-col>
-    <a-col class="gutter-row" :span="6">
+    <a-col class="gutter-row" :span="8">
       <div class="gutter-box">
         <ACard class="card-space">
           <ASpace direction="horizontal">
@@ -556,7 +567,7 @@
         </ACard>
       </div>
     </a-col>
-    <a-col class="gutter-row" :span="6">
+    <a-col class="gutter-row" :span="8">
       <div class="gutter-box">
         <ACard class="card-space">
           <ASpace direction="horizontal">
@@ -570,7 +581,7 @@
   </a-row>
   <a-row class="mt-8" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
     <!--Recipes chart-->
-    <a-col class="gutter-row" :span="12">
+    <a-col class="gutter-row" :span="16">
       <div class="gutter-box">
         <ACard class="card-space" style="min-height: 500px;">
           <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
@@ -587,6 +598,80 @@
             <a-col class="gutter-row" :span="24">
               <a-spin :spinning="loadingRevenue" size="default">
                 <highchart v-if="!loadingRevenue" :options="chartColumnRecipeOptions"/>
+              </a-spin>
+            </a-col>
+          </a-row>
+        </ACard>
+      </div>
+    </a-col>
+    <!--Sales and Purchase chart-->
+    <a-col :span="8">
+      <div class="gutter-box" >
+        <ACard class="card-space" style="min-height: 500px;">
+          <a-row class="flex justify-center" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <ATypographyTitle class="mt-9" style="font-size: 18px;">
+              <span>{{ translations[language].cashSummary }}</span>
+            </ATypographyTitle>
+          </a-row>
+          <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
+              <MoneyCollectOutlined class="primary-color" style="font-size: 22px;"/>&nbsp;
+              <span>{{ translations[language].initialCash }} : </span>&ensp;
+              <span style="font-weight: 400;">{{ initialCash }} {{ currencyType }}</span>
+            </ATypographyTitle>
+          </a-row>
+          <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
+              <ShoppingOutlined class="success-color" style="font-size: 22px;"/>&nbsp;
+              <span>{{ translations[language].totalOfSales }} : </span>&ensp;
+              <span style="font-weight: 400;">{{ totalOfSales }} {{ currencyType }}</span>
+            </ATypographyTitle>
+          </a-row>
+          <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
+              <ShoppingCartOutlined class="info-color" style="font-size: 22px;"/>&nbsp;
+              <span>{{ translations[language].totalOfPurchase }} : </span>&ensp;
+              <span style="font-weight: 400;">{{ totalOfPurchase }} {{ currencyType }}</span>
+            </ATypographyTitle>
+          </a-row>
+          <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
+              <WalletOutlined class="warning-color" style="font-size: 22px;"/>&nbsp;
+              <span>{{ translations[language].totalOfExpenses }} : </span>&ensp;
+              <span style="font-weight: 400;">{{ totalOfExpenses }} {{ currencyType }}</span>
+            </ATypographyTitle>
+          </a-row>
+          <a-row class="mt-5" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <ATypographyTitle class="flex ml-5" style="font-size: 14px;">
+              <PropertySafetyOutlined class="primary-color" style="font-size: 22px;"/>&nbsp;
+              <span>{{ translations[language].realCash }} : </span>&ensp;
+              <span style="font-weight: 400;">{{ realCash }} {{ currencyType }}</span>
+            </ATypographyTitle>
+          </a-row>
+        </ACard>
+      </div>
+    </a-col>
+  </a-row>
+  <!--Sales and Purchase / profit and loss chart-->
+  <a-row class="mt-8" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+    <!--Sales and Purchase chart-->
+    <a-col :span="12">
+      <div class="gutter-box">
+        <ACard class="card-space" style="min-height: 500px;">
+          <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="24">
+              <a-select
+                  v-model:value="modeChartSalesPurchase"
+                  :options="optionsMode"
+                  placeholder=""
+                  style="width: 200px"
+              />
+            </a-col>
+          </a-row>
+          <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="24">
+              <a-spin :spinning="loadingSalesPurchase" size="default">
+                <highchart v-if="!loadingSalesPurchase" :options="chartColumnSalesPurchaseOptions"/>
               </a-spin>
             </a-col>
           </a-row>
@@ -618,32 +703,9 @@
       </div>
     </a-col>
   </a-row>
-  <!--Sales and Purchase chart-->
+  <!--Expenses chart-->
   <a-row class="mt-8" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-    <a-col :span="12">
-      <div class="gutter-box">
-        <ACard class="card-space" style="min-height: 500px;">
-          <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-            <a-col class="gutter-row" :span="24">
-              <a-select
-                  v-model:value="modeChartSalesPurchase"
-                  :options="optionsMode"
-                  placeholder=""
-                  style="width: 200px"
-              />
-            </a-col>
-          </a-row>
-          <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-            <a-col class="gutter-row" :span="24">
-              <a-spin :spinning="loadingSalesPurchase" size="default">
-                <highchart v-if="!loadingSalesPurchase" :options="chartColumnSalesPurchaseOptions"/>
-              </a-spin>
-            </a-col>
-          </a-row>
-        </ACard>
-      </div>
-    </a-col>
-    <a-col :span="12">
+    <a-col :span="24">
       <div class="gutter-box">
         <ACard class="card-space" style="min-height: 500px;">
           <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">

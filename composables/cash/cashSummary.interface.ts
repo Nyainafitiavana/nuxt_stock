@@ -1,10 +1,14 @@
-export interface ICashGlobalSummary {
-    initial_cash: number;
+export interface IPresentCashSummary {
     presentSalesAmount: number;
     presentPurchaseAmount: number;
     presentExpensesAmount: number;
-    amount_output: number;
-    amount_input: number;
+}
+
+export interface IAllCashSummary {
+    total_purchase_amount: number;
+    total_sales_amount: number;
+    total_expenses_amount: number;
+    initial_cash: number;
     real_cash: number;
 }
 
