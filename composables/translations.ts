@@ -154,6 +154,7 @@ export const translations: Translations = {
         errorClientAmount: 'The client amount must be greater than or equal to the amount paid or be equal to 0.',
         generate: 'Generate',
         refresh: 'Refresh',
+        errorAvailableCash: 'A purchase cannot exceed the available cash.',
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -300,5 +301,6 @@ export const translations: Translations = {
         errorClientAmount: 'Le montant du client doit être supérieur ou égal au montant payé ou être égal à 0.',
         generate: 'Générer',
         refresh: 'Rafraîchir',
+        errorAvailableCash: 'Un achat ne peut pas dépasser le montant de la caisse disponible.',
     }
 };

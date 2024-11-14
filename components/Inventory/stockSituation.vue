@@ -20,6 +20,7 @@
     SearchOutlined
   } from "#components";
   import type {RangeValue} from "~/composables/dayJs.type";
+  import {useThreshold} from "~/composables/states";
 
   interface Props {
     activePage: 'SUMMARIZE' | 'STOCK_INPUT_OUTPUT';
@@ -43,7 +44,7 @@
   const currentPage = ref<number>(1);
   const totalPage = ref<number>(0);
   const dateFilter = ref<RangeValue>();
-  const stockThreshold = ref<number>(70);
+  const stockThreshold = useThreshold();
   //**************End of state management**************
   //***********Beginning of select method of category product***************
   const filterOption = (input: string, option: any) => {

@@ -34,6 +34,7 @@
   import type {ICurrency} from "~/composables/settings/general/settings.interface";
   import {getCurrencyService} from "~/composables/settings/general/settings.service";
   import {translations} from "~/composables/translations";
+  import {useThreshold} from "~/composables/states";
 
 
   interface Props {
@@ -67,7 +68,7 @@
   const optionsProductDetails = ref<SelectProps['options']>([]);
   const isShowErrorDetail = ref<boolean>(false);
   const errorMessageDetails = ref<string>('');
-  const stockThreshold = ref<number>(70);
+  const stockThreshold = useThreshold();
   const currencyType = ref<string>('');
   const formStateReject: UnwrapRef<IFormReject> = reactive({
     observation: '',

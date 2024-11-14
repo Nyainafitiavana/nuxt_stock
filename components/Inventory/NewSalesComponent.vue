@@ -28,6 +28,7 @@
   import type {ICurrency} from "~/composables/settings/general/settings.interface";
   import {getCurrencyService} from "~/composables/settings/general/settings.service";
   import {translations} from "~/composables/translations";
+  import {useThreshold} from "~/composables/states";
 
   //**************Beginning of state management**************
   //This is a global state for language of the app
@@ -52,7 +53,7 @@
   const currentCategoryList = ref<string>('');
   const optionsUnit = ref<SelectProps['options']>([{ value: '', label: translations[language.value].all }]);
   const currentUnitList = ref<string>('');
-  const stockThreshold = ref<number>(70);
+  const stockThreshold = useThreshold();
   const currencyType = ref<string>('');
   //**************End of state management**************
 

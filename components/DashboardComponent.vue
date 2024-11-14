@@ -92,7 +92,7 @@
   const getAllCashSummary = async () => {
     try {
       loadingCashSummary.value = true;
-      const response: IAllCashSummary[] = await getAllCashSummaryService();
+      const response: IAllCashSummary = await getAllCashSummaryService();
 
       initialCash.value = formatPrice(response.initial_cash);
       totalOfSales.value = formatPrice(response.total_sales_amount);

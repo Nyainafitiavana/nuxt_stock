@@ -27,7 +27,7 @@ export const getPresentCashSummaryService = async (): Promise<IPresentCashSummar
     return await response.json();
 };
 
-export const getAllCashSummaryService = async (): Promise<IAllCashSummary[]> => {
+export const getAllCashSummaryService = async (): Promise<IAllCashSummary> => {
     const response: any = await fetch(`${BASE_URL_API}${API.CASH_SUMMARY}`, {
         method: 'GET',
         headers: {

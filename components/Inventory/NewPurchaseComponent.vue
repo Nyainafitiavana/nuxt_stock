@@ -27,6 +27,9 @@
   import type {ICurrency} from "~/composables/settings/general/settings.interface";
   import {getCurrencyService} from "~/composables/settings/general/settings.service";
   import {translations} from "~/composables/translations";
+  import type {IAllCashSummary} from "~/composables/cash/cashSummary.interface";
+  import {getAllCashSummaryService} from "~/composables/cash/cashSummary.service";
+  import {useThreshold} from "~/composables/states";
 
   //**************Beginning of state management**************
   //This is a global state for language of the app
@@ -45,13 +48,14 @@
   const dataDetailsMovement = ref<IDetails[]>([]);
   const itemInPannier = ref<number>(0);
   const amountDetail = ref<string>('');
+  const amountDetailNoFormat = ref<string>(0);
   const errorMessageDetails = ref<string>('');
   const isShowErrorDetail = ref<boolean>(false);
   const optionsCategory = ref<SelectProps['options']>([{ value: '', label: translations[language.value].all }]);
   const currentCategoryList = ref<string>('');
   const optionsUnit = ref<SelectProps['options']>([{ value: '', label: translations[language.value].all }]);
   const currentUnitList = ref<string>('');
-  const stockThreshold = ref<number>(70);
+  const stockThreshold = useThreshold();
   const currencyType = ref<string>('');
   //**************End of state management**************
 
@@ -359,6 +363,8 @@
     dataDetailsMovement.value.map((item: IDetails) => {
       amount += item.purchase_price ? (item.purchase_price * item.quantity) : 0;
     });
+    //keep amount not formated
+    amountDetailNoFormat.value = amount;
     //format total price
     const formatNumber: string =  new Intl.NumberFormat('en-US', {
       style: 'decimal',
@@ -512,32 +518,49 @@
     try {
       loadingBtn.value = true;
 
-      let data: IFormDetails[] = [];
-      //Create a data dictionary
-      details.forEach((item: IDetails) => {
-        data.push({
-          idProduct: item.product_id,
-          isUnitPrice: item.is_unit_price,
-          quantity: item.quantity,
+      //Get actual cash
+      const actualCash: IAllCashSummary = await getAllCashSummaryService();
+
+      //verify so the amount of purchase is not exceed of the available cash
+
+      //amountDetailNoFormat.value
+      if (amountDetailNoFormat.value <= actualCash.real_cash) {
+        let data: IFormDetails[] = [];
+        //Create a data dictionary
+        details.forEach((item: IDetails) => {
+          data.push({
+            idProduct: item.product_id,
+            isUnitPrice: item.is_unit_price,
+            quantity: item.quantity,
+          })
         })
-      })
 
-      await createNewMovementService(
-          false,
-          data,
-      );
-      // Show success notification
-      notification.success({
-        message: translations[language.value].success,
-        description: translations[language.value].successDescription,
-        class: 'custom-success-notification'
-      });
+        await createNewMovementService(
+            false,
+            data,
+        );
+        // Show success notification
+        notification.success({
+          message: translations[language.value].success,
+          description: translations[language.value].successDescription,
+          class: 'custom-success-notification'
+        });
 
-      loadingBtn.value = false;
-      isOpenModalPannier.value = false;
-      localStorage.setItem('pannierPurchase', '[]');
+        loadingBtn.value = false;
+        isOpenModalPannier.value = false;
+        localStorage.setItem('pannierPurchase', '[]');
 
-      await navigateTo(RouteList.INVENTORY_PURCHASE);
+        await navigateTo(RouteList.INVENTORY_PURCHASE);
+      } else {
+        // Show error notification
+        notification.error({
+          message: translations[language.value].error,
+          description: translations[language.value].errorAvailableCash,
+          class: 'custom-error-notification'
+        });
+        loadingBtn.value = false;
+      }
+
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
