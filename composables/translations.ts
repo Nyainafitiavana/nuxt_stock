@@ -164,6 +164,8 @@ export const translations: Translations = {
         remove: 'Remove',
         addProduct: 'Add product',
         viewInvoice: 'View invoice',
+        consult: 'Consult',
+        update: 'Update'
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -320,5 +322,7 @@ export const translations: Translations = {
         remove: 'Retirer',
         addProduct: 'Ajouter un produit',
         viewInvoice: 'Consulter la facture',
+        consult: 'Consulter',
+        update: 'Mettre à jour'
     }
 };
