@@ -12,9 +12,7 @@
     AButton,
     AInputNumber, ARow,
     ASelect, ATooltip,
-    DeleteOutlined,
     ExclamationCircleOutlined,
-    PlusOutlined,
     SearchOutlined
   } from "#components";
   import {createNewMovementService} from "~/composables/Inventory/movement.service";

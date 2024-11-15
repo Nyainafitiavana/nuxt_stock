@@ -29,8 +29,7 @@ import type {ICurrency} from "~/composables/settings/general/settings.interface"
 import {getCurrencyService} from "~/composables/settings/general/settings.service";
 import {translations} from "~/composables/translations";
 import {
-  CheckOutlined,
-  DeleteOutlined,
+  CheckOutlined, CloseOutlined,
   ExclamationCircleOutlined, EyeOutlined,
   FilterOutlined,
   HistoryOutlined,
@@ -152,7 +151,7 @@ interface Props {
           onClick: () => handleViewHistoryValidationMovement(record)
         }, [h(HistoryOutlined)]),
       ]),
-      h(ATooltip, { title: translations[language.value].generateInvoice, color: '#05c5c5' }, [
+      h(ATooltip, { title: translations[language.value].viewInvoice, color: '#05c5c5' }, [
         h(AButton, {
           class: 'btn--info-outline btn-tab',
           size: 'middle',
@@ -336,13 +335,13 @@ interface Props {
             class: 'flex justify-center',
           },
           [
-            h(ATooltip, { title: translations[language.value].delete, color: '#ff5959' }, [
+            h(ATooltip, { title: translations[language.value].remove, color: '#ff5959' }, [
               h(AButton, {
                 disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
                 class: 'btn--danger-outline btn-tab',
                 size: 'middle',
                 onClick: () => handleRemoveItemDetails(record)
-              }, [h(DeleteOutlined)])
+              }, [h(CloseOutlined)])
             ]),
           ]
       )
@@ -449,12 +448,14 @@ interface Props {
       key: 'actions',
       width: 200,
       customRender: ({ record }: { record: IInvoice }) => h('a-row', [
-        h(AButton, {
-          class: 'btn--primary-outline btn-tab',
-          size: 'middle',
-          style: { marginRight: '8px' },
-          onClick: () => handleShowInvoicePdf(record)
-        }, [h(EyeOutlined)]),
+        h(ATooltip, { title: translations[language.value].viewInvoice, color: 'blue' }, [
+          h(AButton, {
+            class: 'btn--primary-outline btn-tab',
+            size: 'middle',
+            style: { marginRight: '8px' },
+            onClick: () => handleShowInvoicePdf(record)
+          }, [h(EyeOutlined)]),
+        ]),
       ]),
     },
   ]);
@@ -1289,14 +1290,16 @@ interface Props {
     <!-- Template title modal -->
     <template #title>
       <span>{{ translations[language].salesDetails }}</span>
-      <a-button
-          class="btn--success ml-4"
-          :icon="h(PlusOutlined)"
-          @click="handleAddNewItemDetails"
-          size="middle"
-          v-if="props.activePage === STCodeList.IN_PROGRESS && isAdmin === 'true' || props.activePage === STCodeList.REJECTED && isAdmin !== 'true'"
-      >
-      </a-button>
+      <a-tooltip :title="translations[language].addProduct" :color="'#38c172'">
+        <a-button
+            class="btn--success ml-4"
+            :icon="h(PlusOutlined)"
+            @click="handleAddNewItemDetails"
+            size="middle"
+            v-if="props.activePage === STCodeList.IN_PROGRESS && isAdmin === 'true' || props.activePage === STCodeList.REJECTED && isAdmin !== 'true'"
+        >
+        </a-button>
+      </a-tooltip>
     </template>
     <!--Datatable details movement-->
     <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">

@@ -3,7 +3,7 @@
   import {formatDateString} from "~/composables/helper";
   import {h} from "vue";
   import {translations} from "~/composables/translations";
-  import {AButton, ASelect, SearchOutlined} from "#components";
+  import {AButton, ASelect, ATooltip, SearchOutlined} from "#components";
   import {EyeOutlined, FilterOutlined} from "@ant-design/icons-vue";
   import {EnvApiConfig} from "~/composables/Env.config";
   import type {Paginate} from "~/composables/apiResponse.interface";
@@ -57,12 +57,14 @@
       key: 'actions',
       width: 200,
       customRender: ({ record }: { record: IInvoice }) => h('a-row', [
-        h(AButton, {
-          class: 'btn--primary-outline btn-tab',
-          size: 'middle',
-          style: { marginRight: '8px' },
-          onClick: () => handleShowInvoicePdf(record)
-        }, [h(EyeOutlined)]),
+        h(ATooltip, { title: translations[language.value].viewInvoice, color: 'blue' }, [
+          h(AButton, {
+            class: 'btn--primary-outline btn-tab',
+            size: 'middle',
+            style: { marginRight: '8px' },
+            onClick: () => handleShowInvoicePdf(record)
+          }, [h(EyeOutlined)]),
+        ]),
       ]),
     },
   ]);

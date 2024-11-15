@@ -2,12 +2,7 @@
   import {createVNode, h, type UnwrapRef} from 'vue';
   import {
     AButton,
-    AInputNumber, ASelect,
-    CheckOutlined,
-    DeleteOutlined, ExclamationCircleOutlined, FilterOutlined, HistoryOutlined,
-    InfoOutlined,
-    PlusOutlined,
-    StopOutlined,
+    AInputNumber, ASelect, ATooltip,
   } from "#components";
   import type {SelectValue} from "ant-design-vue/es/select";
   import {handleInAuthorizedError} from "~/composables/CustomError";
@@ -35,6 +30,14 @@
   import {getCurrencyService} from "~/composables/settings/general/settings.service";
   import {translations} from "~/composables/translations";
   import {useThreshold} from "~/composables/states";
+  import {
+    CheckOutlined,
+    CloseOutlined,
+    ExclamationCircleOutlined, FilterOutlined,
+    HistoryOutlined,
+    InfoOutlined, PlusOutlined,
+    StopOutlined
+  } from "@ant-design/icons-vue";
 
 
   interface Props {
@@ -81,29 +84,37 @@
     key: 'actions',
     width: 300,
     customRender: ({ record }: { record: IMovement }) => h('a-row', [
-      h(AButton, {
-        class: 'btn--primary-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleViewHistoryValidationMovement(record)
-      }, [h(HistoryOutlined)]),
-      h(AButton, {
-        class: 'btn--info-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleViewDetailsMovement(record)
-      }, [h(InfoOutlined)]),
-      h(AButton, {
-        class: 'btn--success-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleValidateMovement(record)
-      }, [h(CheckOutlined)]),
-      h(AButton, {
-        class: 'btn--danger-outline btn-tab',
-        size: 'middle',
-        onClick: () => handleRejectMovement(record)
-      }, [h(StopOutlined)])
+      h(ATooltip, { title: translations[language.value].ValidationHistory, color: 'blue' }, [
+        h(AButton, {
+          class: 'btn--primary-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleViewHistoryValidationMovement(record)
+        }, [h(HistoryOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].purchaseDetails, color: '#05c5c5' }, [
+        h(AButton, {
+          class: 'btn--info-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleViewDetailsMovement(record)
+        }, [h(InfoOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].confirm, color: '#38c172' }, [
+        h(AButton, {
+          class: 'btn--success-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleValidateMovement(record)
+        }, [h(CheckOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].reject, color: '#ff5959' }, [
+        h(AButton, {
+          class: 'btn--danger-outline btn-tab',
+          size: 'middle',
+          onClick: () => handleRejectMovement(record)
+        }, [h(StopOutlined)])
+      ]),
     ])
   };
 
@@ -112,18 +123,22 @@
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IMovement }) => h('div', [
-      h(AButton, {
-        class: 'btn--primary-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleViewHistoryValidationMovement(record)
-      }, [h(HistoryOutlined)]),
-      h(AButton, {
-        class: 'btn--info-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleViewDetailsMovement(record)
-      }, [h(InfoOutlined)]),
+      h(ATooltip, { title: translations[language.value].ValidationHistory, color: 'blue' }, [
+        h(AButton, {
+          class: 'btn--primary-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleViewHistoryValidationMovement(record)
+        }, [h(HistoryOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].purchaseDetails, color: '#05c5c5' }, [
+        h(AButton, {
+          class: 'btn--info-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleViewDetailsMovement(record)
+        }, [h(InfoOutlined)]),
+      ]),
     ])
   };
 
@@ -132,18 +147,22 @@
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IMovement }) => h('div', [
-      h(AButton, {
-        class: 'btn--primary-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleViewHistoryValidationMovement(record)
-      }, [h(HistoryOutlined)]),
-      h(AButton, {
-        class: 'btn--info-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleViewDetailsMovement(record)
-      }, [h(InfoOutlined)]),
+      h(ATooltip, { title: translations[language.value].ValidationHistory, color: 'blue' }, [
+        h(AButton, {
+          class: 'btn--primary-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleViewHistoryValidationMovement(record)
+        }, [h(HistoryOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].purchaseDetails, color: '#05c5c5' }, [
+        h(AButton, {
+          class: 'btn--info-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleViewDetailsMovement(record)
+        }, [h(InfoOutlined)]),
+      ]),
     ])
   };
 
@@ -250,12 +269,14 @@
             class: 'flex justify-center',
           },
           [
-            h(AButton, {
-              disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
-              class: 'btn--danger-outline btn-tab',
-              size: 'middle',
-              onClick: () => handleRemoveItemDetails(record)
-            }, [h(DeleteOutlined)])
+            h(ATooltip, { title: translations[language.value].remove, color: '#ff5959' }, [
+              h(AButton, {
+                disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
+                class: 'btn--danger-outline btn-tab',
+                size: 'middle',
+                onClick: () => handleRemoveItemDetails(record)
+              }, [h(CloseOutlined)])
+            ]),
           ]
       )
     },
@@ -969,14 +990,16 @@
     <!-- Template title modal -->
     <template #title>
       <span>{{ translations[language].purchaseDetails }}</span>
-      <a-button
-          class="btn--success ml-4"
-          :icon="h(PlusOutlined)"
-          @click="handleAddNewItemDetails"
-          size="middle"
-          v-if="props.activePage === STCodeList.IN_PROGRESS && isAdmin === 'true' || props.activePage === STCodeList.REJECTED && isAdmin !== 'true'"
-      >
-      </a-button>
+      <a-tooltip :title="translations[language].addProduct" :color="'#38c172'">
+        <a-button
+            class="btn--success ml-4"
+            :icon="h(PlusOutlined)"
+            @click="handleAddNewItemDetails"
+            size="middle"
+            v-if="props.activePage === STCodeList.IN_PROGRESS && isAdmin === 'true' || props.activePage === STCodeList.REJECTED && isAdmin !== 'true'"
+        >
+        </a-button>
+      </a-tooltip>
     </template>
     <!--Datatable details movement-->
     <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
