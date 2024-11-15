@@ -39,7 +39,7 @@ import {
   SnippetsOutlined,
   StopOutlined,
 } from "@ant-design/icons-vue";
-import {AButton, AInputNumber, ASelect} from "#components";
+import {AButton, AInputNumber, ASelect, ATooltip} from "#components";
 import {EnvApiConfig} from "~/composables/Env.config";
 import {useThreshold} from "~/composables/states";
 
@@ -105,29 +105,37 @@ interface Props {
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IMovement }) => h('a-row', [
-      h(AButton, {
-        class: 'btn--primary-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleViewHistoryValidationMovement(record)
-      }, [h(HistoryOutlined)]),
-      h(AButton, {
-        class: 'btn--info-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleViewDetailsMovement(record)
-      }, [h(InfoOutlined)]),
-      h(AButton, {
-        class: 'btn--success-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleValidateMovement(record)
-      }, [h(CheckOutlined)]),
-      h(AButton, {
-        class: 'btn--danger-outline btn-tab',
-        size: 'middle',
-        onClick: () => handleRejectMovement(record)
-      }, [h(StopOutlined)])
+      h(ATooltip, { title: translations[language.value].ValidationHistory, color: 'blue' }, [
+        h(AButton, {
+          class: 'btn--primary-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleViewHistoryValidationMovement(record)
+        }, [h(HistoryOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].salesDetails, color: '#05c5c5' }, [
+        h(AButton, {
+          class: 'btn--info-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleViewDetailsMovement(record)
+        }, [h(InfoOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].confirm, color: '#38c172' }, [
+        h(AButton, {
+          class: 'btn--success-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleValidateMovement(record)
+        }, [h(CheckOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].reject, color: '#ff5959' }, [
+        h(AButton, {
+          class: 'btn--danger-outline btn-tab',
+          size: 'middle',
+          onClick: () => handleRejectMovement(record)
+        }, [h(StopOutlined)])
+      ]),
     ])
   };
 
@@ -136,18 +144,22 @@ interface Props {
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IMovement }) => h('div', [
-      h(AButton, {
-        class: 'btn--primary-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleViewHistoryValidationMovement(record)
-      }, [h(HistoryOutlined)]),
-      h(AButton, {
-        class: 'btn--info-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleGenerateInvoice(record)
-      }, [h(SnippetsOutlined)]),
+      h(ATooltip, { title: translations[language.value].ValidationHistory, color: 'blue' }, [
+        h(AButton, {
+          class: 'btn--primary-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleViewHistoryValidationMovement(record)
+        }, [h(HistoryOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].generateInvoice, color: '#05c5c5' }, [
+        h(AButton, {
+          class: 'btn--info-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleGenerateInvoice(record)
+        }, [h(SnippetsOutlined)]),
+      ]),
     ])
   };
 
@@ -156,18 +168,22 @@ interface Props {
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IMovement }) => h('div', [
-      h(AButton, {
-        class: 'btn--primary-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleViewHistoryValidationMovement(record)
-      }, [h(HistoryOutlined)]),
-      h(AButton, {
-        class: 'btn--info-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleViewDetailsMovement(record)
-      }, [h(InfoOutlined)]),
+      h(ATooltip, { title: translations[language.value].ValidationHistory, color: 'blue' }, [
+        h(AButton, {
+          class: 'btn--primary-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleViewHistoryValidationMovement(record)
+        }, [h(HistoryOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].salesDetails, color: '#05c5c5' }, [
+        h(AButton, {
+          class: 'btn--info-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleViewDetailsMovement(record)
+        }, [h(InfoOutlined)]),
+      ]),
     ])
   };
 
@@ -320,12 +336,14 @@ interface Props {
             class: 'flex justify-center',
           },
           [
-            h(AButton, {
-              disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
-              class: 'btn--danger-outline btn-tab',
-              size: 'middle',
-              onClick: () => handleRemoveItemDetails(record)
-            }, [h(DeleteOutlined)])
+            h(ATooltip, { title: translations[language.value].delete, color: '#ff5959' }, [
+              h(AButton, {
+                disabled: props.activePage === STCodeList.IN_PROGRESS && isAdmin.value === 'false' || props.activePage === STCodeList.VALIDATED || props.activePage === STCodeList.COMPLETED || props.activePage === STCodeList.REJECTED && isAdmin.value === 'true',
+                class: 'btn--danger-outline btn-tab',
+                size: 'middle',
+                onClick: () => handleRemoveItemDetails(record)
+              }, [h(DeleteOutlined)])
+            ]),
           ]
       )
     },
