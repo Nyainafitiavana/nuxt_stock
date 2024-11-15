@@ -86,12 +86,14 @@
     key: 'actions',
     width: 90,
     customRender: ({ record }: { record: IUser }) => h('div', [
-      h(AButton, {
-        class: 'btn--info-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleView(record)
-      }, [h(EyeOutlined)]),
+      h(ATooltip, { title: translations[language.value].consult, color: '#05c5c5' }, [
+        h(AButton, {
+          class: 'btn--info-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleView(record)
+        }, [h(EyeOutlined)]),
+      ]),
     ])
   };
 
