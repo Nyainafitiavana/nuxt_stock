@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {createVNode, h} from 'vue';
 import {
-  AButton,
+  AButton, ATooltip,
   DeleteOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
@@ -20,6 +20,7 @@ import {
   getAllExpenseTypeService,
   insertOrUpdateExpenseType
 } from "~/composables/settings/ExpenseType/expenseType.service";
+import {translations} from "~/composables/translations";
 
 
   interface Props {
@@ -49,23 +50,29 @@ import {
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IExpenseType }) => h('div', [
-      h(AButton, {
-        class: 'btn--info-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleView(record)
-      }, [h(EyeOutlined)]),
-      h(AButton, {
-        class: 'btn--primary-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleEdit(record)
-      }, [h(FormOutlined)]),
-      h(AButton, {
-        class: 'btn--danger-outline btn-tab',
-        size: 'middle',
-        onClick: () => handleDelete(record)
-      }, [h(DeleteOutlined)])
+      h(ATooltip, { title: translations[language.value].consult, color: '#05c5c5' }, [
+        h(AButton, {
+          class: 'btn--info-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleView(record)
+        }, [h(EyeOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].update, color: 'blue' }, [
+        h(AButton, {
+          class: 'btn--primary-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleEdit(record)
+        }, [h(FormOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].delete, color: '#ff5959' }, [
+        h(AButton, {
+          class: 'btn--danger-outline btn-tab',
+          size: 'middle',
+          onClick: () => handleDelete(record)
+        }, [h(DeleteOutlined)])
+      ]),
     ])
   };
 
@@ -74,12 +81,14 @@ import {
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IExpenseType }) => h('div', [
-      h(AButton, {
-        class: 'btn--info-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleView(record)
-      }, [h(EyeOutlined)]),
+      h(ATooltip, { title: translations[language.value].consult, color: '#05c5c5' }, [
+        h(AButton, {
+          class: 'btn--info-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleView(record)
+        }, [h(EyeOutlined)]),
+      ]),
     ])
   };
 
