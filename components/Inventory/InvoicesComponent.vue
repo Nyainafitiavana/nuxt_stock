@@ -7,7 +7,7 @@
   import {EyeOutlined, FilterOutlined} from "@ant-design/icons-vue";
   import {EnvApiConfig} from "~/composables/Env.config";
   import type {Paginate} from "~/composables/apiResponse.interface";
-  import {getAllInvoiceListByMovementService, getAllInvoiceService} from "~/composables/Inventory/movement.service";
+  import {getAllInvoiceService} from "~/composables/Inventory/movement.service";
   import {handleInAuthorizedError} from "~/composables/CustomError";
   import type {RangeValue} from "~/composables/dayJs.type";
 
@@ -22,53 +22,55 @@
   const currentPage = ref<number>(1);
   const totalPage = ref<number>(0);
   const invoiceListMovement = ref<IInvoice[]>([]);
+  const pdfUrl = ref<string>('');
+  const isOpenModalViewPdf = ref<boolean>(false);
 
   const columnsInvoiceList = computed<any>(() => [
-  {
-    title: translations[language.value].reference,
-    key: 'reference',
-    dataIndex: 'reference',
-  },
-  {
-    title: 'Date',
-    key: 'createdAt',
-    dataIndex: 'createdAt',
-    customRender: ({ record }: { record: IInvoice}) => {
-      const createdAt: string = formatDateString(record.createdAt, language.value, true);
-      return h('div', {style: {textAlign: 'left'}}, [createdAt]);
-    }
-  },
-  {
-    title: translations[language.value].editor,
-    key: 'editor',
-    dataIndex: 'editor',
-    customRender: ({ record }: { record: IInvoice}) => [`${record.editor.lastName} ${record.editor.firstName}`]
-  },
-  {
-    title: 'Client',
-    key: 'client',
-    dataIndex: 'client',
-    customRender: ({ record }: { record: IInvoice}) => [record.clientName ? record.clientName : '---']
-  },
-  {
-    title: 'Actions',
-    key: 'actions',
-    width: 200,
-    customRender: ({ record }: { record: IInvoice }) => h('a-row', [
-      h(AButton, {
-        class: 'btn--primary-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleShowInvoicePdf(record)
-      }, [h(EyeOutlined)]),
-    ]),
-  },
-]);
+    {
+      title: translations[language.value].reference,
+      key: 'reference',
+      dataIndex: 'reference',
+    },
+    {
+      title: 'Date',
+      key: 'createdAt',
+      dataIndex: 'createdAt',
+      customRender: ({ record }: { record: IInvoice}) => {
+        const createdAt: string = formatDateString(record.createdAt, language.value, true);
+        return h('div', {style: {textAlign: 'left'}}, [createdAt]);
+      }
+    },
+    {
+      title: translations[language.value].editor,
+      key: 'editor',
+      dataIndex: 'editor',
+      customRender: ({ record }: { record: IInvoice}) => [`${record.editor.lastName} ${record.editor.firstName}`]
+    },
+    {
+      title: 'Client',
+      key: 'client',
+      dataIndex: 'client',
+      customRender: ({ record }: { record: IInvoice}) => [record.clientName ? record.clientName : '---']
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 200,
+      customRender: ({ record }: { record: IInvoice }) => h('a-row', [
+        h(AButton, {
+          class: 'btn--primary-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleShowInvoicePdf(record)
+        }, [h(EyeOutlined)]),
+      ]),
+    },
+  ]);
 
   //************Beginning of actions datatable button method**********
   const handleSearch = () => {
     currentPage.value = 1;
-    getAllListInvoiceByMovement();
+    getAllListInvoice();
   }
 
   const handleShowInvoicePdf = (record: IInvoice) => {
@@ -79,22 +81,22 @@
 
   //******************Beginning of filter and paginator methods****
   const handleClickPaginator = () => {
-    getAllListInvoiceByMovement();
+    getAllListInvoice();
   };
 
   const handleChangePageSize = (value: SelectValue) => {
     pageSize.value = Number(value);
     currentPage.value = 1;
-    getAllListInvoiceByMovement();
+    getAllListInvoice();
   };
 
   const handleFilterByDate = () => {
-    getAllListInvoiceByMovement();
+    getAllListInvoice();
   }
   //******************End filter of and paginator methods****
 
   //******************Beginning of CRUD controller**************
-  const getAllListInvoiceByMovement = async () => {
+  const getAllListInvoice = async () => {
     try {
       loadingInvoiceMovement.value = true;
       let startDateStr: string = '';
@@ -138,7 +140,7 @@
   //******************End of CRUD controller**************
 
   onMounted(() => {
-    getAllListInvoiceByMovement();
+    getAllListInvoice();
   })
 </script>
 
@@ -201,6 +203,27 @@
           :showSizeChanger="false" />
     </a-col>
   </a-row>
+  <!--View invoice modal-->
+  <a-modal
+      v-model:open="isOpenModalViewPdf"
+      v-if="isOpenModalViewPdf"
+      closable
+      :footer="null"
+      style="top: 20px"
+      @ok=""
+      width="1000px"
+      :title="Invoice"
+  >
+    <div>
+      <h1>Invoice</h1>
+      <iframe
+          v-if="pdfUrl"
+          :src="pdfUrl"
+          width="100%"
+          height="600"
+      ></iframe>
+    </div>
+  </a-modal>
 </template>
 
 <style scoped>
