@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {createVNode, h} from 'vue';
 import {
-  AButton,
+  AButton, ATooltip,
   DeleteOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
@@ -16,6 +16,7 @@ import type {FormInstance} from "ant-design-vue";
 import {STCodeList, type TStatus} from "~/composables/Status.interface";
 import type {FormUnit, IUnit} from "~/composables/settings/Unit/Unit.interface";
 import {deleteUnitService, getAllUnit, insertOrUpdateUnit} from "~/composables/settings/Unit/unit.service";
+import {translations} from "~/composables/translations";
 
 
 interface Props {
@@ -46,23 +47,29 @@ interface Props {
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IUnit }) => h('div', [
-      h(AButton, {
-        class: 'btn--info-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleView(record)
-      }, [h(EyeOutlined)]),
-      h(AButton, {
-        class: 'btn--primary-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleEdit(record)
-      }, [h(FormOutlined)]),
-      h(AButton, {
-        class: 'btn--danger-outline btn-tab',
-        size: 'middle',
-        onClick: () => handleDelete(record)
-      }, [h(DeleteOutlined)])
+      h(ATooltip, { title: translations[language.value].consult, color: '#05c5c5' }, [
+        h(AButton, {
+          class: 'btn--info-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleView(record)
+        }, [h(EyeOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].update, color: 'blue' }, [
+        h(AButton, {
+          class: 'btn--primary-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleEdit(record)
+        }, [h(FormOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].delete, color: '#ff5959' }, [
+        h(AButton, {
+          class: 'btn--danger-outline btn-tab',
+          size: 'middle',
+          onClick: () => handleDelete(record)
+        }, [h(DeleteOutlined)])
+      ]),
     ])
   };
 
@@ -71,12 +78,14 @@ interface Props {
     key: 'actions',
     width: 200,
     customRender: ({ record }: { record: IUnit }) => h('div', [
-      h(AButton, {
-        class: 'btn--info-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleView(record)
-      }, [h(EyeOutlined)]),
+      h(ATooltip, { title: translations[language.value].consult, color: '#05c5c5' }, [
+        h(AButton, {
+          class: 'btn--info-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleView(record)
+        }, [h(EyeOutlined)]),
+      ]),
     ])
   };
 
