@@ -11,7 +11,7 @@
   import {
     AButton,
     AInputNumber, ARow,
-    ASelect,
+    ASelect, ATooltip,
     DeleteOutlined,
     ExclamationCircleOutlined,
     PlusOutlined,
@@ -29,6 +29,7 @@
   import {getCurrencyService} from "~/composables/settings/general/settings.service";
   import {translations} from "~/composables/translations";
   import {useThreshold} from "~/composables/states";
+  import {CheckOutlined, CloseOutlined} from "@ant-design/icons-vue";
 
   //**************Beginning of state management**************
   //This is a global state for language of the app
@@ -148,14 +149,29 @@
 
           if (findRecordInPannier) {
             //if already exist, we return the remove btn
-            return h(AButton, { class: 'btn--danger', disabled: record.remaining_stock === 0, onClick: () => handleRemoveItemPannier(record)}, [h(DeleteOutlined)])
+            return h(ATooltip, { title: translations[language.value].remove, color: '#ff5959' }, [
+              h(AButton, {
+                class: 'btn--danger',
+                disabled: record.remaining_stock === 0, onClick: () => handleRemoveItemPannier(record)
+              }, [h(CloseOutlined)])
+            ]);
           } else {
             //record not exist in pannier we return the add btn
-            return h(AButton, { class: 'btn--primary', disabled: record.remaining_stock === 0, onClick: () => handleAddItemPannier(record)}, [h(PlusOutlined)])
+            return h(ATooltip, { title: translations[language.value].select, color: 'blue' }, [
+              h(AButton, {
+                class: 'btn--primary',
+                disabled: record.remaining_stock === 0, onClick: () => handleAddItemPannier(record)
+              }, [h(CheckOutlined)])
+            ]);
           }
         } else {
           //If pannier is empty we return the add btn
-          return h(AButton, { class: 'btn--primary', disabled: record.remaining_stock === 0, onClick: () => handleAddItemPannier(record)}, [h(PlusOutlined)])
+          return h(ATooltip, { title: translations[language.value].select, color: 'blue' }, [
+            h(AButton, {
+              class: 'btn--primary',
+              disabled: record.remaining_stock === 0, onClick: () => handleAddItemPannier(record)
+            }, [h(CheckOutlined)])
+          ]);
         }
       }
     },
@@ -292,11 +308,13 @@
             class: 'flex justify-center',
           },
           [
-            h(AButton, {
-              class: 'btn--danger-outline btn-tab',
-              size: 'large',
-              onClick: () => handleRemoveItemDetails(record)
-            }, [h(DeleteOutlined)])
+            h(ATooltip, { title: translations[language.value].remove, color: '#ff5959' }, [
+              h(AButton, {
+                class: 'btn--danger-outline btn-tab',
+                size: 'large',
+                onClick: () => handleRemoveItemDetails(record)
+              }, [h(CloseOutlined)])
+            ])
           ]
       )
     },
