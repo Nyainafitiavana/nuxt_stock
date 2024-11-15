@@ -53,35 +53,35 @@ export const getAllDataProductSalesPriceService = async (
     return await response.json();
 };
 
-export const updateProductSalesPriceService = async (
-    productSalesPrice: IProductSalesPrice,
-): Promise<ExecuteResponse> => {
-    const data: {
-        unitPrice: number,
-        wholesale: number,
-        purchasePrice: number
-    } = {
-        unitPrice: productSalesPrice.unitPrice,
-        wholesale: productSalesPrice.wholesale,
-        purchasePrice: productSalesPrice.purchasePrice,
-    };
-
-    const response: any = await fetch(`${BASE_URL_API}${API.PRODUCT_SALES_PRICE}/${productSalesPrice.uuid}`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAccessToken()}`
-        },
-        body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new CustomError(errorData.message, response.status);
-    }
-
-    return await response.json();
-};
+// export const updateProductSalesPriceService = async (
+//     productSalesPrice: IProductSalesPrice,
+// ): Promise<ExecuteResponse> => {
+//     const data: {
+//         unitPrice: number,
+//         wholesale: number,
+//         purchasePrice: number
+//     } = {
+//         unitPrice: productSalesPrice.unitPrice,
+//         wholesale: productSalesPrice.wholesale,
+//         purchasePrice: productSalesPrice.purchasePrice,
+//     };
+//
+//     const response: any = await fetch(`${BASE_URL_API}${API.PRODUCT_SALES_PRICE}/${productSalesPrice.uuid}`, {
+//         method: 'PATCH',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'Authorization': `Bearer ${getAccessToken()}`
+//         },
+//         body: JSON.stringify(data),
+//     });
+//
+//     if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new CustomError(errorData.message, response.status);
+//     }
+//
+//     return await response.json();
+// };
 
 export const insertOrUpdateProduct = async (data: FormProduct, id: string | null, method: string): Promise<ExecuteResponse> => {
     const path: string = id ? `${BASE_URL_API}${API.PRODUCT}/${id}` : `${BASE_URL_API}${API.PRODUCT}`;

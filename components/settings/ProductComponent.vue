@@ -2,13 +2,13 @@
 import {createVNode, h} from 'vue';
 import {
   AButton,
-  AInputNumber,
+  AInputNumber, ATooltip,
   DeleteOutlined,
   DollarCircleOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
   FormOutlined,
-  PlusOutlined, SaveOutlined,
+  PlusOutlined,
   SearchOutlined,
 } from "#components";
 import type {SelectValue} from "ant-design-vue/es/select";
@@ -23,7 +23,7 @@ import type {FormProductSalesPrice, IProductSalesPrice} from "~/composables/sett
 import {
   deleteProductService, getAllDataProductSalesPriceService,
   getAllDataProductService, insertNewProductSalePrice,
-  insertOrUpdateProduct, updateProductSalesPriceService
+  insertOrUpdateProduct,
 } from "~/composables/settings/Product/product.service";
 import type {SelectProps} from "ant-design-vue/lib";
 import type {RuleObject} from "ant-design-vue/es/form";
@@ -103,29 +103,37 @@ interface Props {
     width: 200,
     fixed: 'right',
     customRender: ({ record }: { record: IProduct }) => h('div', [
-      h(AButton, {
-        class: 'btn--info-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleView(record)
-      }, [h(EyeOutlined)]),
-      h(AButton, {
-        class: 'btn--warning-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleShowProductSalesPrice(record)
-      }, [h(DollarCircleOutlined)]),
-      h(AButton, {
-        class: 'btn--primary-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleEdit(record)
-      }, [h(FormOutlined)]),
-      h(AButton, {
-        class: 'btn--danger-outline btn-tab',
-        size: 'middle',
-        onClick: () => handleDelete(record)
-      }, [h(DeleteOutlined)])
+      h(ATooltip, { title: translations[language.value].consult, color: '#05c5c5' }, [
+        h(AButton, {
+          class: 'btn--info-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleView(record)
+        }, [h(EyeOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].manageProductPrices, color: '#e5b33e' }, [
+        h(AButton, {
+          class: 'btn--warning-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleShowProductSalesPrice(record)
+        }, [h(DollarCircleOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].update, color: 'blue' }, [
+        h(AButton, {
+          class: 'btn--primary-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleEdit(record)
+        }, [h(FormOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].delete, color: '#ff5959' }, [
+        h(AButton, {
+          class: 'btn--danger-outline btn-tab',
+          size: 'middle',
+          onClick: () => handleDelete(record)
+        }, [h(DeleteOutlined)])
+      ]),
     ])
   };
 
@@ -135,18 +143,22 @@ interface Props {
     width: 200,
     fixed: 'right',
     customRender: ({ record }: { record: IProduct }) => h('div', [
-      h(AButton, {
-        class: 'btn--info-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleView(record)
-      }, [h(EyeOutlined)]),
-      h(AButton, {
-        class: 'btn--warning-outline btn-tab',
-        size: 'middle',
-        style: { marginRight: '8px' },
-        onClick: () => handleShowProductSalesPrice(record)
-      }, [h(DollarCircleOutlined)]),
+      h(ATooltip, { title: translations[language.value].consult, color: '#05c5c5' }, [
+        h(AButton, {
+          class: 'btn--info-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleView(record)
+        }, [h(EyeOutlined)]),
+      ]),
+      h(ATooltip, { title: translations[language.value].manageProductPrices, color: '#e5b33e' }, [
+        h(AButton, {
+          class: 'btn--warning-outline btn-tab',
+          size: 'middle',
+          style: { marginRight: '8px' },
+          onClick: () => handleShowProductSalesPrice(record)
+        }, [h(DollarCircleOutlined)]),
+      ]),
     ])
   };
 
@@ -373,21 +385,21 @@ interface Props {
             ),
       ])
     },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 80,
-      fixed: 'right',
-      customRender: ({ record }: { record: IProductSalesPrice }) => h('div', [
-        h(AButton, {
-          disabled: record.status.code === STCodeList.OLD,
-          class: 'btn--primary-outline',
-          size: 'middle',
-          style: { marginRight: '8px' },
-          onClick: () => handleUpdateProductSalesPrice(record)
-        }, [h(SaveOutlined)]),
-      ])
-    }
+    // {
+    //   title: 'Actions',
+    //   key: 'actions',
+    //   width: 80,
+    //   fixed: 'right',
+    //   customRender: ({ record }: { record: IProductSalesPrice }) => h('div', [
+    //     h(AButton, {
+    //       disabled: record.status.code === STCodeList.OLD,
+    //       class: 'btn--primary-outline',
+    //       size: 'middle',
+    //       style: { marginRight: '8px' },
+    //       onClick: () => handleUpdateProductSalesPrice(record)
+    //     }, [h(SaveOutlined)]),
+    //   ])
+    // }
   ]);
   //**************End of Column datatable property***********
 
@@ -574,19 +586,18 @@ interface Props {
     });
   };
 
-const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPrice) => {
-  Modal.confirm({
-    title: translations[language.value].confirmationTitle,
-    icon: createVNode(ExclamationCircleOutlined),
-    content: translations[language.value].confirmationDescription,
-    okText: translations[language.value].yes,
-    cancelText: translations[language.value].no,
-    onOk: async () => {
-      await updateProductSalesPrice(productSalesPrice);
-    }
-  });
-};
-
+  // const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPrice) => {
+  //   Modal.confirm({
+  //     title: translations[language.value].confirmationTitle,
+  //     icon: createVNode(ExclamationCircleOutlined),
+  //     content: translations[language.value].confirmationDescription,
+  //     okText: translations[language.value].yes,
+  //     cancelText: translations[language.value].no,
+  //     onOk: async () => {
+  //       await updateProductSalesPrice(productSalesPrice);
+  //     }
+  //   });
+  // };
   //******************Beginning of CRUD controller**************
   const insertProduct = async () => {
     const dataForm: FormProduct = formState;
@@ -804,31 +815,31 @@ const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPri
     }
   }
 
-  const updateProductSalesPrice = async (productSalesPrice: IProductSalesPrice) => {
-  try {
-    loadingSalesPrice.value = true;
-
-    await updateProductSalesPriceService(productSalesPrice);
-    await getAllDataProductSalesPrice();
-  } catch (error) {
-    //Verification code status if equal 401 then we redirect to log in
-    if (error instanceof CustomError) {
-      if (error.status === 401) {
-        //call the global handle action if in authorized
-        handleInAuthorizedError(error);
-        return;
-      }
-    }
-
-    // Show error notification
-    notification.error({
-      message: 'Error',
-      description: (error as Error).message,
-      class: 'custom-error-notification'
-    });
-    loadingSalesPrice.value = false;
-  }
-}
+  // const updateProductSalesPrice = async (productSalesPrice: IProductSalesPrice) => {
+  //   try {
+  //     loadingSalesPrice.value = true;
+  //
+  //     await updateProductSalesPriceService(productSalesPrice);
+  //     await getAllDataProductSalesPrice();
+  //   } catch (error) {
+  //     //Verification code status if equal 401 then we redirect to log in
+  //     if (error instanceof CustomError) {
+  //       if (error.status === 401) {
+  //         //call the global handle action if in authorized
+  //         handleInAuthorizedError(error);
+  //         return;
+  //       }
+  //     }
+  //
+  //     // Show error notification
+  //     notification.error({
+  //       message: 'Error',
+  //       description: (error as Error).message,
+  //       class: 'custom-error-notification'
+  //     });
+  //     loadingSalesPrice.value = false;
+  //   }
+  // }
 
   const getAllDataCategory = async () => {
     try {
@@ -1174,15 +1185,17 @@ const handleUpdateProductSalesPrice = async (productSalesPrice: IProductSalesPri
   >
     <!-- Template title modal -->
     <template #title>
-      <span>{{ translations[language].modalSalesPriceTitle }} : {{ currentProductDesignation }}</span>
-      <a-button
-          v-if="props.activePage === STCodeList.ACTIVE"
-          class="btn--success ml-4"
-          :icon="h(PlusOutlined)"
-          @click="handleShowFormAddProductSalesPrice"
-          size="middle"
-      >
-      </a-button>
+      <span>{{ translations[language].pricesOf }} : {{ currentProductDesignation }}</span>
+      <a-tooltip :title="translations[language].addNewProductPrices" :color="'#38c172'">
+        <a-button
+            v-if="props.activePage === STCodeList.ACTIVE"
+            class="btn--success ml-4"
+            :icon="h(PlusOutlined)"
+            @click="handleShowFormAddProductSalesPrice"
+            size="middle"
+        >
+        </a-button>
+      </a-tooltip>
     </template>
     <!-- Form to add a new product sales price -->
     <a-row v-if="isShowFormAddProductSalePrice" class="w-full">

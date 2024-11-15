@@ -69,7 +69,7 @@ export const translations: Translations = {
         selectProduct: 'Select product',
         selectUnit: 'Select unit',
         selectCategory: 'Select category',
-        modalSalesPriceTitle: 'Sales price of',
+        pricesOf: 'Prices of',
         inProgress: 'In progress',
         validated: 'Validated',
         rejected: 'Rejected',
@@ -165,7 +165,9 @@ export const translations: Translations = {
         addProduct: 'Add product',
         viewInvoice: 'View invoice',
         consult: 'Consult',
-        update: 'Update'
+        update: 'Update',
+        manageProductPrices: 'Manage product prices',
+        addNewProductPrices: 'Add new product prices',
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -226,7 +228,7 @@ export const translations: Translations = {
         selectProduct: 'Sélectionner un produit',
         selectUnit: "Sélectionner l'unité",
         selectCategory: "Sélectionner une catégorie",
-        modalSalesPriceTitle: "Prix de vente du",
+        pricesOf: "Prix du",
         inProgress: 'En cours',
         validated: 'Validé',
         rejected: 'Rejeté',
@@ -323,6 +325,8 @@ export const translations: Translations = {
         addProduct: 'Ajouter un produit',
         viewInvoice: 'Consulter la facture',
         consult: 'Consulter',
-        update: 'Mettre à jour'
+        update: 'Mettre à jour',
+        manageProductPrices: 'Gérer les prix des produits',
+        addNewProductPrices: 'Ajouter de nouveaux prix de produits',
     }
 };
