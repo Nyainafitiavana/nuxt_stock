@@ -168,6 +168,9 @@ export const translations: Translations = {
         update: 'Update',
         manageProductPrices: 'Manage product prices',
         addNewProductPrices: 'Add new product prices',
+        confirmLogout: 'Confirm Logout',
+        confirmLogoutMessage: 'Are you sur you want to log out?',
+        yesLogout: 'Yes, Logout',
     },
     FR: {
         dashboard: 'Tableau de bord',
@@ -328,5 +331,8 @@ export const translations: Translations = {
         update: 'Mettre à jour',
         manageProductPrices: 'Gérer les prix des produits',
         addNewProductPrices: 'Ajouter de nouveaux prix de produits',
+        confirmLogout: 'Confirmer la Déconnexion',
+        confirmLogoutMessage: 'Êtes-vous sûr de vouloir vous déconnecter ?',
+        yesLogout: 'Oui, Me Déconnecter',
     }
 };

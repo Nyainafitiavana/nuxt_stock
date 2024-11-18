@@ -1,265 +1,289 @@
 <script setup lang="ts">
-import {ref, computed, onMounted, reactive, h, watch} from 'vue';
-import { useRoute } from 'vue-router';
-import { RouteList } from '~/composables/Route';
-import {useLanguage} from "~/composables/states";
+import {ref, computed, onMounted, reactive, h, watch, createVNode} from 'vue';
+  import { useRoute } from 'vue-router';
+  import { RouteList } from '~/composables/Route';
+  import {useLanguage} from "~/composables/states";
 import {
   AppstoreAddOutlined,
   AppstoreOutlined,
-  BarChartOutlined, FileSearchOutlined, SettingOutlined, ShopOutlined,
+  BarChartOutlined, ExclamationCircleOutlined, FileSearchOutlined, SettingOutlined, ShopOutlined,
   ShoppingCartOutlined, SnippetsOutlined, StockOutlined, TeamOutlined, ToolOutlined,
   ToTopOutlined, UserOutlined,
   VerticalAlignBottomOutlined, WalletOutlined
 } from "@ant-design/icons-vue";
+import {translations} from "~/composables/translations";
 
-// State
-const state = reactive({
-  collapsed: false,
-  selectedKeys: ['1'],
-  openKeys: ['inventory'],
-  preOpenKeys: ['inventory', 'settings'],
-});
+  // State
+  const state = reactive({
+    collapsed: false,
+    selectedKeys: ['1'],
+    openKeys: ['inventory'],
+    preOpenKeys: ['inventory', 'settings'],
+  });
 
-// Admin and User ID refs
-const isAdmin = ref<string | null>(null);
-const userId = ref<string | null>(null);
-//This is a global state for language of the app
-const language = useLanguage();
-
-
-
-
-const adminMenuItems = computed(() => [
-  {
-    key: '1',
-    icon: () => h(BarChartOutlined),
-    label: translations[language.value].dashboard,
-    title: translations[language.value].dashboard,
-    onClick: () => navigateTo(RouteList.DASHBOARD),
-  },
-  {
-    key: 'inventory',
-    icon: () => h(ShoppingCartOutlined),
-    label: translations[language.value].inventory,
-    title: translations[language.value].inventory,
-    children: [
-      {
-        key: '2',
-        icon: () => h(VerticalAlignBottomOutlined),
-        label: translations[language.value].purchase,
-        title: translations[language.value].purchase,
-        onClick: () => navigateTo(RouteList.INVENTORY_PURCHASE),
-      },
-      {
-        key: '3',
-        icon: () => h(ToTopOutlined),
-        label: translations[language.value].sales,
-        title: translations[language.value].sales,
-        onClick: () => navigateTo(RouteList.INVENTORY_SALES),
-      },
-      {
-        key: '4',
-        icon: () => h(StockOutlined),
-        label: language.value === 'ENG' ? 'Stock situation' : 'Situation stocks',
-        title: translations[language.value].stockSituation,
-        onClick: () => navigateTo(RouteList.STOCK_SITUATION),
-      },
-      {
-        key: '13',
-        icon: () => h(SnippetsOutlined),
-        label: language.value === 'ENG' ? 'Invoices' : 'Factures',
-        title: language.value === 'ENG' ? 'Invoices' : 'Factures',
-        onClick: () => navigateTo(RouteList.INVOICE),
-      },
-    ],
-  },
-  {
-    key: '12',
-    icon: () => h(WalletOutlined),
-    label: translations[language.value].expenses,
-    title: translations[language.value].expenses,
-    onClick: () => navigateTo(RouteList.EXPENSES),
-  },
-  {
-    key: 'settings',
-    icon: () => h(SettingOutlined),
-    label: translations[language.value].settings,
-    title: translations[language.value].settings,
-    children: [
-      {
-        key: '5',
-        icon: () => h(ToolOutlined),
-        label: translations[language.value].generale,
-        title: translations[language.value].generale,
-        onClick: () => navigateTo(RouteList.GENERALE),
-      },
-      {
-        key: '6',
-        icon: () => h(UserOutlined),
-        label: translations[language.value].profile,
-        title: translations[language.value].profile,
-        onClick: () => navigateTo(RouteList.PROFILE + '/' + userId.value),
-      },
-      {
-        key: '7',
-        icon: () => h(TeamOutlined),
-        label: translations[language.value].user,
-        title: translations[language.value].user,
-        onClick: () => navigateTo(RouteList.USER),
-      },
-      {
-        key: '8',
-        icon: () => h(AppstoreOutlined),
-        label: translations[language.value].category,
-        title: translations[language.value].category,
-        onClick: () => navigateTo(RouteList.CATEGORY),
-      },
-      {
-        key: '9',
-        icon: () => h(AppstoreAddOutlined),
-        label: translations[language.value].unit,
-        title: translations[language.value].unit,
-        onClick: () => navigateTo(RouteList.UNIT),
-      },
-      {
-        key: '10',
-        icon: () => h(ShopOutlined),
-        label: translations[language.value].product,
-        title: translations[language.value].product,
-        onClick: () => navigateTo(RouteList.PRODUCT),
-      },
-      {
-        key: '11',
-        icon: () => h(FileSearchOutlined),
-        label: translations[language.value].expensesType,
-        title: translations[language.value].expensesType,
-        onClick: () => navigateTo(RouteList.EXPENSE_TYPE),
-      },
-    ],
-  },
-]);
-
-const managerMenuItems = computed(() => [
-  {
-    key: 'settings',
-    icon: () => h(SettingOutlined),
-    label: translations[language.value].generale,
-    title: translations[language.value].generale,
-    children: [
-      {
-        key: '6',
-        icon: () => h(UserOutlined),
-        label: translations[language.value].profile,
-        title: translations[language.value].profile,
-        onClick: () => navigateTo(RouteList.PROFILE + '/' + userId.value),
-      },
-    ],
-  },
-  {
-    key: 'inventory',
-    icon: () => h(ShoppingCartOutlined),
-    label: translations[language.value].inventory,
-    title: translations[language.value].inventory,
-    children: [
-      {
-        key: '2',
-        icon: () => h(VerticalAlignBottomOutlined),
-        label: translations[language.value].purchase,
-        title: translations[language.value].purchase,
-        onClick: () => navigateTo(RouteList.INVENTORY_PURCHASE),
-      },
-      {
-        key: '3',
-        icon: () => h(ToTopOutlined),
-        label: translations[language.value].sales,
-        title: translations[language.value].sales,
-        onClick: () => navigateTo(RouteList.INVENTORY_SALES),
-      },
-    ],
-  },
-]);
+  // Admin and User ID refs
+  const isAdmin = ref<string | null>(null);
+  const userId = ref<string | null>(null);
+  //This is a global state for language of the app
+  const language = useLanguage();
 
 
-// Route and Router
-const route = useRoute();
 
-// Computed width of the side based on collapsed state
-const sideWidth = computed(() => (state.collapsed ? '80px' : '200px'));
 
-// Update selected menu keys based on the current route
-const updateSelectedKeys = () => {
-  switch (route.path) {
-    case RouteList.DASHBOARD:
-      state.selectedKeys = ['1'];
-      break;
-    case RouteList.INVENTORY_PURCHASE:
-      state.selectedKeys = ['2'];
-      break;
-    case RouteList.INVENTORY_PURCHASE_NEW:
-      state.selectedKeys = ['2'];
-      break;
-    case RouteList.INVENTORY_SALES:
-      state.selectedKeys = ['3'];
-      break;
-    case RouteList.INVENTORY_SALES_NEW:
-      state.selectedKeys = ['3'];
-      break;
-    case RouteList.STOCK_SITUATION:
-      state.selectedKeys = ['4'];
-      break;
-    case RouteList.GENERALE:
-      state.selectedKeys = ['5'];
-      break;
-    case RouteList.PROFILE:
-      state.selectedKeys = ['6'];
-      break;
-    case RouteList.USER:
-      state.selectedKeys = ['7'];
-      break;
-    case RouteList.CATEGORY:
-      state.selectedKeys = ['8'];
-      break;
-    case RouteList.UNIT:
-      state.selectedKeys = ['9'];
-      break;
-    case RouteList.PRODUCT:
-      state.selectedKeys = ['10'];
-      break;
-    case RouteList.EXPENSE_TYPE:
-      state.selectedKeys = ['11'];
-      break;
-    case RouteList.EXPENSES:
-      state.selectedKeys = ['12'];
-      break;
-    case RouteList.INVOICE:
-      state.selectedKeys = ['13'];
-      break;
-    default:
-      state.selectedKeys = ['6'];
-      break;
-  }
-};
-
-// On component mount, update selected keys and retrieve user data
-onMounted(() => {
-  isAdmin.value = localStorage.getItem("is_admin");
-  userId.value = localStorage.getItem("userId");
-  updateSelectedKeys();
-});
-
-// Watch for changes in open keys and update previous open keys
-watch(
-    () => state.openKeys,
-    (_val, oldVal) => {
-      state.preOpenKeys = oldVal;
+  const adminMenuItems = computed(() => [
+    {
+      key: '1',
+      icon: () => h(BarChartOutlined),
+      label: translations[language.value].dashboard,
+      title: translations[language.value].dashboard,
+      onClick: () => navigateTo(RouteList.DASHBOARD),
     },
-);
+    {
+      key: 'inventory',
+      icon: () => h(ShoppingCartOutlined),
+      label: translations[language.value].inventory,
+      title: translations[language.value].inventory,
+      children: [
+        {
+          key: '2',
+          icon: () => h(VerticalAlignBottomOutlined),
+          label: translations[language.value].purchase,
+          title: translations[language.value].purchase,
+          onClick: () => navigateTo(RouteList.INVENTORY_PURCHASE),
+        },
+        {
+          key: '3',
+          icon: () => h(ToTopOutlined),
+          label: translations[language.value].sales,
+          title: translations[language.value].sales,
+          onClick: () => navigateTo(RouteList.INVENTORY_SALES),
+        },
+        {
+          key: '4',
+          icon: () => h(StockOutlined),
+          label: language.value === 'ENG' ? 'Stock situation' : 'Situation stocks',
+          title: translations[language.value].stockSituation,
+          onClick: () => navigateTo(RouteList.STOCK_SITUATION),
+        },
+        {
+          key: '13',
+          icon: () => h(SnippetsOutlined),
+          label: language.value === 'ENG' ? 'Invoices' : 'Factures',
+          title: language.value === 'ENG' ? 'Invoices' : 'Factures',
+          onClick: () => navigateTo(RouteList.INVOICE),
+        },
+      ],
+    },
+    {
+      key: '12',
+      icon: () => h(WalletOutlined),
+      label: translations[language.value].expenses,
+      title: translations[language.value].expenses,
+      onClick: () => navigateTo(RouteList.EXPENSES),
+    },
+    {
+      key: 'settings',
+      icon: () => h(SettingOutlined),
+      label: translations[language.value].settings,
+      title: translations[language.value].settings,
+      children: [
+        {
+          key: '5',
+          icon: () => h(ToolOutlined),
+          label: translations[language.value].generale,
+          title: translations[language.value].generale,
+          onClick: () => navigateTo(RouteList.GENERALE),
+        },
+        {
+          key: '6',
+          icon: () => h(UserOutlined),
+          label: translations[language.value].profile,
+          title: translations[language.value].profile,
+          onClick: () => navigateTo(RouteList.PROFILE + '/' + userId.value),
+        },
+        {
+          key: '7',
+          icon: () => h(TeamOutlined),
+          label: translations[language.value].user,
+          title: translations[language.value].user,
+          onClick: () => navigateTo(RouteList.USER),
+        },
+        {
+          key: '8',
+          icon: () => h(AppstoreOutlined),
+          label: translations[language.value].category,
+          title: translations[language.value].category,
+          onClick: () => navigateTo(RouteList.CATEGORY),
+        },
+        {
+          key: '9',
+          icon: () => h(AppstoreAddOutlined),
+          label: translations[language.value].unit,
+          title: translations[language.value].unit,
+          onClick: () => navigateTo(RouteList.UNIT),
+        },
+        {
+          key: '10',
+          icon: () => h(ShopOutlined),
+          label: translations[language.value].product,
+          title: translations[language.value].product,
+          onClick: () => navigateTo(RouteList.PRODUCT),
+        },
+        {
+          key: '11',
+          icon: () => h(FileSearchOutlined),
+          label: translations[language.value].expensesType,
+          title: translations[language.value].expensesType,
+          onClick: () => navigateTo(RouteList.EXPENSE_TYPE),
+        },
+      ],
+    },
+  ]);
 
-// Toggle sidebar collapsed state
-const toggleCollapsed = () => {
-  state.collapsed = !state.collapsed;
-  state.openKeys = state.collapsed ? [] : state.preOpenKeys;
-};
+  const managerMenuItems = computed(() => [
+    {
+      key: 'settings',
+      icon: () => h(SettingOutlined),
+      label: translations[language.value].generale,
+      title: translations[language.value].generale,
+      children: [
+        {
+          key: '6',
+          icon: () => h(UserOutlined),
+          label: translations[language.value].profile,
+          title: translations[language.value].profile,
+          onClick: () => navigateTo(RouteList.PROFILE + '/' + userId.value),
+        },
+      ],
+    },
+    {
+      key: 'inventory',
+      icon: () => h(ShoppingCartOutlined),
+      label: translations[language.value].inventory,
+      title: translations[language.value].inventory,
+      children: [
+        {
+          key: '2',
+          icon: () => h(VerticalAlignBottomOutlined),
+          label: translations[language.value].purchase,
+          title: translations[language.value].purchase,
+          onClick: () => navigateTo(RouteList.INVENTORY_PURCHASE),
+        },
+        {
+          key: '3',
+          icon: () => h(ToTopOutlined),
+          label: translations[language.value].sales,
+          title: translations[language.value].sales,
+          onClick: () => navigateTo(RouteList.INVENTORY_SALES),
+        },
+      ],
+    },
+  ]);
+
+
+  // Route and Router
+  const route = useRoute();
+
+  // Computed width of the side based on collapsed state
+  const sideWidth = computed(() => (state.collapsed ? '80px' : '200px'));
+
+  // Update selected menu keys based on the current route
+  const updateSelectedKeys = () => {
+    switch (route.path) {
+      case RouteList.DASHBOARD:
+        state.selectedKeys = ['1'];
+        break;
+      case RouteList.INVENTORY_PURCHASE:
+        state.selectedKeys = ['2'];
+        break;
+      case RouteList.INVENTORY_PURCHASE_NEW:
+        state.selectedKeys = ['2'];
+        break;
+      case RouteList.INVENTORY_SALES:
+        state.selectedKeys = ['3'];
+        break;
+      case RouteList.INVENTORY_SALES_NEW:
+        state.selectedKeys = ['3'];
+        break;
+      case RouteList.STOCK_SITUATION:
+        state.selectedKeys = ['4'];
+        break;
+      case RouteList.GENERALE:
+        state.selectedKeys = ['5'];
+        break;
+      case RouteList.PROFILE:
+        state.selectedKeys = ['6'];
+        break;
+      case RouteList.USER:
+        state.selectedKeys = ['7'];
+        break;
+      case RouteList.CATEGORY:
+        state.selectedKeys = ['8'];
+        break;
+      case RouteList.UNIT:
+        state.selectedKeys = ['9'];
+        break;
+      case RouteList.PRODUCT:
+        state.selectedKeys = ['10'];
+        break;
+      case RouteList.EXPENSE_TYPE:
+        state.selectedKeys = ['11'];
+        break;
+      case RouteList.EXPENSES:
+        state.selectedKeys = ['12'];
+        break;
+      case RouteList.INVOICE:
+        state.selectedKeys = ['13'];
+        break;
+      default:
+        state.selectedKeys = ['6'];
+        break;
+    }
+  };
+
+  // On component mount, update selected keys and retrieve user data
+  onMounted(() => {
+    isAdmin.value = localStorage.getItem("is_admin");
+    userId.value = localStorage.getItem("userId");
+    updateSelectedKeys();
+  });
+
+  // Watch for changes in open keys and update previous open keys
+  watch(
+      () => state.openKeys,
+      (_val, oldVal) => {
+        state.preOpenKeys = oldVal;
+      },
+  );
+
+  // Toggle sidebar collapsed state
+  const toggleCollapsed = () => {
+    state.collapsed = !state.collapsed;
+    state.openKeys = state.collapsed ? [] : state.preOpenKeys;
+  };
+
+  // Toggle sidebar collapsed state
+  const handleLogout = () => {
+    Modal.confirm({
+      title: translations[language.value].confirmLogout,
+      icon: createVNode(ExclamationCircleOutlined),
+      content: translations[language.value].confirmLogoutMessage,
+      okText: translations[language.value].yesLogout,
+      cancelText: translations[language.value].cancel,
+      onOk: async () => {
+        await localStorage.setItem('access_token', '');
+        await localStorage.setItem('userId', '');
+
+        notification.success({
+          message: translations[language.value].success,
+          description: translations[language.value].successDescription,
+          class: 'custom-success-notification'
+        });
+
+        await navigateTo(RouteList.LOGIN);
+      }
+    });
+  };
 </script>
 
 <template>
@@ -322,7 +346,7 @@ const toggleCollapsed = () => {
               </a-select>
             </div>
             <div>
-              <a-button class="btn--primary" size="middle">
+              <a-button class="btn--primary" size="middle" @click="handleLogout">
                 <template #icon>
                   <LogoutOutlined />
                 </template>
