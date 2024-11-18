@@ -40,6 +40,19 @@
       });
     }
   };
+
+  onMounted(() => {
+    const accessToken = localStorage.getItem('access_token');
+    const isAdmin = localStorage.getItem('isAdmin');
+
+    if (accessToken) {
+      if (isAdmin === 'true') {
+        navigateTo(RouteList.DASHBOARD);
+      } else {
+        navigateTo(RouteList.INVENTORY_SALES);
+      }
+    }
+  });
 </script>
 
 <template>
