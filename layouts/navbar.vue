@@ -144,8 +144,8 @@ import {translations} from "~/composables/translations";
     {
       key: 'settings',
       icon: () => h(SettingOutlined),
-      label: translations[language.value].generale,
-      title: translations[language.value].generale,
+      label: translations[language.value].settings,
+      title: translations[language.value].settings,
       children: [
         {
           key: '6',
