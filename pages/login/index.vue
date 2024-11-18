@@ -63,12 +63,7 @@
         <a-card :bordered="false">
           <a-row class="mt-8">
             <a-col :span="24" class="flex justify-center items-center">
-              <img src="/favicon.ico" alt="" width="40" height="40" />
-            </a-col>
-          </a-row>
-          <a-row>
-            <a-col :span="24">
-              <h1 class="text-2xl text-center font-bold">Stock App</h1>
+              <img src="/logo_466x231.png" alt="" width="266" height="131" />
             </a-col>
           </a-row>
           <a-row class="mb-8">
@@ -112,6 +107,13 @@
                   </a-form-item>
                 </a-row>
               </a-form>
+            </a-col>
+          </a-row>
+          <a-row class="mt-8">
+            <a-col :span="24" class="flex justify-center items-center">
+              <a style="color: #b4b4b4; font-size: 11px;" href="https://ny-aina-fitiavana.vercel.app/" target="_blank">
+                Created by Ny Aina Fitiavana FITAHIANTSOA in 2024
+              </a>
             </a-col>
           </a-row>
         </a-card>

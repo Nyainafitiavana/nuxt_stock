@@ -298,9 +298,8 @@ import {translations} from "~/composables/translations";
       :style="{ width: sideWidth, transition: 'width 0.2s' }"
     >
 
-    <div class="logo flex justify-start mt-2">
-      <img src="/favicon.ico" alt="" class="ml-2">
-      <h1 class="text-white pt-2 ml-2" v-if="!state.collapsed">Stock App</h1>
+    <div :class="!state.collapsed ? 'logo flex justify-center mt-2' : 'flex justify-center mt-2'">
+      <img src="/logo_266x131_removebg.png" alt=""/>
     </div>
     <a-menu
         v-if="isAdmin !== null"
@@ -384,8 +383,7 @@ import {translations} from "~/composables/translations";
 }
 
 .logo {
-  height: 32px;
-  background: rgba(255, 255, 255, 0.2);
+  height: 80px;
   margin: 16px;
 }
 </style>
