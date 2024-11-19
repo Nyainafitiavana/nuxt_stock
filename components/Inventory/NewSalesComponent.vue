@@ -80,20 +80,28 @@
       fixed: 'left',
     },
     {
+      title: 'Code',
+      key: 'code',
+      dataIndex: 'code',
+      width: 170,
+    },
+    {
       title: translations[language.value].category,
       key: 'category',
       dataIndex: 'category_name',
+      width: 150,
     },
     {
       title: translations[language.value].unit,
       key: 'unit',
       dataIndex: 'unit_name',
-      width: 80,
+      width: 150,
     },
     {
       title: translations[language.value].unitPrice,
       key: 'unitPrice',
       dataIndex: 'unit_price',
+      width: 300,
       customRender: ({ record }: { record: IProductRemainingStock}) => {
         const value = new Intl.NumberFormat('en-US', {
           style: 'decimal',
@@ -108,6 +116,7 @@
       title: translations[language.value].wholesalePrice,
       key: 'wholesalePrice',
       dataIndex: 'wholesale_price',
+      width: 300,
       customRender: ({ record }: { record: IProductRemainingStock}) => {
         const value = new Intl.NumberFormat('en-US', {
           style: 'decimal',
@@ -135,7 +144,7 @@
     {
       title: 'Actions',
       key: 'actions',
-      width: 100,
+      width: 80,
       fixed: 'right',
       customRender: ({ record }: { record: IProductRemainingStock }) => {
         const pannierStorage = localStorage.getItem('pannierSales');

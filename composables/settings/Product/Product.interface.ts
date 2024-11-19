@@ -6,6 +6,7 @@ import type {IUnit} from "~/composables/settings/Unit/Unit.interface";
 export interface IProduct {
     uuid: string;
     designation: string;
+    code?: string;
     description: string;
     unit: IUnit;
     category: ICategory;
@@ -16,6 +17,7 @@ export interface IProduct {
 export interface IProductRemainingStock {
     product_id: string;
     product_name: string;
+    code: string;
     category_id: string;
     category_name: string;
     unit_id: string;
@@ -31,6 +33,7 @@ export interface IProductRemainingStock {
 
 export interface FormProduct {
     designation: string;
+    code: string;
     description: string;
     idCategory: string;
     idUnit: string;

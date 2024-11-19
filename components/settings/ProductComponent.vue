@@ -71,6 +71,7 @@ interface Props {
   const formState = reactive<FormProduct>(
       {
         designation: '',
+        code: '',
         description: '',
         idCategory: '',
         idUnit: '',
@@ -169,6 +170,13 @@ interface Props {
       key: 'designation',
       width: 170,
       fixed: 'left',
+    },
+    {
+      title: 'Code',
+      dataIndex: 'code',
+      key: 'code',
+      width: 170,
+      customRender: ({ text }: { text: string }) => text ? text : '---'
     },
     {
       title: translations[language.value].unit,
@@ -478,6 +486,7 @@ interface Props {
     //Reset validator and value of form before show modal
     resetForm();
     formState.designation = '';
+    formState.code = '';
     formState.description = '';
     formState.idCategory = '';
     formState.idUnit = '';
@@ -491,6 +500,7 @@ interface Props {
   const handleView = (record: IProduct) => {
     resetForm();
     formState.designation = record.designation;
+    formState.code = record.code ? record.code : '';
     formState.description = record.description;
     formState.idCategory = record.category.uuid;
     formState.idUnit = record.unit.uuid;
@@ -523,6 +533,7 @@ interface Props {
     resetForm();
     //Set value formState with current index of product
     formState.designation = record.designation;
+    formState.code = record.code ? record.code : '';
     formState.description = record.description;
     formState.idCategory = record.category.uuid;
     formState.idUnit = record.unit.uuid;
@@ -1097,6 +1108,18 @@ interface Props {
               <a-col span="5"><label for="basic_designation"><span class="required_toil">*</span> {{ translations[language].designation }}:</label></a-col>
               <a-col span="19">
                 <a-input v-model:value="formState.designation" size="large" :placeholder="translations[language].designation" :disabled="isView"></a-input>
+              </a-col>
+            </a-row>
+          </a-form-item>
+          <a-form-item
+              name="code"
+              type="text"
+              class="w-full mt-10"
+          >
+            <a-row>
+              <a-col span="5"><label for="basic_code">Code:</label></a-col>
+              <a-col span="19">
+                <a-input v-model:value="formState.code" size="large" :placeholder="Code" :disabled="isView"></a-input>
               </a-col>
             </a-row>
           </a-form-item>

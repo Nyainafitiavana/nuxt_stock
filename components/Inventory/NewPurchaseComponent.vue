@@ -81,16 +81,22 @@
       width: 200,
     },
     {
+      title: 'Code',
+      key: 'code',
+      dataIndex: 'code',
+      width: 170,
+    },
+    {
       title: translations[language.value].category,
       key: 'category',
       dataIndex: 'category_name',
-      width: 200,
+      width: 150,
     },
     {
       title: translations[language.value].unit,
       key: 'unit',
       dataIndex: 'unit_name',
-      width: 80,
+      width: 150,
     },
     {
       title: translations[language.value].purchasePrice,
