@@ -43,7 +43,7 @@
 
   onMounted(() => {
     const accessToken = localStorage.getItem('access_token');
-    const isAdmin = localStorage.getItem('isAdmin');
+    const isAdmin = localStorage.getItem('is_admin');
 
     if (accessToken) {
       if (isAdmin === 'true') {
@@ -63,7 +63,7 @@
         <a-card :bordered="false">
           <a-row class="mt-8">
             <a-col :span="24" class="flex justify-center items-center">
-              <img src="/logo_466x231.png" alt="" width="266" height="131" />
+              <img src="/logo_466x231.png" class="logo-login" alt="" width="466" height="231" />
             </a-col>
           </a-row>
           <a-row class="mb-8">
@@ -125,5 +125,8 @@
 <style scoped>
   .layout-login {
     background-color: #ececec;
+  }
+  .logo-login {
+    width: 266px;
   }
 </style>
