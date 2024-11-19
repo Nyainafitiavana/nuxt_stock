@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import {translations} from "~/composables/translations";
 
 definePageMeta({
   title: '404 Not Found', // Optional: Set a custom title
