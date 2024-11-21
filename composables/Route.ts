@@ -1,5 +1,6 @@
 export const RouteList = {
     'HOME': '/',
+    'WELCOME': '/welcome-page',
     'LOGIN': '/login',
     'DASHBOARD': '/dashboard',
     'INVENTORY_PURCHASE': '/inventory/purchase',

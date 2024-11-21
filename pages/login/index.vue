@@ -26,11 +26,7 @@
         class: 'custom-success-notification'
       });
 
-      if (data.is_admin) {
-        await router.push(RouteList.DASHBOARD);
-      } else {
-        await router.push(RouteList.INVENTORY_SALES);
-      }
+      await navigateTo(RouteList.WELCOME);
 
     } catch (error) {
       notification.error({
@@ -43,14 +39,9 @@
 
   onMounted(() => {
     const accessToken = localStorage.getItem('access_token');
-    const isAdmin = localStorage.getItem('is_admin');
 
     if (accessToken) {
-      if (isAdmin === 'true') {
-        navigateTo(RouteList.DASHBOARD);
-      } else {
-        navigateTo(RouteList.INVENTORY_SALES);
-      }
+      navigateTo(RouteList.WELCOME);
     }
   });
 </script>

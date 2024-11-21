@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 definePageMeta({
-  title: '404 Not Found', // Optional: Set a custom title
+  title: 'Page Not Found', // Optional: Set a custom title
 });
 </script>
 

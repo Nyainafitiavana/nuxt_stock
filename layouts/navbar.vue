@@ -235,6 +235,9 @@ import {translations} from "~/composables/translations";
       case RouteList.INVOICE:
         state.selectedKeys = ['13'];
         break;
+        case RouteList.WELCOME:
+        state.selectedKeys = ['0'];
+        break;
       default:
         state.selectedKeys = ['6'];
         break;
