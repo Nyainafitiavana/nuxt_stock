@@ -297,62 +297,54 @@ interface Props {
 
   //Columns for product sales price datatable
   const columnsSalesPrice = computed<any>(() => [
+
     {
       title: translations[language.value].unitPrice,
       key: 'unitPrice',
       dataIndex: 'unitPrice',
       width: 200,
-      customRender: ({ record }: { record: IProductSalesPrice}) => [
-          h(
-              AInputNumber,
-              {
-                  min: 0,
-                  value: record.unitPrice,
-                  style: { width: '110px'},
-                  disabled: record.status.code === STCodeList.OLD,
-                  onChange: (value: any) => { record.unitPrice = value }
-              },
-          ),
-          h('span', { class: 'ml-3' }, [currencyType.value]),
-      ]
+      customRender: ({ record }: { record: IProductSalesPrice}) => {
+        let value = '0.00';
+        value = new Intl.NumberFormat('en-US', {
+          style: 'decimal',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(record.unitPrice);
+
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
+      },
     },
     {
       title: translations[language.value].wholesalePrice,
       key: 'wholesale',
       dataIndex: 'wholesale',
       width: 200,
-      customRender: ({ record }: { record: IProductSalesPrice}) => [
-        h(
-            AInputNumber,
-            {
-              min: 0,
-              value: record.wholesale,
-              style: { width: '110px'},
-              disabled: record.status.code === STCodeList.OLD,
-              onChange: (value: any) => { record.wholesale = value }
-            },
-        ),
-        h('span', { class: 'ml-3' }, [currencyType.value]),
-      ],
+      customRender: ({ record }: { record: IProductSalesPrice}) => {
+        let value = '0.00';
+        value = new Intl.NumberFormat('en-US', {
+          style: 'decimal',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(record.wholesale);
+
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
+      },
     },
     {
       title: translations[language.value].purchasePrice,
       key: 'purchasePrice',
       dataIndex: 'purchasePrice',
       width: 200,
-      customRender: ({ record }: { record: IProductSalesPrice}) => [
-        h(
-            AInputNumber,
-            {
-              min: 0,
-              value: record.purchasePrice,
-              style: { width: '110px'},
-              disabled: record.status.code === STCodeList.OLD,
-              onChange: (value: any) => { record.purchasePrice = value }
-            },
-        ),
-        h('span', { class: 'ml-3' }, [currencyType.value]),
-      ],
+      customRender: ({ record }: { record: IProductSalesPrice}) => {
+        let value = '0.00';
+        value = new Intl.NumberFormat('en-US', {
+          style: 'decimal',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(record.purchasePrice);
+
+        return h('div', { style: { textAlign: 'right' } }, [`${value} ${currencyType.value}`]);
+      },
     },
     {
       title: 'Date',
@@ -371,21 +363,21 @@ interface Props {
         record.status.code === STCodeList.ACTIVE ?
             h('div',
                 {
-                  style: { textAlign: 'center', color: 'white' },
+                  style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                   class: 'primary-background-color'
                 },
                 [translations[language.value].active]
             )
             : (record.status.code === STCodeList.DELETED ? h('div',
                         {
-                          style: { textAlign: 'center', color: 'white' },
+                          style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                           class: 'danger-background-color'
                         },
                         [translations[language.value].deleted]
                     ):
                     h('div',
                         {
-                          style: { textAlign: 'center', color: 'white' },
+                          style: { textAlign: 'center', color: 'white', borderRadius: '10px' },
                           class: 'secondary-background-color'
                         },
                         [translations[language.value].old]

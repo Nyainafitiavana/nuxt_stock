@@ -1,13 +1,14 @@
 <script setup lang="ts">
-  import {handleInAuthorizedError} from "~/composables/CustomError";
-  import {createVNode, ref} from "vue";
-  import {AInputNumber, ExclamationCircleOutlined} from "#components";
-  import {translations} from "~/composables/translations";
-  import type {ISettings} from "~/composables/settings/general/settings.interface";
-  import type {SelectProps} from "ant-design-vue/lib";
-  import {getSettingsService, updateSettingsService} from "~/composables/settings/general/settings.service";
+import {handleInAuthorizedError} from "~/composables/CustomError";
+import {createVNode, ref} from "vue";
+import {AButton, AInputNumber, ATooltip, ExclamationCircleOutlined} from "#components";
+import {translations} from "~/composables/translations";
+import type {ISettings} from "~/composables/settings/general/settings.interface";
+import type {SelectProps} from "ant-design-vue/lib";
+import {getSettingsService, updateSettingsService} from "~/composables/settings/general/settings.service";
+import {formatPrice} from "~/composables/helper";
 
-  definePageMeta({
+definePageMeta({
     layout: 'navbar',
     title: 'Settings',
     middleware: ['user-middleware', 'admin-middleware']
@@ -18,6 +19,7 @@
   const isLoading = ref<boolean>(true);
   const optionsCurrency = ref<SelectProps['options']>(language.value === 'ENG' ? currencyOptionEn : currencyOptionsFr);
   const idSettings = ref<string>('');
+  const isUpdateInitialCash = ref<boolean>(false);
 
   const formState = reactive<ISettings>({
     currencyType: 'USD',
@@ -27,6 +29,7 @@
     companyPhoneNumber: '',
     initialCash: 0,
   });
+  const initialCashFormated = ref<string>('0.00');
 
   const filterOption = (input: string, option: any) => {
     return option?.label?.toLowerCase().includes(input.toLowerCase());
@@ -36,6 +39,10 @@
   watchEffect(() => {
     optionsCurrency.value = language.value === 'ENG' ? currencyOptionEn : currencyOptionsFr;
   });
+
+  const handleUpdateInitialCash = () => {
+    isUpdateInitialCash.value = true;
+  }
 
   const getSettings = async () => {
     try {
@@ -48,7 +55,7 @@
       formState.companyAddress = settings.companyAddress;
       formState.companyPhoneNumber = settings.companyPhoneNumber;
       formState.initialCash = settings.initialCash;
-
+      initialCashFormated.value = formatPrice(settings.initialCash);
       isLoading.value = false;
 
     } catch (error) {
@@ -67,6 +74,7 @@
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
+      isLoading.value = false;
     }
   }
 
@@ -97,6 +105,10 @@
       });
       //hide loading spin
       isLoading.value = false;
+      //hide input initial cash
+      isUpdateInitialCash.value = false;
+      //reload data
+      await getSettings();
     } catch (error) {
       //Verification code status if equal 401 then we redirect to log in
       if (error instanceof CustomError) {
@@ -113,6 +125,7 @@
         description: (error as Error).message,
         class: 'custom-error-notification'
       });
+      isLoading.value = false;
     }
   }
 
@@ -175,7 +188,17 @@
           >
             <a-row>
               <a-col span="4"><label for="basic_initialCash">{{ translations[language].initialCash }}:</label></a-col>
-              <a-col span="12">
+              <a-col span="12" v-if="!isUpdateInitialCash">
+                <h2 class="mt-0.5">
+                  {{ initialCashFormated }} {{ formState.currencyType }}
+                  <span>
+                    <a-tooltip :title="translations[language].update" :color="'#05c5c5'">
+                      <FormOutlined class="info-color" style="font-size: 20px;" @click="handleUpdateInitialCash" />
+                    </a-tooltip>
+                  </span>
+                </h2>
+              </a-col>
+              <a-col span="12" v-if="isUpdateInitialCash">
                 <a-input-number v-model:value="formState.initialCash" :min="0">
                   <template #addonAfter>{{ formState.currencyType }}</template>
                 </a-input-number>
