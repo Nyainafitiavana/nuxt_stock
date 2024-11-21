@@ -64,10 +64,12 @@
   };
 
   const handleChangeFilterCategoryInList = () => {
+     currentPage.value = 1;
     getAllDataProductWithRemainingStock();
   };
 
   const handleChangeFilterUnitInList = () => {
+     currentPage.value = 1;
     getAllDataProductWithRemainingStock();
   };
   //***********End of select method of category product***************
@@ -145,7 +147,7 @@
             return h(ATooltip, { title: translations[language.value].remove, color: '#ff5959' }, [
               h(AButton, {
                 class: 'btn--danger',
-                disabled: record.remaining_stock === 0, onClick: () => handleRemoveItemPannier(record)
+                onClick: () => handleRemoveItemPannier(record),
               }, [h(CloseOutlined)])
             ]);
           } else {
@@ -153,7 +155,7 @@
             return h(ATooltip, { title: translations[language.value].select, color: 'blue' }, [
               h(AButton, {
                 class: 'btn--primary',
-                disabled: record.remaining_stock === 0, onClick: () => handleAddItemPannier(record)
+                onClick: () => handleAddItemPannier(record),
               }, [h(CheckOutlined)])
             ]);
           }
@@ -162,7 +164,7 @@
           return h(ATooltip, { title: translations[language.value].select, color: 'blue' }, [
             h(AButton, {
               class: 'btn--primary',
-              disabled: record.remaining_stock === 0, onClick: () => handleAddItemPannier(record)
+              onClick: () => handleAddItemPannier(record),
             }, [h(CheckOutlined)])
           ]);
         }

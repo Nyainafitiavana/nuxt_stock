@@ -62,10 +62,12 @@
   };
 
   const handleChangeFilterCategoryInList = () => {
+    currentPage.value = 1;
     getAllDataProductWithRemainingStock();
   };
 
   const handleChangeFilterUnitInList = () => {
+    currentPage.value = 1;
     getAllDataProductWithRemainingStock();
   };
   //***********End of select method of category product***************
