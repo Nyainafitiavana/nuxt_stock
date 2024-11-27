@@ -8,12 +8,12 @@ definePageMeta({
 </script>
 
 <template>
+  <Title>Welcome</Title>
   <div class="custom-404 relative h-screen">
     <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
       <a-col>
         <a-row class="flex flex-col items-center">
-          <img src="/logo_466x231.png" alt="logo" class="mb-4">
-          <h1 class="title text-4xl font-bold">Welcome</h1>
+          <img src="/Welcome.png" alt="logo" class="mb-4">
         </a-row>
       </a-col>
     </div>

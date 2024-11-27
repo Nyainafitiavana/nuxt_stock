@@ -4,3 +4,8 @@ export interface AuthInterface {
     is_admin: boolean;
     id: string;
 }
+
+export interface LogoutInterface {
+    statusCode: number;
+    message: string;
+}

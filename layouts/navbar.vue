@@ -12,6 +12,8 @@ import {
   VerticalAlignBottomOutlined, WalletOutlined
 } from "@ant-design/icons-vue";
 import {translations} from "~/composables/translations";
+import type {AuthInterface, LogoutInterface} from "~/composables/Auth/auth.interface";
+import {loginUser, logoutUser, testTokenUser} from "~/composables/Auth/auth.service";
 
   // State
   const state = reactive({
@@ -244,8 +246,71 @@ import {translations} from "~/composables/translations";
     }
   };
 
+  // Toggle sidebar collapsed state
+  const toggleCollapsed = () => {
+    state.collapsed = !state.collapsed;
+    state.openKeys = state.collapsed ? [] : state.preOpenKeys;
+  };
+
+  const logout = async () => {
+    try {
+      const data: LogoutInterface = await logoutUser();
+
+      await localStorage.setItem('access_token', '');
+      await localStorage.setItem('userId', '');
+
+      notification.success({
+        message: translations[language.value].success,
+        description: data.message,
+        class: 'custom-success-notification'
+      });
+
+      await navigateTo(RouteList.LOGIN);
+
+    } catch (error) {
+      notification.error({
+        message: 'Login Failed',
+        description: error.message,
+        class: 'custom-error-notification'
+      });
+    }
+  };
+
+  const testToken = async () => {
+    try {
+      //Stay here if token validate
+      const data: LogoutInterface = await testTokenUser();
+    } catch (error) {
+      notification.error({
+        message: 'Login Failed',
+        description: error.message,
+        class: 'custom-error-notification'
+      });
+
+      await localStorage.setItem('access_token', '');
+      await localStorage.setItem('userId', '');
+      //Return to login if token invalidate
+      await navigateTo(RouteList.LOGIN);
+    }
+  };
+
+  // Toggle sidebar collapsed state
+  const handleLogout = () => {
+    Modal.confirm({
+      title: translations[language.value].confirmLogout,
+      icon: createVNode(ExclamationCircleOutlined),
+      content: translations[language.value].confirmLogoutMessage,
+      okText: translations[language.value].yesLogout,
+      cancelText: translations[language.value].cancel,
+      onOk: async () => {
+        await logout();
+      }
+    });
+  };
+
   // On component mount, update selected keys and retrieve user data
   onMounted(() => {
+    testToken();
     isAdmin.value = localStorage.getItem("is_admin");
     userId.value = localStorage.getItem("userId");
     updateSelectedKeys();
@@ -258,35 +323,6 @@ import {translations} from "~/composables/translations";
         state.preOpenKeys = oldVal;
       },
   );
-
-  // Toggle sidebar collapsed state
-  const toggleCollapsed = () => {
-    state.collapsed = !state.collapsed;
-    state.openKeys = state.collapsed ? [] : state.preOpenKeys;
-  };
-
-  // Toggle sidebar collapsed state
-  const handleLogout = () => {
-    Modal.confirm({
-      title: translations[language.value].confirmLogout,
-      icon: createVNode(ExclamationCircleOutlined),
-      content: translations[language.value].confirmLogoutMessage,
-      okText: translations[language.value].yesLogout,
-      cancelText: translations[language.value].cancel,
-      onOk: async () => {
-        await localStorage.setItem('access_token', '');
-        await localStorage.setItem('userId', '');
-
-        notification.success({
-          message: translations[language.value].success,
-          description: translations[language.value].successDescription,
-          class: 'custom-success-notification'
-        });
-
-        await navigateTo(RouteList.LOGIN);
-      }
-    });
-  };
 </script>
 
 <template>
