@@ -12,8 +12,8 @@ import {
   VerticalAlignBottomOutlined, WalletOutlined
 } from "@ant-design/icons-vue";
 import {translations} from "~/composables/translations";
-import type {AuthInterface, LogoutInterface} from "~/composables/Auth/auth.interface";
-import {loginUser, logoutUser, testTokenUser} from "~/composables/Auth/auth.service";
+import type {LogoutInterface} from "~/composables/Auth/auth.interface";
+import {logoutUser, testTokenUser} from "~/composables/Auth/auth.service";
 
   // State
   const state = reactive({

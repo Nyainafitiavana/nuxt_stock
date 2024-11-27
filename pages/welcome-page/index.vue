@@ -3,7 +3,7 @@
 definePageMeta({
   layout: 'navbar',
   title: 'Welcome page',
-  middleware: ['user-middleware', 'admin-middleware']
+  middleware: ['user-middleware']
 });
 </script>
 
